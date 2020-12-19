@@ -8,6 +8,7 @@ import { Router } from "express";
 
 // Internal Modules ----------------------------------------------------------
 
+import DevModeRouter from "./DevModeRouter";
 import FacilityRouter from "./FacilityRouter";
 
 // Public Objects ------------------------------------------------------------
@@ -24,6 +25,7 @@ ApiRouters.get("/", (req, res) => {
 
 // Model-Specific Routers ----------------------------------------------------
 
+ApiRouters.use("/devmode", DevModeRouter);
 ApiRouters.use("/facilities", FacilityRouter);
 
 export default ApiRouters;

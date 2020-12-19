@@ -94,11 +94,10 @@ export class Facility extends AbstractModel<Facility> {
     @Column({
         allowNull: true,
         comment: "Facility phone number",
-        field: "phone_number",
         type: DataType.STRING(12),
         validate: { } // TODO - phone number format
     })
-    phoneNumber?: string;
+    phone?: string;
 
     @Column({
         allowNull: false,

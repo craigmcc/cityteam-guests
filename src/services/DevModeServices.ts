@@ -1,0 +1,125 @@
+// DevModeServices -----------------------------------------------------------
+
+// Development mode services for imports and reloading.
+
+// External Modules ----------------------------------------------------------
+
+// Internal Modules ----------------------------------------------------------
+
+import Checkin from "../models/Checkin";
+import Database from "../models/Database";
+import Facility from "../models/Facility";
+import Guest from "../models/Guest";
+import Template from "../models/Template";
+import User from "../models/User";
+import OAuthUserServices from "../oauth/OAuthUserServices";
+import { hashPassword } from "../oauth/OAuthUtils";
+import {
+    ALL_FACILITY_DATA,
+    ALL_PORTLAND_TEMPLATE_DATA,
+    TEST_GUEST_DATA,
+    TEST_TEMPLATE_DATA,
+    TEST_USER_DATA,
+} from "../util/seed-data";
+
+// Public Objects ------------------------------------------------------------
+
+export class DevModeServices {
+
+    // Resync database and reload data, returning all of it
+    // TODO - test data only on a test?
+    public async reload(): Promise<any> {
+
+        // Resynchronize database metadata
+        console.log("reload: Resynchronize Database Metadata: Starting");
+        await Database.sync({
+            force: true,
+        });
+        console.log("reload: Resynchronize Database Metadata: Complete");
+
+        // Load standard data
+        console.log("reload: Loading Standard Data: Starting");
+        const allFacilities: Facility[] = await loadFacilities(ALL_FACILITY_DATA);
+        const portland: Facility = await findFacility("pdx");
+        const allPortlandTemplates: Template[]
+            = await loadTemplates(portland, ALL_PORTLAND_TEMPLATE_DATA);
+        console.log("reload: Loading Standard Data: Complete");
+
+        // Load test data
+        console.log("reload: Loading Test Data: Starting");
+        const test: Facility = await findFacility("test");
+        const testGuests: Guest[] = await loadGuests(test, TEST_GUEST_DATA);
+        const testTemplates: Template[] = await loadTemplates(test, TEST_TEMPLATE_DATA);
+        const testUsers: User[] = await loadUsers(TEST_USER_DATA);
+        console.log("reload: Loading Test Data: Complete");
+
+        // Return results
+        return {
+            allFacilities: allFacilities,
+            allPortlandTemplates: allPortlandTemplates,
+            testGuests: testGuests,
+            testTemplates: testTemplates,
+            testUsers: testUsers,
+        }
+
+    }
+
+}
+
+export default new DevModeServices();
+
+// Private Objects -----------------------------------------------------------
+
+const findFacility = async (scope: string): Promise<Facility> => {
+    const result: Facility | null = await Facility.findOne({
+        where: { scope: scope }
+    });
+    if (result) {
+        return result;
+    } else {
+        throw new Error(`findFaciltiy: Missing scope '${scope}'`);
+    }
+}
+
+const hashPasswords = async (users: Partial<User>[]): Promise<Partial<User>[]> => {
+    const newUsers: Partial<User>[] = [];
+    users.map(async user => {
+        const newUser: Partial<User> = {
+            ...user,
+            password: await hashPassword(user.password ? user.password : "")
+        }
+        newUsers.push(newUser);
+    });
+    return newUsers;
+}
+
+const loadFacilities = async (facilities: Partial<Facility>[]): Promise<Facility[]> => {
+    return Facility.bulkCreate(facilities);
+}
+
+const loadGuests = async (facility: Facility, guests: Partial<Guest>[]): Promise<Guest[]> => {
+    guests.forEach(guest => {
+        guest.facilityId = facility.id ? facility.id : 0;
+    })
+    return Guest.bulkCreate(guests);
+}
+
+const loadTemplates = async (facility: Facility, templates: Partial<Template>[]): Promise<Template[]> => {
+    templates.forEach(template => {
+        template.facilityId = facility.id ? facility.id : 0;
+    })
+    return Template.bulkCreate(templates);
+}
+
+const hashedPassword = async (password: string | undefined): Promise<string> => {
+    return await hashPassword(password ? password : "");
+}
+
+const loadUsers = async (users: Partial<User>[]): Promise<User[]> => {
+    const promises = await users.map(user => hashedPassword(user.password));
+    const hashedPasswords: string[] = await Promise.all(promises);
+    for (let i = 0; i < users.length; i++) {
+        users[i].password = hashedPasswords[i];
+    }
+    return User.bulkCreate(users);
+}
