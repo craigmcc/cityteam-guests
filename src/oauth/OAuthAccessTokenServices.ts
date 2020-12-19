@@ -14,11 +14,14 @@ import OAuthUser from "../models/User";
 import AbstractServices from "../services/AbstractServices";
 import { NotFound } from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
+import AccessToken from "../models/AccessToken";
 
 const OAuthAccessTokensOrder: Order = [
     [ "userId", "ASC" ],
     [ "token", "ASC" ],
 ];
+
+const PURGE_BEFORE_MS: number = 60 * 60 * 1000;    // One hour (in milliseconds)
 
 // Public Classes -------------------------------------------------------------
 
@@ -124,6 +127,17 @@ export class OAuthAccessTokenServices extends AbstractServices<OAuthAccessToken>
                 "OAuthAccessTokenServices.exact()");
         }
         return results[0];
+    }
+
+    public async purge(): Promise<any> {
+        let purgeBefore: Date = new Date((new Date().getTime()) - PURGE_BEFORE_MS);
+        let purgeCount: number = await AccessToken.destroy({
+            where: { expires: { [Op.lte]: purgeBefore } }
+        });
+        return {
+            purgeBefore: purgeBefore.toLocaleString(),
+            purgeCount: purgeCount,
+        }
     }
 
 }

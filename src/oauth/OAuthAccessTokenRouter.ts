@@ -32,6 +32,12 @@ OAuthAccessTokenRouter.get("/exact/:token",
         ));
     });
 
+// POST /purge - Purge access (and refresh) tokens that have expired
+OAuthAccessTokenRouter.post("/purge",
+    async (req: Request, res: Response) => {
+        res.send(await OAuthAccessTokenServices.purge());
+    })
+
 // Standard CRUD Routes ------------------------------------------------------
 
 // GET / - Find all AccessTokens

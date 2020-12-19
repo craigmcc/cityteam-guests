@@ -14,6 +14,7 @@ import OAuthUser from "../models/User";
 import AbstractServices from "../services/AbstractServices";
 import { NotFound } from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
+import AccessToken from "../models/AccessToken";
 
 const OAuthRefreshTokensOrder: Order = [
     [ "userId", "ASC" ],
