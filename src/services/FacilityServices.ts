@@ -161,7 +161,19 @@ export class FacilityServices extends AbstractServices<Facility> {
         return await facility.$get("checkins", options);
     }
 
-    // TODO - checkinsDate()
+    public async checkinsDate(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
+        let facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.checkinsAll()");
+        }
+        let options: FindOptions = appendQuery({
+            order: CHECKIN_ORDER,
+            where: { checkinDate: checkinDate }
+        }, query);
+        return await facility.$get("checkins", options);
+    }
 
     // TODO - checkinsSummary()
 
