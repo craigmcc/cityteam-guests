@@ -15,12 +15,12 @@ export class MatsList {
      *
      * @throws Error if the list of mat numbers is not syntactically valid
      */
-    constructor(list) {
+    constructor(list: string) {
         this._explode(list);
     };
 
-    #exploded = [ ];
-    #highest = 0;
+    #exploded: number[] = [];
+    #highest: number = 0;
 
     /**
      * <p>Explode the specified list into its array version, if valid; otherwise,
@@ -28,27 +28,27 @@ export class MatsList {
      *
      * @param list String containing the incoming list
      */
-    _explode(list) {
+    _explode(list: string) {
         let items = list.split(",");
         if (items.length < 1) {
-            throw new Error("'" + list + "' must contain at least one item");
+            throw new Error(`'${list}' must contain at least one item`);
         }
         items.forEach( (item) => {
             item = item.trim();
             if (item.length < 1) {
-                throw new Error("'" + list + "' must not contain an empty item");
+                throw new Error(`'${list}' must not contain an empty item`);
             }
             if (item.includes("-")) {
                 let subitems = item.split("-");
                 if (subitems.length !== 2) {
-                    throw new Error("'" + item + "' must not contain more than one dash");
+                    throw new Error(`'${item}' must not contain more than one dash`);
                 }
                 let from = this._validated(subitems[0]);
                 let to = this._validated(subitems[1]);
                 if (from > to) {
-                    throw new Error("'" + item + "' must have lower number first");
+                    throw new Error(`'${item}' must have lower number first`);
                 } else if (from <= this.#highest) {
-                    throw new Error("'" + item + "' is out of ascending order");
+                    throw new Error(`'${item}' is out of ascending order`);
                 }
                 for (let i = from; i <= to; i++) {
                     this.#exploded.push(i);
@@ -77,13 +77,8 @@ export class MatsList {
      * <p>Return true if the specified mat number is included in this list,
      * else return false.</p>
      */
-    isMemberOf(matNumber) {
-        for (var i = 0; i < this.#exploded.length; i++) {
-            if (this.#exploded[i] === matNumber) {
-                return true;
-            }
-        }
-        return false;
+    isMemberOf(matNumber: number) {
+        return this.#exploded.includes(matNumber);
     }
 
     /**
@@ -92,7 +87,7 @@ export class MatsList {
      *
      * @param matsList MatsList we are checking that we are a subset of
      */
-    isSubsetOf(matsList) {
+    isSubsetOf(matsList: MatsList) {
         let result = true;
         this.#exploded.forEach((matNumber) => {
             if (!matsList.isMemberOf(matNumber)) {
@@ -117,7 +112,7 @@ export class MatsList {
      *
      * @return Integer version of this item
      */
-    _validated(item) {
+    _validated(item: string) {
         let trimmed = item.trim();
         if (trimmed.length < 1) {
             throw new Error("'" + item + "' cannot be blank");

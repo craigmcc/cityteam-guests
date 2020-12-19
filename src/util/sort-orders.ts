@@ -10,7 +10,7 @@ import { Order } from "sequelize";
 
 export const CHECKIN_ORDER: Order = [
     ["facilityId", "ASC"],
-    ["registrationDate", "ASC"],
+    ["checkinDate", "ASC"],
     ["matNumber", "ASC"],
 ];
 

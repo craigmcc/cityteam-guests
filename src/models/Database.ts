@@ -4,6 +4,8 @@
 
 // External Modules ----------------------------------------------------------
 
+import Checkin from "./Checkin";
+
 require("custom-env").env(true);
 import { Sequelize } from "sequelize-typescript";
 
@@ -11,7 +13,9 @@ import { Sequelize } from "sequelize-typescript";
 
 import AccessToken from "./AccessToken";
 import Facility from "./Facility";
+import Guest from "./Guest";
 import RefreshToken from "./RefreshToken";
+import Template from "./Template";
 import User from "./User";
 
 // Configure Database instance ----------------------------------------------
@@ -50,7 +54,10 @@ export const Database = ((NODE_ENV !== "test")
 
 Database.addModels([
     // Application specific models
+    Checkin,
     Facility,
+    Guest,
+    Template,
     // OAuth2 integration models
     AccessToken,
     RefreshToken,

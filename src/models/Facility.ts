@@ -4,6 +4,8 @@
 
 // External Modules ----------------------------------------------------------
 
+import Checkin from "./Checkin";
+
 const {
     Column,
     DataTypes,
@@ -16,13 +18,13 @@ const {
 
 import AbstractModel from "./AbstractModel";
 //import Checkin from "./Checkin";
-//import Guest from "./Guest";
-//import Template from "./Template";
+import Guest from "./Guest";
+import Template from "./Template";
 
 // Public Modules ------------------------------------------------------------
 
 @Table({
-    comment: "CityTeam facilities with overnight guests.",
+    comment: "CityTeam Facilities with overnight guests.",
     tableName: "facilities",
     validate: { }   // TODO - model level validations
 })
@@ -58,6 +60,9 @@ export class Facility extends AbstractModel<Facility> {
 //    @HasMany(() => Checkin)
 //    checkins!: Checkin[];
 
+    @HasMany(() => Checkin)
+    checkins!: Checkin[];
+
     @Column({
         allowNull: true,
         comment: "City of Facility address",
@@ -73,8 +78,8 @@ export class Facility extends AbstractModel<Facility> {
     })
     email?: string;
 
-//    @HasMany(() => Guest)
-//    guests!: Guest[];
+    @HasMany(() => Guest)
+    guests!: Guest[];
 
     @Column({
         allowNull: false,
@@ -110,8 +115,8 @@ export class Facility extends AbstractModel<Facility> {
     })
     state?: string;
 
-//    @HasMany(() => Template)
-//    templates!: Template[];
+    @HasMany(() => Template)
+    templates!: Template[];
 
     @Column({
         allowNull: true,
@@ -124,16 +129,6 @@ export class Facility extends AbstractModel<Facility> {
 }
 
 export default Facility;
-
-/*
-    const stateAbbreviations =
-        [ "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC",
-            "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY",
-            "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT",
-            "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH",
-            "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT",
-            "VT", "VA", "WA", "WV", "WI", "WY" ];
-*/
 
 /*
         name: {
@@ -164,68 +159,3 @@ export default Facility;
             }
         },
 */
-
-/*
-        phone: {
-            type: DataTypes.STRING(12),
-            validate: {
-                isValidFormat: function(value, next) {
-                    if (value && (value.length > 0)) {
-                        let pattern = /^\d{3}-\d{3}-\d{4}$/;
-                        if (!pattern.test(value)) {
-                            next(`phone: Phone '${value}' must match format 999-999-9999`);
-                        }
-                    }
-                    return next();
-                }
-            }
-        },
-*/
-
-/*
-        state: {
-            type: DataTypes.STRING(2),
-            validate: {
-                isValidValue: function(value, next) {
-                    if (value && (value.length > 0)) {
-                        if (stateAbbreviations.indexOf(value) < 0) {
-                            next(`state: State '${value}' is not a valid abbreviation`);
-                        }
-                    }
-                    return next();
-                }
-            }
-        },
-*/
-
- /*       zipCode: {
-            field: "zipcode",
-            type: DataTypes.STRING(10),
-            validate: {
-                isValidFormat: function(value, next) {
-                    if (value && (value.length > 0)) {
-                        let pattern = /^\d{5}$|^\d{5}-\d{4}$/;
-                        if (!pattern.test(value)) {
-                            next(`zipCode: Zip Code '${value}' must match format 99999 or 99999-9999`);
-                        }
-                    }
-                    return next();
-                }
-            }
-        }
-*/
-
-    // Facility Associations -------------------------------------------------
-
-/*
-    Facility.associate = function (models) {
-
-        models.Facility.hasMany(models.Guest);
-
-        models.Facility.hasMany(models.Registration);
-
-        models.Facility.hasMany(models.Template);
-
-    };
-*/
-

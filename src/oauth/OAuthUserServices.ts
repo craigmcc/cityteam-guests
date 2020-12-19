@@ -186,9 +186,7 @@ export class OAuthUserServices extends AbstractServices<OAuthUser> {
     // ***** OAuthAccessToken Lookups *****
 
     public async accessTokensAll(userId: number, query?: any): Promise<OAuthAccessToken[]> {
-        let user = await OAuthUser.findByPk(userId, {
-            include: [ OAuthAccessToken ]
-        });
+        let user = await OAuthUser.findByPk(userId);
         if (!user) {
             throw new NotFound(
                 `userId: Missing OAuthUser ${userId}`,
@@ -203,9 +201,7 @@ export class OAuthUserServices extends AbstractServices<OAuthUser> {
     // ***** OAuthRefreshToken Lookups *****
 
     public async refreshTokensAll(userId: number, query?: any): Promise<OAuthRefreshToken[]> {
-        let user = await OAuthUser.findByPk(userId, {
-            include: [ OAuthAccessToken ]
-        });
+        let user = await OAuthUser.findByPk(userId);
         if (!user) {
             throw new NotFound(
                 `userId: Missing OAuthUser ${userId}`,
