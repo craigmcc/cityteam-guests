@@ -79,12 +79,10 @@ OAuthUserRouter.delete("/:userId",
 // GET /:userId - Find OAuthUser by ID
 OAuthUserRouter.get("/:userId",
     async (req: Request, res: Response) => {
-        console.info("Begin OAuthUserServices.find(" + req.params.userId + ")");
         res.send(await OAuthUserServices.find(
             parseInt(req.params.userId, 10),
             req.query
         ));
-        console.info("End OAuthUserServices.find()");
     });
 
 // PUT /:userId - Update OAuthUser by ID

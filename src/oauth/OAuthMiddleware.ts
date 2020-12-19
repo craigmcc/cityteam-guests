@@ -165,8 +165,6 @@ const authorizeToken = async (token: string, required: string): Promise<void> =>
     try {
         await OAuthOrchestrator.authorize(token, required);
     } catch (error) {
-        console.error(`authorizeToken: token '${token}' does not satisfy scope '${required}'`);
-        console.error("authorizeToken: error: ", error);
         throw error;
     }
 
