@@ -21,6 +21,7 @@ import RefreshToken from "./RefreshToken";
 
 @Table({
     comment: "Users authenticated via @craigmcc/oauth-orchestrator.",
+    modelName: "user",
     tableName: "users",
 })
 export class User extends AbstractModel<User> {

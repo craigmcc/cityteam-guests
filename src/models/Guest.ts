@@ -6,7 +6,7 @@
 
 const {
     Column,
-    DataTypes,
+    DataType,
     ForeignKey,
     Op,
     Table
@@ -21,6 +21,7 @@ import Facility from "./Facility";
 
 @Table({
     comment: "Guests who have ever checked in at a CityTeam Facility",
+    modelName: "guest",
     tableName: "guests",
     validate: { }  // TODO - isNameUniqueWithinFacility(facilityId, firstName, lastName)
 })
@@ -30,7 +31,7 @@ export class Guest extends AbstractModel<Guest> {
         allowNull: false,
         comment: "Is this Guest active?",
         defaultValue: true,
-        type: DataTypes.BOOLEAN,
+        type: DataType.BOOLEAN,
         validate: {
             notNull: {
                 msg: "active: Is required"
@@ -42,7 +43,7 @@ export class Guest extends AbstractModel<Guest> {
     @Column({
         allowNull: true,
         comment: "General comments about this Guest",
-        type: DataTypes.STRING
+        type: DataType.STRING
     })
     comments?: string;
 
@@ -51,7 +52,7 @@ export class Guest extends AbstractModel<Guest> {
         allowNull: false,
         comment: "Facility ID of the Facility this Guest has registered at",
         field: "facility_id",
-        type: DataTypes.INTEGER,
+        type: DataType.INTEGER,
         unique: "uniqueNameWithinFacility",
         validate: { } // TODO - isValidFacilityId(facilityId)
     })
@@ -59,27 +60,16 @@ export class Guest extends AbstractModel<Guest> {
 
     @Column({
         allowNull: true,
-        type: DataTypes.INTEGER,
+        type: DataType.INTEGER,
     })
     favorite!: number;
 
-    @Column({
-        allowNull: false,
-        field: "first_name",
-        type: DataTypes.STRING,
-        unique: "uniqueNameWithinFacility",
-        validate: {
-            isNull: {
-                msg: "firstName: Is required",
-            }
-        }
-    })
-    firstName!: string;
+    // Names reversed to get facilityId+lastName+firstName in unique index
 
     @Column({
         allowNull: false,
         field: "last_name",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         unique: "uniqueNameWithinFacility",
         validate: {
             isNull: {
@@ -88,6 +78,19 @@ export class Guest extends AbstractModel<Guest> {
         }
     })
     lastName!: string;
+
+    @Column({
+        allowNull: false,
+        field: "first_name",
+        type: DataType.STRING,
+        unique: "uniqueNameWithinFacility",
+        validate: {
+            isNull: {
+                msg: "firstName: Is required",
+            }
+        }
+    })
+    firstName!: string;
 
 }
 

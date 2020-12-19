@@ -1,4 +1,4 @@
-// standard-validations ------------------------------------------------------
+// validators ----------------------------------------------------------------
 
 // Standard (across applications) validation methods that can be used both by
 // backend database interactions and frontend UI components.  In all cases,

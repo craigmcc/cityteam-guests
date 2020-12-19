@@ -19,7 +19,7 @@ export const ApiRouters = Router({
 // Static Routers ------------------------------------------------------------
 
 ApiRouters.get("/", (req, res) => {
-    res.send("Hello from Bookcase Server!");
+    res.send("Hello from CityTeam Guests Checkin Server!");
 })
 
 // Model-Specific Routers ----------------------------------------------------

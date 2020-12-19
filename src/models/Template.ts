@@ -7,7 +7,7 @@
 
 const {
     Column,
-    DataTypes,
+    DataType,
     ForeignKey,
     Op,
     Table
@@ -22,6 +22,7 @@ import Facility from "./Facility";
 
 @Table({
     comment: "Templates for future Checkin generation at a Facility",
+    modelName: "template",
     tableName: "templates",
     validate: { } // TODO - isNameUniqueWithinFacility(facilityId, name)
 })
@@ -31,7 +32,7 @@ export class Template extends AbstractModel<Template> {
         allowNull: false,
         comment: "Is this Template active?",
         defaultValue: true,
-        type: DataTypes.BOOLEAN,
+        type: DataType.BOOLEAN,
         validate: {
             notNull: {
                 msg: "active: Is required"
@@ -44,7 +45,7 @@ export class Template extends AbstractModel<Template> {
         allowNull: false,
         comment: "List of all mats to be generated from this Template",
         field: "all_mats",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         validate: { } // TODO - isMatsListValid(allMats)
     })
     allMats!: string;
@@ -52,7 +53,7 @@ export class Template extends AbstractModel<Template> {
     @Column({
         allowNull: true,
         comment: "General comments about this Template",
-        type: DataTypes.STRING
+        type: DataType.STRING
     })
     comments?: string;
 
@@ -61,7 +62,7 @@ export class Template extends AbstractModel<Template> {
         allowNull: false,
         comment: "Facility ID of the Facility this Template is for",
         field: "facility_id",
-        type: DataTypes.INTEGER,
+        type: DataType.INTEGER,
         unique: "uniqueNameWithinFacility",
         validate: { } // TODO - isValidFacilityId(facilityId)
     })
@@ -71,7 +72,7 @@ export class Template extends AbstractModel<Template> {
         allowNull: true,
         comment: "List of all mats suitable for handicapped Guests",
         field: "handicap_mats",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         validate: { }   // TODO - isMatsListValid(handicapMats)
                         // TODO - isMatsListSubset(allMats, handicapMats)
     })
@@ -79,7 +80,7 @@ export class Template extends AbstractModel<Template> {
 
     @Column({
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         unique: "uniqueNameWithinFacility",
         validate: {
             isNull: {
@@ -93,7 +94,7 @@ export class Template extends AbstractModel<Template> {
         allowNull: true,
         comment: "List of all mats near an electric socket",
         field: "socket_mats",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         validate: { }   // TODO - isMatsListValid(socketMats)
                         // TODO - isMatsListSubset(allMats, socketMats)
     })
@@ -102,7 +103,8 @@ export class Template extends AbstractModel<Template> {
     @Column({
         allowNull: true,
         comment: "List of all mats suitable for potential recovery Guests",
-        type: DataTypes.STRING,
+        field: "work_mats",
+        type: DataType.STRING,
         validate: { }   // TODO - isMatsListValid(name, workMats)
                         // TODO - isMatsListSubset(name, allMats, workMats)
     })

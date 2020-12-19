@@ -8,7 +8,7 @@ import Checkin from "./Checkin";
 
 const {
     Column,
-    DataTypes,
+    DataType,
     HasMany,
     Op,
     Table
@@ -25,6 +25,7 @@ import Template from "./Template";
 
 @Table({
     comment: "CityTeam Facilities with overnight guests.",
+    modelName: "facility",
     tableName: "facilities",
     validate: { }   // TODO - model level validations
 })
@@ -34,7 +35,7 @@ export class Facility extends AbstractModel<Facility> {
         allowNull: false,
         comment: "Is this Facility active?",
         defaultValue: true,
-        type: DataTypes.BOOLEAN,
+        type: DataType.BOOLEAN,
         validate: {
             notNull: {
                 msg: "active: Is required"
@@ -46,14 +47,14 @@ export class Facility extends AbstractModel<Facility> {
     @Column({
         allowNull: true,
         comment: "First line of Facility address",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
     })
     address1?: string;
 
     @Column({
         allowNull: true,
         comment: "Second line of Facility address",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
     })
     address2?: string;
 
@@ -66,14 +67,14 @@ export class Facility extends AbstractModel<Facility> {
     @Column({
         allowNull: true,
         comment: "City of Facility address",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
     })
     city?: string;
 
     @Column({
         allowNull: true,
         comment: "Facility email address",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         validate: { } // TODO - email address format
     })
     email?: string;
@@ -84,7 +85,7 @@ export class Facility extends AbstractModel<Facility> {
     @Column({
         allowNull: false,
         comment: "Facility name",
-        type: DataTypes.STRING,
+        type: DataType.STRING,
         unique: true,
         validate: { } // TODO - uniqueness validation
     })
@@ -94,7 +95,7 @@ export class Facility extends AbstractModel<Facility> {
         allowNull: true,
         comment: "Facility phone number",
         field: "phone_number",
-        type: DataTypes.STRING(12),
+        type: DataType.STRING(12),
         validate: { } // TODO - phone number format
     })
     phoneNumber?: string;
@@ -102,15 +103,16 @@ export class Facility extends AbstractModel<Facility> {
     @Column({
         allowNull: false,
         comment: "Required OAuth scope to access this Facility information",
-        type: DataTypes.STRING(8),
-        validate: { } // TODO - all lower case letters?
+        type: DataType.STRING(8),
+        unique: true,
+        validate: { } // TODO - uniqueness, all lower case letters?
     })
     scope!: string;
 
     @Column({
         allowNull: true,
         comment: "State abbreviation of Facility address",
-        type: DataTypes.STRING(2),
+        type: DataType.STRING(2),
         validate: { } // TODO - valid state abbreviation
     })
     state?: string;
@@ -121,7 +123,7 @@ export class Facility extends AbstractModel<Facility> {
     @Column({
         allowNull: true,
         comment: "Zip Code of Facility address",
-        type: DataTypes.STRING(10),
+        type: DataType.STRING(10),
         validate: {  } // TODO - valid zip code format
     })
     zipCode?: string;

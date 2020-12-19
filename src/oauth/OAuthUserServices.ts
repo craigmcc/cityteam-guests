@@ -9,7 +9,6 @@ import { FindOptions, Op, Order } from "sequelize";
 // Internal Modules ----------------------------------------------------------
 
 import { hashPassword } from "./OAuthUtils";
-import Database from "../models/Database";
 import OAuthAccessToken from "../models/AccessToken";
 import OAuthRefreshToken from "../models/RefreshToken";
 import OAuthUser from "../models/User";
@@ -66,20 +65,13 @@ export class OAuthUserServices extends AbstractServices<OAuthUser> {
             ...user,
             password: await hashPassword(user.password)
         }
-        let transaction;
         try {
-            transaction = await Database.transaction();
             let inserted: OAuthUser = await OAuthUser.create(newUser, {
                 fields: fields,
-                transaction: transaction
             });
-            await transaction.commit();
             inserted.password = "";
             return inserted;
         } catch (error) {
-            if (transaction) {
-                await transaction.rollback();
-            }
             throw error;
         }
     }
@@ -99,36 +91,34 @@ export class OAuthUserServices extends AbstractServices<OAuthUser> {
                 `userId: Cannot remove OAuthUser ${userId}`,
                 "OAuthUserServices.remove()");
         }
+        removed.password = "";
         return removed;
     }
 
     public async update(userId: number, user: OAuthUser): Promise<OAuthUser> {
-        // TODO - disallow updating the password this way
         let updatedUser: Partial<OAuthUser> = {
             ...user,
-            password: ""
         }
-        let transaction;
+        if (user.password && (user.password.length > 0)) {
+            updatedUser.password = await hashPassword(user.password)
+        } else {
+            delete updatedUser.password;
+        }
         try {
-            transaction = await Database.transaction();
-            user.id = userId;
-            let result: [number, OAuthUser[]] = await OAuthUser.update(updatedUser, {
+            updatedUser.id = userId;
+            let results: [number, OAuthUser[]] = await OAuthUser.update(updatedUser, {
                 fields: fieldsWithId,
-                transaction: transaction,
                 where: { id: userId }
             });
-            if (result[0] < 1) {
+            if (results[0] === 1) {
+                results[1][0].password = "";
+                return results[1][0];
+            } else {
                 throw new NotFound(
                     `userId: Cannot update OAuthUser ${userId}`,
                     "OAuthUserServices.update()");
             }
-            await transaction.commit();
-            transaction = null;
-            return await this.find(userId);
         } catch (error) {
-            if (transaction) {
-                await transaction.rollback();
-            }
             throw error;
         }
     }
@@ -151,7 +141,7 @@ export class OAuthUserServices extends AbstractServices<OAuthUser> {
         return results;
     }
 
-    // NOTE:  match against the "username" field
+    // NOTE:  exact match against the "username" field
     public async exact(username: string, query?: any): Promise<OAuthUser> {
         let options: FindOptions = appendQuery({
             where: {

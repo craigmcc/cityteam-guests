@@ -1,4 +1,4 @@
-// custom-validations --------------------------------------------------------
+// application-validators ----------------------------------------------------
 
 // Custom (to this application) validation methods that can be used by both
 // backend database interactions and frontend UI components.  In all cases,
@@ -10,6 +10,20 @@
 import MatsList from "./MatsList";
 
 // Public Objects ------------------------------------------------------------
+
+export const validateFeatures = (features: string): boolean => {
+    if (features) {
+        for (let i: number = 0; i < features.length; i++) {
+            if (!validFeatures.includes(features.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return true;
+    }
+}
+
 export const validateMatsList = (matsList: string): boolean => {
     if (matsList) {
         try {
@@ -55,8 +69,7 @@ export const validatePaymentType = (paymentType: string): boolean => {
 
 // Private Objects -----------------------------------------------------------
 
-const validFeatures: string [] =
-    [ "H", "S", "HS", "SH", "W" ];
+const validFeatures: string = "HSW";
 
 const validPaymentTypes: string[] =
     [ "$$", "AG", "CT", "FM", "MM", "SW", "UK", "WB" ];

@@ -45,6 +45,13 @@ FacilityRouter.get("/name/:name",
         res.send(await FacilityServices.name(req.params.name, req.query));
     });
 
+// GET /scope/:scope - Find Facility by exact scope
+FacilityRouter.get("/scope/:scope",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.scope(req.params.scope, req.query));
+    });
+
 // Standard CRUD Endpoints ---------------------------------------------------
 
 // GET / - Find all Facilities

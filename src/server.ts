@@ -10,6 +10,7 @@ import { Orchestrator } from "@craigmcc/oauth-orchestrator";
 // Internal Modules ----------------------------------------------------------
 
 import Database from "./models/Database";
+import ExpressApplication from "./routers/ExpressApplication";
 import OAuthOrchestratorHandlers from "./oauth/OAuthOrchestratorHandlers";
 export const OAuthOrchestrator: Orchestrator
     = new Orchestrator(OAuthOrchestratorHandlers);
@@ -37,11 +38,9 @@ console.info("Configure Database Metadata: Complete");
 
 // Configure and Start Server ------------------------------------------------
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-/*
+const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 ExpressApplication.listen(port, () => {
     console.log(
         `Bookcase Server in ${process.env.NODE_ENV} mode running on port ${port}`
     )
 });
-*/

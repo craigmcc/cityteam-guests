@@ -15,7 +15,12 @@ import Guest from "../models/Guest";
 import Template from "../models/Template";
 import { NotFound } from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
-import {CHECKIN_ORDER, FACILITY_ORDER, GUEST_ORDER, TEMPLATE_ORDER} from "../util/sort-orders";
+import {
+    CHECKIN_ORDER,
+    FACILITY_ORDER,
+    GUEST_ORDER,
+    TEMPLATE_ORDER
+} from "../util/sort-orders";
 
 // Public Objects ------------------------------------------------------------
 
@@ -127,6 +132,21 @@ export class FacilityServices extends AbstractServices<Facility> {
             }
         }, query);
         return await Facility.findAll(options);
+    }
+
+    public async scope(scope: string, query?: any): Promise<Facility> {
+        let options: FindOptions = appendQuery({
+            where: {
+                scope: scope
+            }
+        }, query);
+        let results = await Facility.findAll(options);
+        if (results.length !== 1) {
+            throw new NotFound(
+                `username: Missing Facility scope '${scope}'`,
+                "FacilityServices.scope()");
+        }
+        return results[0];
     }
 
     // ***** Checkin Lookups *****
