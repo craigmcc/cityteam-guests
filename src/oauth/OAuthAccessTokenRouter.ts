@@ -23,7 +23,7 @@ OAuthAccessTokenRouter.use(requireSuperuser);
 
 // Model-Specific Routes (no tokenId) ----------------------------------------
 
-// GET /exact/:token - Find OAuthAccessToken by exact token
+// Find OAuthAccessToken by exact token
 OAuthAccessTokenRouter.get("/exact/:token",
     async (req: Request, res: Response) => {
         res.send(await OAuthAccessTokenServices.exact(
@@ -32,7 +32,7 @@ OAuthAccessTokenRouter.get("/exact/:token",
         ));
     });
 
-// POST /purge - Purge access (and refresh) tokens that have expired
+// Purge access (and refresh) tokens that have expired
 OAuthAccessTokenRouter.post("/purge",
     async (req: Request, res: Response) => {
         res.send(await OAuthAccessTokenServices.purge());
@@ -40,7 +40,7 @@ OAuthAccessTokenRouter.post("/purge",
 
 // Standard CRUD Routes ------------------------------------------------------
 
-// GET / - Find all AccessTokens
+// Find all AccessTokens
 OAuthAccessTokenRouter.get("/",
     async (req: Request, res: Response) => {
         res.send(await OAuthAccessTokenServices.all(
@@ -48,7 +48,7 @@ OAuthAccessTokenRouter.get("/",
         ));
     });
 
-// POST / - Insert a new OAuthAccessToken
+// Insert a new OAuthAccessToken
 OAuthAccessTokenRouter.post("/",
     async (req: Request, res: Response) => {
         res.send(await OAuthAccessTokenServices.insert(
@@ -56,7 +56,7 @@ OAuthAccessTokenRouter.post("/",
         ));
     });
 
-// DELETE /:accessTokenId - Remove OAuthAccessToken by ID
+// Remove OAuthAccessToken by ID
 OAuthAccessTokenRouter.delete("/:accessTokenId",
     async (req: Request, res: Response) => {
         res.send(await OAuthAccessTokenServices.remove(
@@ -64,7 +64,7 @@ OAuthAccessTokenRouter.delete("/:accessTokenId",
         ));
     });
 
-// GET /:accessTokenId - Find OAuthAccessToken by ID
+// Find OAuthAccessToken by ID
 OAuthAccessTokenRouter.get("/:accessTokenId",
     async (req: Request, res: Response) => {
         console.info("Begin OAuthAccessTokenServices.find(" + req.params.accessTokenId + ")");
@@ -75,7 +75,7 @@ OAuthAccessTokenRouter.get("/:accessTokenId",
         console.info("End OAuthAccessTokenServices.find()");
     });
 
-// PUT /:accessTokenId - Update OAuthAccessToken by ID
+// Update OAuthAccessToken by ID
 OAuthAccessTokenRouter.put("/:accessTokenId",
     async (req: Request, res: Response) => {
         res.send(await OAuthAccessTokenServices.update(

@@ -23,7 +23,7 @@ OAuthRefreshTokenRouter.use(requireSuperuser);
 
 // Model-Specific Routes (no tokenId) -----------------------------------------
 
-// GET /exact/:token - Find OAuthRefreshToken by exact token
+// Find OAuthRefreshToken by exact token
 OAuthRefreshTokenRouter.get("/exact/:token",
     async (req: Request, res: Response) => {
         res.send(await OAuthRefreshTokenServices.exact(
@@ -34,7 +34,7 @@ OAuthRefreshTokenRouter.get("/exact/:token",
 
 // Standard CRUD Routes ------------------------------------------------------
 
-// GET / - Find all RefreshTokens
+// Find all RefreshTokens
 OAuthRefreshTokenRouter.get("/",
     async (req: Request, res: Response) => {
         res.send(await OAuthRefreshTokenServices.all(
@@ -42,7 +42,7 @@ OAuthRefreshTokenRouter.get("/",
         ));
     });
 
-// POST / - Insert a new OAuthRefreshToken
+// Insert a new OAuthRefreshToken
 OAuthRefreshTokenRouter.post("/",
     async (req: Request, res: Response) => {
         res.send(await OAuthRefreshTokenServices.insert(
@@ -50,7 +50,7 @@ OAuthRefreshTokenRouter.post("/",
         ));
     });
 
-// DELETE /:refreshTokenId - Remove OAuthRefreshToken by ID
+// Remove OAuthRefreshToken by ID
 OAuthRefreshTokenRouter.delete("/:refreshTokenId",
     async (req: Request, res: Response) => {
         res.send(await OAuthRefreshTokenServices.remove(
@@ -58,7 +58,7 @@ OAuthRefreshTokenRouter.delete("/:refreshTokenId",
         ));
     });
 
-// GET /:refreshTokenId - Find OAuthRefreshToken by ID
+// Find OAuthRefreshToken by ID
 OAuthRefreshTokenRouter.get("/:refreshTokenId",
     async (req: Request, res: Response) => {
         console.info("Begin OAuthRefreshTokenServices.find(" + req.params.refreshTokenId + ")");
@@ -69,7 +69,7 @@ OAuthRefreshTokenRouter.get("/:refreshTokenId",
         console.info("End OAuthRefreshTokenServices.find()");
     });
 
-// PUT /:refreshTokenId - Update OAuthRefreshToken by ID
+// Update OAuthRefreshToken by ID
 OAuthRefreshTokenRouter.put("/:refreshTokenId",
     async (req: Request, res: Response) => {
         res.send(await OAuthRefreshTokenServices.update(

@@ -12,6 +12,7 @@ import AbstractServices from "./AbstractServices";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
+import Summary from "../models/Summary";
 import Template from "../models/Template";
 import { NotFound } from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
@@ -195,8 +196,6 @@ export class FacilityServices extends AbstractServices<Facility> {
         return await facility.$get("checkins", options);
     }
 
-    // TODO - checkinsSummary()
-
     // ***** Guest Lookups *****
 
     public async guestsActive(facilityId: number, query?: any): Promise<Guest[]> {
@@ -275,6 +274,70 @@ export class FacilityServices extends AbstractServices<Facility> {
             },
         }, query);
         return await facility.$get("guests", options);
+    }
+
+    // ***** Summary Lookups *****
+
+    public async summaries(facilityId: number, checkinDateFrom: string, checkinDateTo: string): Promise<Summary[]> {
+
+        // Retrieve the relevant registrations
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(`facilityId: Missing Facility ${facilityId}`);
+        }
+        const options = {
+            order: CHECKIN_ORDER,
+            where: {
+                checkinDate: {
+                    [Op.and]: {
+                        [Op.gte]: checkinDateFrom,
+                        [Op.lte]: checkinDateTo
+                    }
+                }
+            }
+        }
+        const checkins = await facility.$get("checkins", options);
+
+        // Summarize and return them
+        const summaries: Summary[] = [];
+        let summary: Summary | null = null;
+        checkins.map(checkin => {
+            if (summary && (summary.checkinDate !== checkin.checkinDate)) {
+                summaries.push(summary);
+                summary = null;
+            }
+            if (!summary) {
+                summary = new Summary(checkin.facilityId, checkin.checkinDate);
+            }
+            if (checkin.guestId) {
+                summary.totalAssigned++;
+            } else {
+                summary.totalUnassigned++;
+            }
+            if (checkin.paymentAmount) {
+                summary.totalAmount += checkin.paymentAmount;
+            }
+            if (checkin.paymentType) {
+                switch (checkin.paymentType) {
+                    case "$$": summary.total$$++; break;
+                    case "AG": summary.totalAG++; break;
+                    case "CT": summary.totalCT++; break;
+                    case "FM": summary.totalFM++; break;
+                    case "MM": summary.totalMM++; break;
+                    case "SW": summary.totalSW++; break;
+                    case "UK": summary.totalUK++; break;
+                    case "WB": summary.totalWB++; break;
+                    default:
+                        console.error("Bad checkin.paymentType: "
+                            + JSON.stringify(checkin, ["id", "facilityId", "matNumber", "paymentType"]));
+                        summary.totalUK++;
+                }
+            }
+        });
+        if (summary) {
+            summaries.push(summary);
+        }
+        return summaries;
     }
 
     // ***** Template Lookups *****

@@ -33,8 +33,8 @@ export const OAuthTokenRouter = Router({
 
 // Token-Specific Routes -----------------------------------------------------
 
-// DELETE /token - Revoke the access token (and any related refresh token)
-//                 that was used to authorize this request
+// Revoke the access token (and any related refresh token)
+// that was used to authorize this request
 OAuthTokenRouter.delete("/",
     requireAny,
     async (req: Request, res: Response) => {
@@ -51,7 +51,7 @@ OAuthTokenRouter.delete("/",
         }
     });
 
-// POST /token - Request access token and optionally refresh token
+// Request access token and optional refresh token
 OAuthTokenRouter.post("/",
     async (req: Request, res: Response) => {
         let tokenRequest : TokenRequest;

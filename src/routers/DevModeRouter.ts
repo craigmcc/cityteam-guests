@@ -19,7 +19,7 @@ export const DevModeRouter = Router({
     strict: true
 });
 
-// POST /reload - Resync database and reload data
+// Resync database and reload data
 DevModeRouter.post("/reload",
     requireSuperuser,
     async (req: Request, res: Response) => {

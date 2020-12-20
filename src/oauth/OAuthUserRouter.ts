@@ -24,7 +24,7 @@ OAuthUserRouter.use(requireSuperuser);
 
 // Model-Specific Routes (no userId) -----------------------------------------
 
-// GET /active - Find active Users
+// Find active Users
 OAuthUserRouter.get("/active",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.active(
@@ -32,7 +32,7 @@ OAuthUserRouter.get("/active",
         ));
     });
 
-// GET /exact/:name - Find OAuthUser by exact username
+// Find OAuthUser by exact username
 OAuthUserRouter.get("/exact/:username",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.exact(
@@ -41,7 +41,7 @@ OAuthUserRouter.get("/exact/:username",
         ));
     });
 
-// GET /name/:name - Find Users by name match
+// Find Users by name match
 OAuthUserRouter.get("/name/:name",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.name(
@@ -52,7 +52,7 @@ OAuthUserRouter.get("/name/:name",
 
 // Standard CRUD Routes ------------------------------------------------------
 
-// GET / - Find all Users
+// Find all Users
 OAuthUserRouter.get("/",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.all(
@@ -60,7 +60,7 @@ OAuthUserRouter.get("/",
         ));
     });
 
-// POST / - Insert a new OAuthUser
+// Insert a new OAuthUser
 OAuthUserRouter.post("/",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.insert(
@@ -68,7 +68,7 @@ OAuthUserRouter.post("/",
         ));
     });
 
-// DELETE /:userId - Remove OAuthUser by ID
+// Remove OAuthUser by ID
 OAuthUserRouter.delete("/:userId",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.remove(
@@ -76,7 +76,7 @@ OAuthUserRouter.delete("/:userId",
         ));
     });
 
-// GET /:userId - Find OAuthUser by ID
+// Find OAuthUser by ID
 OAuthUserRouter.get("/:userId",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.find(
@@ -85,7 +85,7 @@ OAuthUserRouter.get("/:userId",
         ));
     });
 
-// PUT /:userId - Update OAuthUser by ID
+// Update OAuthUser by ID
 OAuthUserRouter.put("/:userId",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.update(
@@ -96,7 +96,7 @@ OAuthUserRouter.put("/:userId",
 
 // OAuthUser->OAuthAccessToken Routes ----------------------------------------
 
-// GET /:userId/accessTokens/all - Find all related access tokens
+// Find all related access tokens
 OAuthUserRouter.get("/:userId/accessTokens/all",
     async (req: Request, res: Response) => {
       res.send(await OAuthUserServices.accessTokensAll(
@@ -107,7 +107,7 @@ OAuthUserRouter.get("/:userId/accessTokens/all",
 
 // OAuthUser->OAuthRefreshToken Routes ---------------------------------------
 
-// GET /:userId/refreshTokens/all - Find all related refresh tokens
+// Find all related refresh tokens
 OAuthUserRouter.get("/:userId/refreshTokens/all",
     async (req: Request, res: Response) => {
         res.send(await OAuthUserServices.refreshTokensAll(
