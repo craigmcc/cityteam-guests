@@ -1,8 +1,8 @@
 // Checkin -------------------------------------------------------------------
 
-// Record of a checkin for a particular mat, in a particular Facility,
-// on a particular date.  Unassigned mats will be those available to be
-// assigned, indicated by a null guestId value.
+// Record of an actual (guestId !== null) or potential (guestId === null)
+// checkin for a particular mat, on a particular checkin date, at a particular
+// Facility, by a particular Guest.
 
 // External Modules ----------------------------------------------------------
 
