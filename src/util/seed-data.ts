@@ -116,6 +116,11 @@ export const TEST_GUEST_DATA: Partial<Guest>[] = [
         active: true,
         firstName: "Barney",
         lastName: "Rubble",
+    },
+    {
+        active: true,
+        firstName: "Bam Bam",
+        lastName: "Rubble",
     }
 ];
 

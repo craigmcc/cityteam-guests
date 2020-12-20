@@ -10,6 +10,8 @@ import { Router } from "express";
 
 import DevModeRouter from "./DevModeRouter";
 import FacilityRouter from "./FacilityRouter";
+import GuestRouter from "./GuestRouter";
+import TemplateRouter from "./TemplateRouter";
 
 // Public Objects ------------------------------------------------------------
 
@@ -27,5 +29,7 @@ ApiRouters.get("/", (req, res) => {
 
 ApiRouters.use("/devmode", DevModeRouter);
 ApiRouters.use("/facilities", FacilityRouter);
+ApiRouters.use("/guests", GuestRouter);
+ApiRouters.use("/templates", TemplateRouter);
 
 export default ApiRouters;

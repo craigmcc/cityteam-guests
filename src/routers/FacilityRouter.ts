@@ -86,7 +86,7 @@ FacilityRouter.get("/:facilityId",
 
 // PUT /:facilityId - Update Facility by facilityId
 FacilityRouter.put("/:facilityId",
-    requireSuperuser,
+    requireAdmin,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.update
             (parseInt(req.params.facilityId), req.body));
