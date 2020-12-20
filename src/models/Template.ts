@@ -38,7 +38,8 @@ import { BadRequest } from "../util/http-errors";
     validate: {
         isFacilityIdValid: async function(this: Template): Promise<void> {
             if (!(await validateFacilityId(this.facilityId))) {
-                throw new BadRequest(`facilityId: Invalid facilityId ${this.facilityId}`);
+                throw new BadRequest
+                    (`facilityId: Invalid facilityId ${this.facilityId}`);
             }
         },
         isHandicapMatsValidSubset: function(this: Template): void {

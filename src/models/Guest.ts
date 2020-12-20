@@ -4,11 +4,12 @@
 
 // External Modules ----------------------------------------------------------
 
+import {BadRequest} from "../util/http-errors";
+
 const {
     Column,
     DataType,
     ForeignKey,
-    Op,
     Table
 } = require("sequelize-typescript");
 
@@ -16,6 +17,10 @@ const {
 
 import AbstractModel from "./AbstractModel";
 import Facility from "./Facility";
+import {
+    validateFacilityId,
+    validateGuestNameUnique, validateTemplateNameUnique,
+} from "../util/async-validators";
 
 // Public Modules ------------------------------------------------------------
 
@@ -23,7 +28,21 @@ import Facility from "./Facility";
     comment: "Guests who have ever checked in at a CityTeam Facility",
     modelName: "guest",
     tableName: "guests",
-    validate: { }  // TODO - isNameUniqueWithinFacility(facilityId, firstName, lastName)
+    validate: {
+        isFacilityIdValid: async function(this: Guest): Promise<void> {
+            if (!(await validateFacilityId(this.facilityId))) {
+                throw new BadRequest
+                    (`facilityId: Invalid facilityId ${this.facilityId}`);
+            }
+        },
+        isNameUniqueWithinFacility: async function(this: Guest): Promise<void> {
+            if (!(await validateGuestNameUnique(this))) {
+                throw new BadRequest
+                    (`name: Name '${this.firstName} ${this.lastName}' "
+                     + "is already in use within this Facility`);
+            }
+        },
+    }
 })
 export class Guest extends AbstractModel<Guest> {
 
@@ -58,7 +77,7 @@ export class Guest extends AbstractModel<Guest> {
             notNull: {
                 msg: "facilityId: Is required"
             }
-        } // TODO - isValidFacilityId(facilityId)
+        }
     })
     facilityId!: number;
 

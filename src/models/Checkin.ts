@@ -18,6 +18,18 @@ const {
 import AbstractModel from "./AbstractModel";
 import Facility from "./Facility";
 import Guest from "./Guest";
+import {BadRequest} from "../util/http-errors";
+import {
+    validateFeatures,
+    validateMatNumber,
+    validatePaymentAmount,
+    validatePaymentType
+} from "../util/application-validators";
+import {
+    validateCheckinKeyUnique,
+    validateFacilityId,
+    validateGuestId
+} from "../util/async-validators";
 
 // Public Objects ------------------------------------------------------------
 
@@ -25,8 +37,28 @@ import Guest from "./Guest";
     comment: "Checkins and available mats for a particular date at a particular Facility",
     modelName: "checkin",
     tableName: "checkins",
-    validate: { }   // TODO - including unique featureId+checkinDate+matNumber
-                    // TODO - or this guest has already checked in to a different mat
+    validate: {
+        isCheckinKeyUnique: async function(this: Checkin): Promise<void> {
+            if (!(await validateCheckinKeyUnique(this))) {
+                throw new BadRequest
+                    (`matNumber: Mat number ${this.matNumber} `
+                        + `is already in use on checkin date ${this.checkinDate} `
+                        + "within this Facility");
+            }
+        },
+        isFacilityIdValid: async function(this: Checkin): Promise<void> {
+            if (!(await validateFacilityId(this.facilityId))) {
+                throw new BadRequest
+                    (`facilityId: Invalid facilityId ${this.facilityId}`);
+            }
+        },
+        isGuestIdValid: async function(this: Checkin): Promise<void> {
+            if (!(await validateGuestId(this.facilityId, this.guestId))) {
+                throw new BadRequest
+                    (`facilityId: Invalid facilityId ${this.facilityId}`);
+            }
+        },
+    }
 })
 export class Checkin extends AbstractModel<Checkin> {
 
@@ -51,7 +83,11 @@ export class Checkin extends AbstractModel<Checkin> {
         comment: "Facility ID of the Facility this Guest has registered at",
         field: "facility_id",
         type: DataType.INTEGER,
-        validate: { } // TODO - isValidFacilityId(facilityId)
+        validate: {
+            notNull: {
+                msg: "facilityId: Is required"
+            }
+        }
     })
     facilityId!: number;
 
@@ -59,7 +95,16 @@ export class Checkin extends AbstractModel<Checkin> {
         allowNull: true,
         comment: "Feature codes associated with this mat",
         type: DataType.STRING,
-        validate: { } // isValidFeatures(features)
+        validate: {
+            isFeaturesValid: function(value: string): void {
+                if (value) {
+                    if (!validateFeatures(value)) {
+                        throw new BadRequest
+                        (`features:  Invalid features list '${value}'`);
+                    }
+                }
+            }
+        }
     })
     features?: string;
 
@@ -69,7 +114,6 @@ export class Checkin extends AbstractModel<Checkin> {
         comment: "Guest ID of the Guest who has checked in for this mat (if any)",
         field: "guest_id",
         type: DataType.INTEGER,
-        validate: { } // TODO - isValidGuestId(facilityId, guestId)
     })
     guestId?: number;
 
@@ -78,7 +122,16 @@ export class Checkin extends AbstractModel<Checkin> {
         comment: "Mat number to be checked in to on this checkin date",
         field: "mat_number",
         type: DataType.INTEGER,
-        validate: { } // TODO - unique facilityId+checkinDate+matNumber
+        validate: {
+            isValidMatNumber: function(value: number): void {
+                if (value) {
+                    if (!validateMatNumber(value)) {
+                        throw new BadRequest
+                            (`matNumber:  Invalid mat number ${value}`);
+                    }
+                }
+            }
+        }
     })
     matNumber!: number;
 
@@ -87,7 +140,16 @@ export class Checkin extends AbstractModel<Checkin> {
         comment: "Amount paid (if any) for this mat, for this checkin date",
         field: "payment_amount",
         type: DataType.DECIMAL(5,2),
-        validate: { } // TODO - if present, must be positive
+        validate: {
+            isValidPaymentAmount: function(value: number): void {
+                if (value) {
+                    if (!validatePaymentAmount(value)) {
+                        throw new BadRequest
+                            (`paymentAmount:  Invalid payment amount ${value}`);
+                    }
+                }
+            }
+        }
     })
     paymentAmount?: number;
 
@@ -96,7 +158,16 @@ export class Checkin extends AbstractModel<Checkin> {
         comment: "Payment type, if this mat was occupied on this checkin date",
         field: "payment_type",
         type: DataType.STRING(2),
-        validate: { } // TODO - valid payment type
+        validate: {
+            isValidPaymentType: function(value: string): void {
+                if (value) {
+                    if (!validatePaymentType(value)) {
+                        throw new BadRequest
+                            (`paymentType:  Invalid payment type ${value}`);
+                    }
+                }
+            }
+        }
     })
     paymentType?: string;
 

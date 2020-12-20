@@ -24,6 +24,14 @@ export const validateFeatures = (features: string): boolean => {
     }
 }
 
+export const validateMatNumber = (matNumber: number): boolean => {
+    if (matNumber) {
+        return (matNumber > 0);
+    } else {
+        return false;
+    }
+}
+
 export const validateMatsList = (matsList: string): boolean => {
     if (matsList) {
         try {
@@ -53,7 +61,7 @@ export const validateMatsSubset = (parent: string, child: string): boolean => {
 
 export const validatePaymentAmount = (paymentAmount: number): boolean => {
     if (paymentAmount) {
-        return (paymentAmount > 0.00);
+        return (paymentAmount >= 0.00);
     } else {
         return true;
     }
