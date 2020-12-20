@@ -5,11 +5,12 @@
 
 // External Modules ----------------------------------------------------------
 
+import MatsList from "../util/MatsList";
+
 const {
     Column,
     DataType,
     ForeignKey,
-    Op,
     Table
 } = require("sequelize-typescript");
 
@@ -17,6 +18,16 @@ const {
 
 import AbstractModel from "./AbstractModel";
 import Facility from "./Facility";
+import {
+    validateMatsList,
+    validateMatsSubset,
+} from "../util/application-validators";
+import {
+    validateFacilityId,
+    validateTemplateNameUnique,
+} from "../util/async-validators";
+
+import { BadRequest } from "../util/http-errors";
 
 // Public Modules ------------------------------------------------------------
 
@@ -24,7 +35,47 @@ import Facility from "./Facility";
     comment: "Templates for future Checkin generation at a Facility",
     modelName: "template",
     tableName: "templates",
-    validate: { } // TODO - isNameUniqueWithinFacility(facilityId, name)
+    validate: {
+        isFacilityIdValid: async function(this: Template): Promise<void> {
+            if (!(await validateFacilityId(this.facilityId))) {
+                throw new BadRequest(`facilityId: Invalid facilityId ${this.facilityId}`);
+            }
+        },
+        isHandicapMatsValidSubset: function(this: Template): void {
+            if (this.allMats && this.handicapMats) {
+                if (!validateMatsSubset(this.allMats, this.handicapMats)) {
+                    throw new BadRequest
+                        ("handicapMats:  Is not a subset of allMats");
+                }
+            }
+        },
+        isNameUniqueWithinFacility: async function(this: Template): Promise<void> {
+            if (!(await validateTemplateNameUnique(this))) {
+                throw new BadRequest
+                    (`name: Name '${this.name}' is already in use within this Facility`);
+            }
+        },
+        isSocketMatsValidSubset: function(this: Template): void {
+            if (this.allMats && this.socketMats) {
+                if (this.allMats && this.socketMats) {
+                    if (!validateMatsSubset(this.allMats, this.socketMats)) {
+                        throw new BadRequest
+                            ("socketMats:  Is not a subset of allMats");
+                    }
+                }
+            }
+        },
+        isWorkMatsValidSubset: function(this: Template): void {
+            if (this.allMats && this.workMats) {
+                if (this.allMats && this.workMats) {
+                    if (!validateMatsSubset(this.allMats, this.workMats)) {
+                        throw new BadRequest
+                            ("workMats:  Is not a subset of allMats");
+                    }
+                }
+            }
+        },
+    }
 })
 export class Template extends AbstractModel<Template> {
 
@@ -46,7 +97,19 @@ export class Template extends AbstractModel<Template> {
         comment: "List of all mats to be generated from this Template",
         field: "all_mats",
         type: DataType.STRING,
-        validate: { } // TODO - isMatsListValid(allMats)
+        validate: {
+            isAllMatsValid: function(value: string): void {
+                if (value) {
+                    if (!validateMatsList(value)) {
+                        throw new BadRequest
+                            (`allMats: Invalid mats list '${value}'`);
+                    }
+                }
+            },
+            notNull: {
+                msg: "allMats: Is required"
+            }
+        }
     })
     allMats!: string;
 
@@ -64,7 +127,11 @@ export class Template extends AbstractModel<Template> {
         field: "facility_id",
         type: DataType.INTEGER,
         unique: "uniqueNameWithinFacility",
-        validate: { } // TODO - isValidFacilityId(facilityId)
+        validate: {
+            notNull: {
+                msg: "facilityId: Is required"
+            }
+        }
     })
     facilityId!: number;
 
@@ -73,8 +140,16 @@ export class Template extends AbstractModel<Template> {
         comment: "List of all mats suitable for handicapped Guests",
         field: "handicap_mats",
         type: DataType.STRING,
-        validate: { }   // TODO - isMatsListValid(handicapMats)
-                        // TODO - isMatsListSubset(allMats, handicapMats)
+        validate: {
+            isHandicapMatsValid: function(value: string): void {
+                if (value) {
+                    if (!validateMatsList(value)) {
+                        throw new BadRequest
+                            (`handicapMats: Invalid mats list '${value}'`);
+                    }
+                }
+            },
+        }
     })
     handicapMats!: string;
 
@@ -83,7 +158,7 @@ export class Template extends AbstractModel<Template> {
         type: DataType.STRING,
         unique: "uniqueNameWithinFacility",
         validate: {
-            isNull: {
+            notNull: {
                 msg: "name: Is required",
             }
         }
@@ -95,8 +170,16 @@ export class Template extends AbstractModel<Template> {
         comment: "List of all mats near an electric socket",
         field: "socket_mats",
         type: DataType.STRING,
-        validate: { }   // TODO - isMatsListValid(socketMats)
-                        // TODO - isMatsListSubset(allMats, socketMats)
+        validate: {
+            isSocketMatsValid: function(value: string): void {
+                if (value) {
+                    if (!validateMatsList(value)) {
+                        throw new BadRequest
+                        (`socketMats: Invalid mats list '${value}'`);
+                    }
+                }
+            },
+        }
     })
     socketMats!: string;
 
@@ -105,8 +188,16 @@ export class Template extends AbstractModel<Template> {
         comment: "List of all mats suitable for potential recovery Guests",
         field: "work_mats",
         type: DataType.STRING,
-        validate: { }   // TODO - isMatsListValid(name, workMats)
-                        // TODO - isMatsListSubset(name, allMats, workMats)
+        validate: {
+            isWorkMatsValid: function(value: string): void {
+                if (value) {
+                    if (!validateMatsList(value)) {
+                        throw new BadRequest
+                            (`workMats: Invalid mats list '${value}'`);
+                    }
+                }
+            },
+        }
     })
     workMats!: string;
 

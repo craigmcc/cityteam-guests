@@ -54,7 +54,11 @@ export class Guest extends AbstractModel<Guest> {
         field: "facility_id",
         type: DataType.INTEGER,
         unique: "uniqueNameWithinFacility",
-        validate: { } // TODO - isValidFacilityId(facilityId)
+        validate: {
+            notNull: {
+                msg: "facilityId: Is required"
+            }
+        } // TODO - isValidFacilityId(facilityId)
     })
     facilityId!: number;
 
@@ -72,7 +76,7 @@ export class Guest extends AbstractModel<Guest> {
         type: DataType.STRING,
         unique: "uniqueNameWithinFacility",
         validate: {
-            isNull: {
+            notNull: {
                 msg: "lastName: Is required",
             }
         }
@@ -85,7 +89,7 @@ export class Guest extends AbstractModel<Guest> {
         type: DataType.STRING,
         unique: "uniqueNameWithinFacility",
         validate: {
-            isNull: {
+            notNull: {
                 msg: "firstName: Is required",
             }
         }

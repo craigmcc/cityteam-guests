@@ -29,26 +29,26 @@ export const validateMatsList = (matsList: string): boolean => {
         try {
             new MatsList(matsList);
             return true;
-        } catch(error) {
+        } catch (error) {
             return false;
         }
     } else {
         return true;
     }
-    return true;
 }
 
-export const validateMatsSubset = (parentList: string, childList: string): boolean => {
-    if (parentList && childList) {
+export const validateMatsSubset = (parent: string, child: string): boolean => {
+    if (parent && child) {
         try {
-            const parentMatsList = new MatsList(parentList);
-            const childMatsList = new MatsList(childList);
-            return childMatsList.isSubsetOf(parentMatsList);
+            const parentList: MatsList = new MatsList(parent);
+            const childList: MatsList = new MatsList(child);
+            return childList.isSubsetOf(parentList);
         } catch (error) {
             return false;
         }
+    } else {
+        return true;
     }
-    return true;
 }
 
 export const validatePaymentAmount = (paymentAmount: number): boolean => {
