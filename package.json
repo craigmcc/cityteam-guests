@@ -2,12 +2,12 @@
   "name": "@craigmcc/cityteam-guests",
   "version": "1.0.0",
   "private": true,
-  "author": "craigmcc",
+  "author": "Craig McClanahan <craigmcc@gmail.com>",
   "description": "CityTeam Guests Checkin Application (server and client)",
   "main": "dist/server.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/craigmcc/bookcase.git"
+    "url": "https://github.com/craigmcc/cityteam-guests.git"
   },
   "scripts": {
     "build": "tsc",
@@ -19,7 +19,8 @@
     "run:prod": "NODE_ENV=production node dist/server.js",
     "start:dev": "NODE_ENV=development nodemon dist/server.js",
     "start:prod": "NODE_ENV=production nodemon dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test mocha -r ts-node/register src/**/*.test.ts",
+    "test:watch": "NODE_ENV=test mocha --watch -r ts-node/register src/**/*.test.ts",
     "tsc": "tsc"
   },
   "keywords": [
