@@ -6,7 +6,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 
 // Internal Modules ----------------------------------------------------------
@@ -14,12 +14,12 @@ import Form from "react-bootstrap/Form";
 import { OnChangeSelect } from "./types";
 import FacilityContext, { FacilityContextData } from "../contexts/FacilityContext";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/Replacers";
-import ReportError from "../util/ReportError";
+import LoginContext, {LoginContextData} from "../contexts/LoginContext";
+//import * as Replacers from "../util/Replacers";
+//import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
 
-// TODO - autoFocus and disabled handling
 export interface Props {
     autoFocus?: boolean;            // Should element receive autoFocus? [false]
     disabled?: boolean;             // Should element be disabled? [false]
@@ -33,10 +33,11 @@ export interface Props {
 export const FacilitySelector = (props: Props) => {
 
     const facilityContext: FacilityContextData = useContext(FacilityContext);
+    const loginContext: LoginContextData = useContext(LoginContext);
 
     useEffect(() => {
-        // TODO - just want to cause a re-render on any change in FacilityContext
-    }, [facilityContext]);
+        // TODO - just want to cause a re-render on any change in either context
+    }, [facilityContext, loginContext]);
 
     const onChange: OnChangeSelect = (event) => {
         const newIndex: number = parseInt(event.target.value);

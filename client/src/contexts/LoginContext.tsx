@@ -8,16 +8,12 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 import TokenResponse from "../models/TokenResponse";
 
 // Internal Modules ----------------------------------------------------------
 
 // Context Properties --------------------------------------------------------
-
-export interface Props {
-    children: React.ReactNode;      // Child components [React deals with this]
-}
 
 export interface LoginContextData {
     accessToken: string | null;
@@ -26,7 +22,7 @@ export interface LoginContextData {
     scope: string | null;
     username: string | null;
     handleLogin: (username: string, tokenResponse: TokenResponse) => void;
-    handleLogout: () => void;
+//    handleLogout: () => void;
 }
 
 export const LoginContext = createContext<LoginContextData>({
@@ -36,12 +32,12 @@ export const LoginContext = createContext<LoginContextData>({
     scope: null,
     username: null,
     handleLogin: (username, tokenResponse): void => {},
-    handleLogout: (): void => {}
+//    handleLogout: (): void => {}
 });
 
 // Context Provider ----------------------------------------------------------
 
-export const LoginContextProvider = (props: Props) => {
+export const LoginContextProvider = (props: any) => {
 
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [expires, setExpires] = useState<Date | null>(null);
@@ -67,6 +63,7 @@ export const LoginContextProvider = (props: Props) => {
         setUsername(username);
     }
 
+/*
     const handleLogout = (): void => {
         console.info("LoginContext.handleLogout()");
         setAccessToken(null);
@@ -75,6 +72,7 @@ export const LoginContextProvider = (props: Props) => {
         setScope(null);
         setUsername(null);
     }
+*/
 
     // Create the context object
     const loginContext: LoginContextData = {
@@ -84,7 +82,7 @@ export const LoginContextProvider = (props: Props) => {
         scope: scope,
         username: username,
         handleLogin: handleLogin,
-        handleLogout: (): void => {}
+//        handleLogout: (): void => {}
     }
 
     // Return the context, rendering children inside

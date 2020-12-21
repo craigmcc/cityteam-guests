@@ -5,21 +5,17 @@
 
 // External Modules -----------------------------------------------------------
 
-import React, { createContext, useEffect, useState } from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 
 // Internal Modules -----------------------------------------------------------
 
+import LoginContext, {LoginContextData} from "./LoginContext";
 import FacilityClient from "../clients/FacilityClient";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/Replacers";
 import ReportError from "../util/ReportError";
 
 // Context Properties ---------------------------------------------------------
-
-export interface Props {
-    all?: boolean                   // Show all, not just active? [false]
-    children: React.ReactNode;      // Child components [React deals with this]
-}
 
 export interface FacilityContextData {
     facilities: Facility[];         // Facilities visible to this user
@@ -38,7 +34,9 @@ export const FacilityContext = createContext<FacilityContextData>({
 
 // Context Provider ----------------------------------------------------------
 
-export const FacilityContextProvider = (props: Props) => {
+export const FacilityContextProvider = (props: any) => {
+
+    const loginContext: LoginContextData = useContext(LoginContext);
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [index, setIndex] = useState<number>(-1);
@@ -49,11 +47,14 @@ export const FacilityContextProvider = (props: Props) => {
         const fetchData = async () => {
             try {
                 let newFacilities: Facility[] = [];
+/*
                 if (props.all) {
                     newFacilities = await FacilityClient.all();
                 } else {
                     newFacilities = await FacilityClient.active();
                 }
+*/
+                newFacilities = await FacilityClient.all(); // TODO - temp
                 console.info("FacilityContext.fetchData("
                     + JSON.stringify(newFacilities, Replacers.FACILITY)
                     + ")");
@@ -69,7 +70,7 @@ export const FacilityContextProvider = (props: Props) => {
 
         fetchData();
 
-    }, [ facilities, index ]);
+    }, [ facilities, index, loginContext ]);
 
     // Create the context object
     const facilityContext: FacilityContextData = {
