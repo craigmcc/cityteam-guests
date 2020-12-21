@@ -92,7 +92,30 @@ FacilityRouter.put("/:facilityId",
             (parseInt(req.params.facilityId), req.body));
     });
 
-// Facility -> Checkin Routes ---------------------------------------------
+// Model-Specific Routes -----------------------------------------------------
+
+// Find all active Facilities
+FacilityRouter.get("/active",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.active(req.query));
+    });
+
+// Find Facility by exact name
+FacilityRouter.get("/exact/:name",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.exact(req.params.name, req.query));
+    });
+
+// Find Facilities by name match
+FacilityRouter.get("/name/:name",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.name(req.params.name, req.query));
+    });
+
+// Facility -> Checkin Routes ------------------------------------------------
 
 // Find all Checkins for this Facility
 FacilityRouter.get("/:facilityId/checkins",

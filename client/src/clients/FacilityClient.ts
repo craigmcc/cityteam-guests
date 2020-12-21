@@ -5,11 +5,11 @@
 // Internal Modules ----------------------------------------------------------
 
 import ApiBase from "./ApiBase";
-import Checkin from "../models/Checkin";
-import Facility from "../models/Facility";
-import Guest from "../models/Guest";
-import Summary from "../models/Summary";
-import Template from "../models/Template";
+//import Checkin from "../models/Checkin";
+//import Facility from "../models/Facility";
+//import Guest from "../models/Guest";
+//import Summary from "../models/Summary";
+//import Template from "../models/Template";
 
 const FACILITIES_BASE = "/facilities";
 
@@ -41,6 +41,18 @@ class FacilityClient {
 
     // ***** Model-Specific Methods *****
 
+    async active<Facility>(params?: object): Promise<Facility[]> {
+        return (await ApiBase.get(FACILITIES_BASE + "/active", params)).data;
+    }
+
+    async exact<Facility>(name: string, params?: object): Promise<Facility> {
+        return (await ApiBase.get(FACILITIES_BASE + `/name/${name}`)).data;
+    }
+
+    async name<Facility>(name: string, params?: object): Promise<Facility[]> {
+        return (await ApiBase.get(FACILITIES_BASE + `/name/${name}`)).data;
+    }
+
     // ***** Facility -> Checkin Methods *****
 
     // ***** Facility -> Guest Methods *****
@@ -51,4 +63,4 @@ class FacilityClient {
 
 }
 
-export default FacilityClient;
+export default new FacilityClient();

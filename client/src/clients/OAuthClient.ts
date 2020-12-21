@@ -15,20 +15,20 @@ import TokenResponse from "../models/TokenResponse";
 
 class OAuthClient {
 
-    async tokenPassword<TokenResponse>(passwordTokenRequest: PasswordTokenRequest)
+    async password<TokenResponse>(passwordTokenRequest: PasswordTokenRequest)
             : Promise<TokenResponse> {
         return (await OAuthBase.post("/token", passwordTokenRequest)).data;
     }
 
-    async tokenRefresh<TokenResponse>(refreshTokenRequest: RefreshTokenRequest)
+    async refresh<TokenResponse>(refreshTokenRequest: RefreshTokenRequest)
             : Promise<TokenResponse> {
         return (await OAuthBase.post("/token", refreshTokenRequest)).data;
     }
 
-    async tokenRevoke(token: string): Promise<void> {
+    async revoke(token: string): Promise<void> {
         await OAuthBase.delete(`/token/${token}`);
     }
 
 }
 
-export default OAuthClient;
+export default new OAuthClient();
