@@ -44,6 +44,9 @@ export default LoginContext;
 
 // Context Provider ----------------------------------------------------------
 
+// For use by HTTP clients to include in their requests
+export let CURRENT_ACCESS_TOKEN: string | null = null;
+
 export const LoginContextProvider = (props: any) => {
 
     const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -53,11 +56,8 @@ export const LoginContextProvider = (props: any) => {
     const [scope, setScope] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
 
-    const handleLogin = (username: string, tokenResponse: TokenResponse): void => {
-        console.info("LoginContext.handleLogin("
-            + username + ", "
-            + JSON.stringify(tokenResponse)
-            + ")");
+    const handleLogin = (newUsername: string, tokenResponse: TokenResponse): void => {
+        console.info(`LoginContext.handleLogin(${newUsername})`);
         setAccessToken(tokenResponse.access_token);
         const newExpires: Date = new Date
             ((new Date()).getTime() + (tokenResponse.expires_in * 1000));
@@ -69,17 +69,19 @@ export const LoginContextProvider = (props: any) => {
             setRefreshToken(null);
         }
         setScope(tokenResponse.scope);
-        setUsername(username);
+        setUsername(newUsername);
+        CURRENT_ACCESS_TOKEN = tokenResponse.access_token;
     }
 
     const handleLogout = (): void => {
-        console.info("LoginContext.handleLogout()");
+        console.info(`LoginContext.handleLogout(${username})`);
         setAccessToken(null);
         setExpires(null);
         setLoggedIn(false);
         setRefreshToken(null);
         setScope(null);
         setUsername(null);
+        CURRENT_ACCESS_TOKEN = null;
     }
 
     // Return true if there is a logged in user that has the required

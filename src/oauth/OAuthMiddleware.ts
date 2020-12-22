@@ -19,6 +19,8 @@ import {
 import { OAuthOrchestrator } from "../server";
 import { Forbidden } from "../util/http-errors";
 
+const AUTHORIZATION_HEADER = "Authorization";
+
 let oauthEnabled: boolean = true;
 if (process.env.OAUTH_ENABLED !== undefined) {
     oauthEnabled = (process.env.OAUTH_ENABLED === "true");
@@ -72,7 +74,7 @@ export const requireAdmin: RequestHandler =
             if (!token) {
                 throw new Forbidden(
                     "No access token presented",
-                    "requireToken"
+                    "OAuthMiddleware.requireAdmin()"
                 );
             }
             const required = mapFacilityId(req) + " admin";
@@ -94,7 +96,7 @@ export const requireAny: RequestHandler =
             if (!token) {
                 throw new Forbidden(
                     "No access token presented",
-                    "requireToken"
+                    "OAuthMiddleware.requireAny()"
                 );
             }
             const required = "";
@@ -107,6 +109,15 @@ export const requireAny: RequestHandler =
     }
 
 /**
+ * Require no token at all.
+ */
+export const requireNone: RequestHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+        console.info("OAuthMiddleware.requireNone(): Passing request on");
+        next();
+    }
+
+/**
  * Require "regular" scope (for a specific facility) to handle this request.
  */
 export const requireRegular: RequestHandler =
@@ -116,7 +127,7 @@ export const requireRegular: RequestHandler =
             if (!token) {
                 throw new Forbidden(
                     "No access token presented",
-                    "requireToken"
+                    "OAuthMiddleware.requireRegular()"
                 );
             }
             const required = mapFacilityId(req) + " regular";
@@ -133,12 +144,14 @@ export const requireRegular: RequestHandler =
  */
 export const requireSuperuser: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
+        console.info(`OAuthMiddleware.requireSuperuser: req.url: ${req.url}`);
+        console.info(`OAuthMiddleware.requireSuperuser: auth:    ${req.get(AUTHORIZATION_HEADER)}`);
         if (oauthEnabled) {
             const token = extractToken(req);
             if (!token) {
                 throw new Forbidden(
-                    "No access token presented (su)",
-                    "requireToken"
+                    "No access token presented",
+                    "OAuthMiddleware.requireSuperuser()"
                 );
             }
             await authorizeToken(token, "superuser");
@@ -181,7 +194,7 @@ const authorizeToken = async (token: string, required: string): Promise<void> =>
  * @returns             Extracted access token (if any) or null
  */
 const extractToken = (req: Request) : string | null => {
-    const header: string | undefined = req.header("Authorization");
+    const header: string | undefined = req.header(AUTHORIZATION_HEADER);
     if (!header) {
         console.error("extractToken: No Authorization header included");
         return null;

@@ -13,9 +13,6 @@ import axios, { AxiosInstance } from "axios";
 
 const OAuthBase: AxiosInstance = axios.create({
     baseURL: "/oauth",
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-    },
 });
 
 export default OAuthBase;

@@ -56,8 +56,6 @@ export const LoginForm = () => {
             loginContext.handleLogin(values.username, tokenResponse);
             console.info("LoginForm.handleSubmit: Completed");
         } catch (error) {
-            console.info("LoginForm.handleSubmit: Login failed: ",
-                JSON.stringify(error, null, 2));
             ReportError("LoginForm.handleSubmit()", error);
         }
     }

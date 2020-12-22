@@ -20,18 +20,31 @@ class OAuthClient {
             : Promise<TokenResponse> {
         // Token requests are URL-encoded, not JSON
         const encodedRequest = qs.stringify(passwordTokenRequest);
-        return (await OAuthBase.post("/token", encodedRequest)).data;
+        return (await OAuthBase.post("/token", encodedRequest, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            }
+        })).data;
     }
 
     async refresh<TokenResponse>(refreshTokenRequest: RefreshTokenRequest)
             : Promise<TokenResponse> {
         // Token requests are URL-encoded, not JSON
         const encodedRequest = qs.stringify(refreshTokenRequest);
-        return (await OAuthBase.post("/token", encodedRequest)).data;
+        return (await OAuthBase.post("/token", encodedRequest, {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                }
+            }
+        )).data;
     }
 
     async revoke(token: string): Promise<void> {
-        await OAuthBase.delete(`/token/${token}`);
+        await OAuthBase.delete(`/token`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
     }
 
 }

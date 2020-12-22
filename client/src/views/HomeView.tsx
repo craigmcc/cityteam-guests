@@ -5,6 +5,7 @@
 // External Modules ----------------------------------------------------------
 
 import React, { useContext } from "react";
+import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 
 // Internal Modules ----------------------------------------------------------
@@ -12,7 +13,7 @@ import Container from "react-bootstrap/Container";
 import OAuthClient from "../clients/OAuthClient";
 import LoginContext from "../contexts/LoginContext";
 import LoginForm from "../forms/LoginForm";
-import Button from "react-bootstrap/Button";
+import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
@@ -26,7 +27,7 @@ const HomeView = () => {
             await OAuthClient.revoke(loginContext.accessToken
                 ? loginContext.accessToken : "");
         } catch (error) {
-            console.info("HomeView.onLogout: Error received: ", error);
+            ReportError("HomeView.onLogout()", error);
         }
         loginContext.handleLogout();
         console.info("HomeView.onLogout:  Logging out completed");

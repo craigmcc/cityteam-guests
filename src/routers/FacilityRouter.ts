@@ -11,6 +11,7 @@ import { Request, Response, Router } from "express";
 import {
     dumpRequestDetails,
     requireAdmin,
+    requireNone,
     requireRegular,
     requireSuperuser
 } from "../oauth/OAuthMiddleware";
@@ -52,6 +53,31 @@ FacilityRouter.get("/scope/:scope",
         res.send(await FacilityServices.scope(req.params.scope, req.query));
     });
 
+// Model-Specific Routes -----------------------------------------------------
+
+// Find all active Facilities
+FacilityRouter.get("/active",
+    dumpRequestDetails,
+    requireNone,
+//    requireSuperuser, // Avoid catch-22 on initial population of FacilityContext
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.active(req.query));
+    });
+
+// Find Facility by exact name
+FacilityRouter.get("/exact/:name",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.exact(req.params.name, req.query));
+    });
+
+// Find Facilities by name match
+FacilityRouter.get("/name/:name",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.name(req.params.name, req.query));
+    });
+
 // Standard CRUD Endpoints ---------------------------------------------------
 
 // Find all Facilities
@@ -90,29 +116,6 @@ FacilityRouter.put("/:facilityId",
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.update
             (parseInt(req.params.facilityId), req.body));
-    });
-
-// Model-Specific Routes -----------------------------------------------------
-
-// Find all active Facilities
-FacilityRouter.get("/active",
-    requireSuperuser,
-    async (req: Request, res: Response) => {
-        res.send(await FacilityServices.active(req.query));
-    });
-
-// Find Facility by exact name
-FacilityRouter.get("/exact/:name",
-    requireSuperuser,
-    async (req: Request, res: Response) => {
-        res.send(await FacilityServices.exact(req.params.name, req.query));
-    });
-
-// Find Facilities by name match
-FacilityRouter.get("/name/:name",
-    requireSuperuser,
-    async (req: Request, res: Response) => {
-        res.send(await FacilityServices.name(req.params.name, req.query));
     });
 
 // Facility -> Checkin Routes ------------------------------------------------

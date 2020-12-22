@@ -50,7 +50,7 @@ export const FacilityContextProvider = (props: any) => {
 
         const fetchFacilities = async () => {
             try {
-                const newFacilities: Facility[] = await FacilityClient.all();
+                const newFacilities: Facility[] = await FacilityClient.active();
                 console.info("FacilityContext.fetchData("
                     + JSON.stringify(newFacilities, Replacers.FACILITY)
                     + ")");
