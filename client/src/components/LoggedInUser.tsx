@@ -23,17 +23,18 @@ export const LoggedInUser = () => {
 
     return (
         <>
-            <Form.Label className="mr-1" htmlFor="loggedInUsername">
-                User:
-            </Form.Label>
-            <Form.Control
-                className="mr-1"
-                htmlSize={16}
-                id="loggedInUsername"
-                readOnly={true}
-                size="sm"
-                value={loginContext.username ? loginContext.username : "-----"}
-            />
+            <Form>
+                <Form.Label htmlFor="loggedInUsername">
+                    User:
+                </Form.Label>
+                <Form.Control
+                    htmlSize={12}
+                    id="loggedInUsername"
+                    readOnly={true}
+                    size="sm"
+                    value={loginContext.username ? loginContext.username : "-----"}
+                />
+            </Form>
         </>
     )
 

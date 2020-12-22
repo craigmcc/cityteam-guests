@@ -55,26 +55,27 @@ export const FacilitySelector = (props: Props) => {
     return (
 
         <>
-            <Form.Label className="mr-1" htmlFor="facilitySelector">
-                {props.label ? props.label : "Facility:"}
-            </Form.Label>
-            <Form.Control
-                as="select"
-                autoFocus={props.autoFocus ? props.autoFocus : undefined}
-                className="mr-1"
-                disabled={props.disabled ? props.disabled : undefined}
-                id="facilitySelector"
-                onChange={onChange}
-                size="sm"
-                value={facilityContext.index}
-            >
-                <option key="-1" value="-1">(Select)</option>
-                {facilityContext.facilities.map((facility, index) => (
-                    <option key={index} value={index}>
-                        {facility.name}
-                    </option>
-                ))}
-            </Form.Control>
+            <Form>
+                <Form.Label htmlFor="facilitySelector">
+                    {props.label ? props.label : "Facility:"}
+                </Form.Label>
+                <Form.Control
+                    as="select"
+                    autoFocus={props.autoFocus ? props.autoFocus : undefined}
+                    disabled={props.disabled ? props.disabled : undefined}
+                    id="facilitySelector"
+                    onChange={onChange}
+                    size="sm"
+                    value={facilityContext.index}
+                >
+                    <option key="-1" value="-1">(Select)</option>
+                    {facilityContext.facilities.map((facility, index) => (
+                        <option key={index} value={index}>
+                            {facility.name}
+                        </option>
+                    ))}
+                </Form.Control>
+            </Form>
         </>
 
     )

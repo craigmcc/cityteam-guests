@@ -195,7 +195,6 @@ const revokeAccessToken: RevokeAccessToken = async (token: string): Promise<void
     await OAuthAccessToken.destroy({
         where: { token: token }
     });
-    console.info(`revokeAccessToken: Done`);
 
 }
 

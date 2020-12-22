@@ -40,7 +40,6 @@ OAuthTokenRouter.delete("/",
     async (req: Request, res: Response) => {
         // Successful authorization stored our token in res.locals.token
         const token: string = res.locals.token;
-        console.info(`OAuthTokenRouter.delete: Revoking ${token}`);
         if (token) {
             await OAuthOrchestrator.revoke(token);
             // Any thrown error will get handled by middleware

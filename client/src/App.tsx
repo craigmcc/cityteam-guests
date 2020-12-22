@@ -5,12 +5,13 @@
 // External Modules -----------------------------------------------------------
 
 import React from 'react';
+import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 //import NavDropdown from "react-bootstrap/cjs/NavDropdown";
 import NavItem from "react-bootstrap/NavItem";
-//import Row from "react-bootstrap/Row";
+import Row from "react-bootstrap/Row";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -66,10 +67,14 @@ function App() {
                 </Nav>
                 {/* NavDropdown things can go here */}
                 {/* Right-justified non-nav stuff can go here */}
-                <Form className="align-items-right" inline>
-                  <LoggedInUser/>
-                  <FacilitySelector label="Facility:"/>
-                </Form>
+                <Row className="align-content-end auto">
+                  <Col>
+                    <LoggedInUser/>
+                  </Col>
+                  <Col>
+                    <FacilitySelector label="Facility:"/>
+                  </Col>
+                </Row>
               </Navbar.Collapse>
 
             </Navbar>
