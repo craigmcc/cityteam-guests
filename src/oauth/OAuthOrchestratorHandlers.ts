@@ -172,16 +172,13 @@ const retrieveRefreshToken: RetrieveRefreshToken
 
 }
 
-const revokeAccessToken: RevokeAccessToken
-    = async (token: string): Promise<void> =>
-{
+const revokeAccessToken: RevokeAccessToken = async (token: string): Promise<void> => {
 
     // Look up the specified token
-    console.info(`revokeAccessToken: Looking up ${token}`)
     const oauthAccessToken: OAuthAccessToken | null
         = await OAuthAccessToken.findOne({
-        where: { token: token }
-    });
+            where: { token: token }
+        });
     if (!oauthAccessToken) {
         throw new NotFound(
             "token: Missing or invalid token",
@@ -190,13 +187,11 @@ const revokeAccessToken: RevokeAccessToken
     }
 
     // Revoke any associated refresh tokens
-    console.info(`revokeAccessToken: Revoking refresh tokens`);
     await OAuthRefreshToken.destroy({
         where: { accessToken: token }
     });
 
     // Revoke the access token as well
-    console.info(`revokeAccessToken: Revoking access token`)
     await OAuthAccessToken.destroy({
         where: { token: token }
     });

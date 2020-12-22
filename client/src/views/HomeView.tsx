@@ -13,6 +13,9 @@ import Container from "react-bootstrap/Container";
 import OAuthClient from "../clients/OAuthClient";
 import LoginContext from "../contexts/LoginContext";
 import LoginForm from "../forms/LoginForm";
+import Credentials from "../models/Credentials";
+import PasswordTokenRequest from "../models/PasswordTokenRequest";
+import TokenResponse from "../models/TokenResponse";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -21,16 +24,34 @@ const HomeView = () => {
 
     const loginContext = useContext(LoginContext);
 
-    const onLogout = async () => {
-        console.info("HomeView.onLogout:  Logging out sent");
+    const handleLogin = async (credentials: Credentials) => {
+        console.info(`HomeView.handleLogin: Sending login for user '${credentials.username}'`);;
+        const tokenRequest: PasswordTokenRequest = {
+            grant_type: "password",
+            password: credentials.password,
+            username: credentials.username,
+        }
+        try {
+            const tokenResponse: TokenResponse = await OAuthClient.password(tokenRequest);
+            console.info("HomeView.handleLogin:  Success");
+            loginContext.handleLogin(credentials.username, tokenResponse);
+            console.info("HomeView.handleLogin: Completed");
+        } catch (error) {
+            ReportError("HomeView.handleLogin()", error);
+        }
+    }
+
+    const handleLogout = async () => {
+        console.info(`HomeView.handleLogout: Sending logout for user '${loginContext.username}'`);
         try {
             await OAuthClient.revoke(loginContext.accessToken
                 ? loginContext.accessToken : "");
+            console.info("HomeView.handleLogout: Success");
+            loginContext.handleLogout();
+            console.info("HomeView.handleLogout: Completed");
         } catch (error) {
-            ReportError("HomeView.onLogout()", error);
+            ReportError("HomeView.handleLogout()", error);
         }
-        loginContext.handleLogout();
-        console.info("HomeView.onLogout:  Logging out completed");
     }
 
     return (
@@ -43,7 +64,7 @@ const HomeView = () => {
 
                 {(loginContext.loggedIn) ? (
                     <Button
-                        onClick={onLogout}
+                        onClick={handleLogout}
                         size="sm"
                         type="button"
                         variant="info"
@@ -51,7 +72,7 @@ const HomeView = () => {
                         Log Out
                     </Button>
                 ) : (
-                    <LoginForm/>
+                    <LoginForm handleLogin={handleLogin}/>
                 )}
 
             </Container>

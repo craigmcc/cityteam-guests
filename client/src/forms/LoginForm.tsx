@@ -4,7 +4,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -15,19 +15,17 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
-import OAuthClient from "../clients/OAuthClient";
-import LoginContext from "../contexts/LoginContext";
-import PasswordTokenRequest from "../models/PasswordTokenRequest";
-import TokenResponse from "../models/TokenResponse";
-import ReportError from "../util/ReportError";
+import Credentials from "../models/Credentials";
 
 // Property Details ----------------------------------------------------------
 
+export interface Props {
+    handleLogin: (credentials: Credentials) => void;
+}
+
 // Component Details ---------------------------------------------------------
 
-export const LoginForm = () => {
-
-    const loginContext = useContext(LoginContext);
+export const LoginForm = (props: Props) => {
 
     const [initialValues] = useState({
         password: "",
@@ -44,20 +42,10 @@ export const LoginForm = () => {
     }
 
     const handleSubmit = async (values: FormikValues) => {
-        console.info("LoginForm.handleSubmit: Trying to log in with " + values.username);
-        const tokenRequest: PasswordTokenRequest = {
-            grant_type: "password",
+        props.handleLogin({
             password: values.password,
             username: values.username,
-        }
-        try {
-            const tokenResponse: TokenResponse = await OAuthClient.password(tokenRequest);
-            console.info("LoginForm.handleSubmit:  Success");
-            loginContext.handleLogin(values.username, tokenResponse);
-            console.info("LoginForm.handleSubmit: Completed");
-        } catch (error) {
-            ReportError("LoginForm.handleSubmit()", error);
-        }
+        });
     }
 
     return (
