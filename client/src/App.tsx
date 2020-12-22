@@ -14,20 +14,22 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Internal Modules
+// Internal Modules ----------------------------------------------------------
 
 import FacilitySelector from "./components/FacilitySelector";
-//import FacilityContext from "./contexts/FacilityContext";
-//import LoginContext from "./contexts/LoginContext";
+import { FacilityContextProvider } from "./contexts/FacilityContext";
+import { LoginContextProvider } from "./contexts/LoginContext";
 import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
+
+// Component Details ---------------------------------------------------------
 
 function App() {
   return (
       <>
 
-        {/*<LoginContext.Provider>*/}
-        {/*<FacilityContext.Provider>*/}
+        <LoginContextProvider>
+        <FacilityContextProvider>
 
           <Router>
 
@@ -40,7 +42,12 @@ function App() {
             >
 
               <Navbar.Brand>
-                CityTeam Guests
+                <img
+                  alt="CityTeam Logo"
+                  height={66}
+                  src="./CityTeamDarkBlue.png"
+                  width={160}
+                />
               </Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-brand"/>
 
@@ -51,8 +58,8 @@ function App() {
                   </LinkContainer>
                 </Nav>
                 <Nav className="mr-auto">
-                  <LinkContainer to="/facility">
-                    <NavItem className="nav-link">Facility</NavItem>
+                  <LinkContainer to="/facilities">
+                    <NavItem className="nav-link">Facilities</NavItem>
                   </LinkContainer>
                 </Nav>
                 {/* NavDropdown things can go here */}
@@ -69,7 +76,7 @@ function App() {
             </Navbar>
 
             <Switch>
-              <Route exact path="/facility">
+              <Route exact path="/facilities">
                 <FacilityView/>
               </Route>
               <Route path="/">
@@ -79,8 +86,8 @@ function App() {
 
           </Router>
 
-        {/*</FacilityContext.Provider>*/}
-        {/*</LoginContext.Provider>*/}
+        </FacilityContextProvider>
+        </LoginContextProvider>
 
       </>
 

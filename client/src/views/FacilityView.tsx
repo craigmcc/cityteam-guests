@@ -28,7 +28,6 @@ const FacilityView = () => {
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [facility, setFacility] = useState<Facility | null>(null);
     const [index, setIndex] = useState<number>(-1);
-//    const [refresh, setRefresh] = useState<boolean>(false);
 
     useEffect(() => {
 
@@ -44,9 +43,8 @@ const FacilityView = () => {
         }
 
         fetchData();
-//        setRefresh(false); // TODO - needed?
 
-    }, [facilityContext /*, refresh */]); // Updating facilityContext should trigger
+    }, [facilityContext.facilities]);
 
     const handleIndex = (newIndex: number): void => {
         if (newIndex === index) {
@@ -58,9 +56,8 @@ const FacilityView = () => {
                 + newIndex + ", "
                 + JSON.stringify(facilities[newIndex], Replacers.FACILITY)
                 + ")");
-            setIndex(newIndex)
             setFacility(facilities[newIndex]);
-            facilityContext.setIndex(newIndex); // Trigger refetch
+            setIndex(newIndex)
         }
     }
 

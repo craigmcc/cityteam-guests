@@ -9,31 +9,34 @@
 // External Modules ----------------------------------------------------------
 
 import React, { createContext, useState } from "react";
-import TokenResponse from "../models/TokenResponse";
 
 // Internal Modules ----------------------------------------------------------
 
+import TokenResponse from "../models/TokenResponse";
+
 // Context Properties --------------------------------------------------------
 
-export interface LoginContextData {
+export type LoginContextType = {
     accessToken: string | null;
     expires: Date | null;
     refreshToken: string | null;
     scope: string | null;
     username: string | null;
     handleLogin: (username: string, tokenResponse: TokenResponse) => void;
-//    handleLogout: () => void;
+    handleLogout: () => void;
 }
 
-export const LoginContext = createContext<LoginContextData>({
+export const LoginContext = createContext<LoginContextType>({
     accessToken: null,
     expires: null,
     refreshToken: null,
     scope: null,
     username: null,
     handleLogin: (username, tokenResponse): void => {},
-//    handleLogout: (): void => {}
+    handleLogout: (): void => {}
 });
+
+export default LoginContext;
 
 // Context Provider ----------------------------------------------------------
 
@@ -63,7 +66,6 @@ export const LoginContextProvider = (props: any) => {
         setUsername(username);
     }
 
-/*
     const handleLogout = (): void => {
         console.info("LoginContext.handleLogout()");
         setAccessToken(null);
@@ -72,17 +74,16 @@ export const LoginContextProvider = (props: any) => {
         setScope(null);
         setUsername(null);
     }
-*/
 
     // Create the context object
-    const loginContext: LoginContextData = {
+    const loginContext: LoginContextType = {
         accessToken: accessToken,
         expires: expires,
         refreshToken: refreshToken,
         scope: scope,
         username: username,
         handleLogin: handleLogin,
-//        handleLogout: (): void => {}
+        handleLogout: handleLogout,
     }
 
     // Return the context, rendering children inside
@@ -93,5 +94,3 @@ export const LoginContextProvider = (props: any) => {
     )
 
 }
-
-export default LoginContext;

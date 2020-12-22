@@ -5,11 +5,11 @@
 
 // External Modules -----------------------------------------------------------
 
-import React, {createContext, useContext, useEffect, useState} from "react";
+import React, {createContext, /*useContext,*/ useEffect, useState} from "react";
 
 // Internal Modules -----------------------------------------------------------
 
-import LoginContext, {LoginContextData} from "./LoginContext";
+//import LoginContext from "./LoginContext";
 import FacilityClient from "../clients/FacilityClient";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/Replacers";
@@ -17,60 +17,56 @@ import ReportError from "../util/ReportError";
 
 // Context Properties ---------------------------------------------------------
 
-export interface FacilityContextData {
+export type FacilityContextData = {
     facilities: Facility[];         // Facilities visible to this user
     index: number;                  // Index of currently selected facility
                                     // (< 0 means none)
     setFacilities: (facilities: Facility[]) => void;
     setIndex: (newIndex: number) => void;
+    setRefresh: (newRefresh: boolean) => void;
 }
 
 export const FacilityContext = createContext<FacilityContextData>({
     facilities: [],
     index: -1,
     setFacilities: (facilities: Facility[]): void => {},
-    setIndex: (index: number): void => {}
+    setIndex: (index: number): void => {},
+    setRefresh: (refresh: boolean): void => {},
 });
+
+export default FacilityContext;
 
 // Context Provider ----------------------------------------------------------
 
 export const FacilityContextProvider = (props: any) => {
 
-    const loginContext: LoginContextData = useContext(LoginContext);
+//    const loginContext = useContext(LoginContext);
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [index, setIndex] = useState<number>(-1);
+    const [refresh, setRefresh] = useState<boolean>(false);
 
     useEffect(() => {
 
-        // TODO - filter by user scope
-        const fetchData = async () => {
+        const fetchFacilities = async () => {
             try {
-                let newFacilities: Facility[] = [];
-/*
-                if (props.all) {
-                    newFacilities = await FacilityClient.all();
-                } else {
-                    newFacilities = await FacilityClient.active();
-                }
-*/
-                newFacilities = await FacilityClient.all(); // TODO - temp
+                const newFacilities: Facility[] = await FacilityClient.all();
                 console.info("FacilityContext.fetchData("
                     + JSON.stringify(newFacilities, Replacers.FACILITY)
                     + ")");
                 setFacilities(newFacilities);
-                // Select first possible Facility by default if present
-                // TODO - save previous index and restore reflecting updates???
-                setIndex(newFacilities.length > 0 ? 0 : -1);
+                setIndex(-1);  // TODO - try to save and restore?
+                setRefresh(false);
             } catch (error) {
                 ReportError("FacilityContext.fetchData()", error);
                 setFacilities([]);
+                setIndex(-1);
             }
         }
 
-        fetchData();
+        fetchFacilities()
 
-    }, [ facilities, index, loginContext ]);
+    }, [refresh]);
 
     // Create the context object
     const facilityContext: FacilityContextData = {
@@ -78,6 +74,7 @@ export const FacilityContextProvider = (props: any) => {
         index: index,
         setFacilities: setFacilities,
         setIndex: setIndex,
+        setRefresh: setRefresh,
     }
 
     // Return the context, rendering children inside
@@ -88,5 +85,3 @@ export const FacilityContextProvider = (props: any) => {
     )
 
 }
-
-export default FacilityContext;

@@ -14,7 +14,7 @@ import Form from "react-bootstrap/Form";
 import { OnChangeSelect } from "./types";
 import FacilityContext, { FacilityContextData } from "../contexts/FacilityContext";
 import Facility from "../models/Facility";
-import LoginContext, {LoginContextData} from "../contexts/LoginContext";
+import LoginContext, {LoginContextType} from "../contexts/LoginContext";
 //import * as Replacers from "../util/Replacers";
 //import ReportError from "../util/ReportError";
 
@@ -33,7 +33,7 @@ export interface Props {
 export const FacilitySelector = (props: Props) => {
 
     const facilityContext: FacilityContextData = useContext(FacilityContext);
-    const loginContext: LoginContextData = useContext(LoginContext);
+    const loginContext: LoginContextType = useContext(LoginContext);
 
     useEffect(() => {
         // TODO - just want to cause a re-render on any change in either context
@@ -42,7 +42,7 @@ export const FacilitySelector = (props: Props) => {
     const onChange: OnChangeSelect = (event) => {
         const newIndex: number = parseInt(event.target.value);
         const newFacility: Facility = (newIndex > 0)
-            ? facilityContext.facilities[facilityContext.index]
+            ? facilityContext.facilities[newIndex]
             : { active: false, id: -1, name: "Unselected", scope: "unselected" };
         console.info("FacilitySelector.onChange("
             + newIndex + ", "
@@ -66,6 +66,7 @@ export const FacilitySelector = (props: Props) => {
                 disabled={props.disabled ? props.disabled : undefined}
                 id="facilitySelector"
                 onChange={onChange}
+                size="sm"
                 value={facilityContext.index}
             >
                 <option key="-1" value="-1">(Select)</option>
