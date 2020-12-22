@@ -4,7 +4,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Formik, FormikValues } from "formik";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -15,11 +15,19 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
+import OAuthClient from "../clients/OAuthClient";
+import LoginContext from "../contexts/LoginContext";
+import PasswordTokenRequest from "../models/PasswordTokenRequest";
+import TokenResponse from "../models/TokenResponse";
+import ReportError from "../util/ReportError";
+
 // Property Details ----------------------------------------------------------
 
 // Component Details ---------------------------------------------------------
 
 export const LoginForm = () => {
+
+    const loginContext = useContext(LoginContext);
 
     const [initialValues] = useState({
         password: "",
@@ -35,9 +43,23 @@ export const LoginForm = () => {
         })
     }
 
-    const handleSubmit = (values: FormikValues) => {
-        alert("Try to log in with " + values.username);
-        // TODO -- attempt to authenticate
+    const handleSubmit = async (values: FormikValues) => {
+        console.info("LoginForm.handleSubmit: Trying to log in with " + values.username);
+        const tokenRequest: PasswordTokenRequest = {
+            grant_type: "password",
+            password: values.password,
+            username: values.username,
+        }
+        try {
+            const tokenResponse: TokenResponse = await OAuthClient.password(tokenRequest);
+            console.info("LoginForm.handleSubmit:  Success");
+            loginContext.handleLogin(values.username, tokenResponse);
+            console.info("LoginForm.handleSubmit: Completed");
+        } catch (error) {
+            console.info("LoginForm.handleSubmit: Login failed: ",
+                JSON.stringify(error, null, 2));
+            ReportError("LoginForm.handleSubmit()", error);
+        }
     }
 
     return (

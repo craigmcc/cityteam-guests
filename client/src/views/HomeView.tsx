@@ -9,8 +9,10 @@ import Container from "react-bootstrap/Container";
 
 // Internal Modules ----------------------------------------------------------
 
+import OAuthClient from "../clients/OAuthClient";
 import LoginContext from "../contexts/LoginContext";
 import LoginForm from "../forms/LoginForm";
+import Button from "react-bootstrap/Button";
 
 // Component Details ---------------------------------------------------------
 
@@ -18,19 +20,35 @@ const HomeView = () => {
 
     const loginContext = useContext(LoginContext);
 
+    const onLogout = async () => {
+        console.info("HomeView.onLogout:  Logging out sent");
+        try {
+            await OAuthClient.revoke(loginContext.accessToken
+                ? loginContext.accessToken : "");
+        } catch (error) {
+            console.info("HomeView.onLogout: Error received: ", error);
+        }
+        loginContext.handleLogout();
+        console.info("HomeView.onLogout:  Logging out completed");
+    }
+
     return (
         <>
             <Container fluid id="HomeView">
+
                 <p>
                     This is HomeView for NODE_ENV {process.env.NODE_ENV}.
                 </p>
-                <p>
-                    Entire Environment:
-                    {JSON.stringify(process.env, null, 2)}
-                </p>
 
                 {(loginContext.loggedIn) ? (
-                    <p>Log Out button goes here</p>
+                    <Button
+                        onClick={onLogout}
+                        size="sm"
+                        type="button"
+                        variant="info"
+                    >
+                        Log Out
+                    </Button>
                 ) : (
                     <LoginForm/>
                 )}
