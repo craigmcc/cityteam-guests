@@ -1,8 +1,8 @@
 // LoginContext --------------------------------------------------------------
 
 // React Context containing information about the currently logged in user
-// (if there is one).  If there is no logged in user, all values (except
-// for the handler functions) will be null.
+// (if there is one).  If there is no logged in user, the loggedIn flag
+// will be false.
 
 // TODO - propagate to something outside the component tree for HTTP clients?
 
@@ -16,24 +16,28 @@ import TokenResponse from "../models/TokenResponse";
 
 // Context Properties --------------------------------------------------------
 
-export type LoginContextType = {
+export type LoginContextData = {
     accessToken: string | null;
     expires: Date | null;
+    loggedIn: boolean;
     refreshToken: string | null;
     scope: string | null;
     username: string | null;
     handleLogin: (username: string, tokenResponse: TokenResponse) => void;
     handleLogout: () => void;
+    validateScope: (scope: string) => boolean;
 }
 
-export const LoginContext = createContext<LoginContextType>({
+export const LoginContext = createContext<LoginContextData>({
     accessToken: null,
     expires: null,
+    loggedIn: false,
     refreshToken: null,
     scope: null,
     username: null,
     handleLogin: (username, tokenResponse): void => {},
-    handleLogout: (): void => {}
+    handleLogout: (): void => {},
+    validateScope: (scope: string): boolean => { return false }
 });
 
 export default LoginContext;
@@ -44,6 +48,7 @@ export const LoginContextProvider = (props: any) => {
 
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [expires, setExpires] = useState<Date | null>(null);
+    const [loggedIn, setLoggedIn] = useState<boolean>(false);
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
     const [scope, setScope] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
@@ -57,6 +62,7 @@ export const LoginContextProvider = (props: any) => {
         const newExpires: Date = new Date
             ((new Date()).getTime() + (tokenResponse.expires_in * 1000));
         setExpires(newExpires);
+        setLoggedIn(true);
         if (tokenResponse.refresh_token) {
             setRefreshToken(tokenResponse.refresh_token);
         } else {
@@ -70,20 +76,64 @@ export const LoginContextProvider = (props: any) => {
         console.info("LoginContext.handleLogout()");
         setAccessToken(null);
         setExpires(null);
+        setLoggedIn(false);
         setRefreshToken(null);
         setScope(null);
         setUsername(null);
     }
 
+    // Return true if there is a logged in user that has the required
+    // scope being requested
+    const validateScope = (required: string): boolean => {
+        if (loggedIn && scope) {
+            // Handle superuser scope
+            if (scope.includes("superuser")) {
+                return true;
+            }
+            // Handle request for logged in user with any scope
+            if (required === "") {
+                return true;
+            }
+            // Otherwise, check required scope versus allowed scope
+            let requiredScopes: string[]
+                = required ? required.split(" ") : [];
+            if (requiredScopes.length === 0) {
+                return true;
+            }
+            let allowedScopes: string[]
+                = scope ? scope.split(" ") : [];
+            if (allowedScopes.length === 0) {
+                return false;
+            }
+            let result = true;
+            requiredScopes.forEach(requiredScope => {
+                let match: boolean = false;
+                allowedScopes.forEach(allowedScope => {
+                    if (requiredScope === allowedScope) {
+                        match = true;
+                    }
+                });
+                if (!match) {
+                    result = false;
+                }
+            });
+            return result;
+        } else {
+            return false;
+        }
+    }
+
     // Create the context object
-    const loginContext: LoginContextType = {
+    const loginContext: LoginContextData = {
         accessToken: accessToken,
         expires: expires,
+        loggedIn: loggedIn,
         refreshToken: refreshToken,
         scope: scope,
         username: username,
         handleLogin: handleLogin,
         handleLogout: handleLogout,
+        validateScope: validateScope,
     }
 
     // Return the context, rendering children inside

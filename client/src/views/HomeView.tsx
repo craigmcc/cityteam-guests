@@ -4,14 +4,19 @@
 
 // External Modules ----------------------------------------------------------
 
-import React from "react";
+import React, { useContext } from "react";
 import Container from "react-bootstrap/Container";
 
 // Internal Modules ----------------------------------------------------------
 
+import LoginContext from "../contexts/LoginContext";
+import LoginForm from "../forms/LoginForm";
+
 // Component Details ---------------------------------------------------------
 
 const HomeView = () => {
+
+    const loginContext = useContext(LoginContext);
 
     return (
         <>
@@ -23,6 +28,13 @@ const HomeView = () => {
                     Entire Environment:
                     {JSON.stringify(process.env, null, 2)}
                 </p>
+
+                {(loginContext.loggedIn) ? (
+                    <p>Log Out button goes here</p>
+                ) : (
+                    <LoginForm/>
+                )}
+
             </Container>
         </>
     )

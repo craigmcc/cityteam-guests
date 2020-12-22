@@ -5,11 +5,12 @@
 // External Modules -----------------------------------------------------------
 
 import React from 'react';
+import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 //import NavDropdown from "react-bootstrap/cjs/NavDropdown";
 import NavItem from "react-bootstrap/NavItem";
-import Row from "react-bootstrap/Row";
+//import Row from "react-bootstrap/Row";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -17,6 +18,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // Internal Modules ----------------------------------------------------------
 
 import FacilitySelector from "./components/FacilitySelector";
+import LoggedInUser from "./components/LoggedInUser";
 import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
 import HomeView from "./views/HomeView";
@@ -64,13 +66,10 @@ function App() {
                 </Nav>
                 {/* NavDropdown things can go here */}
                 {/* Right-justified non-nav stuff can go here */}
-                <Row className="mr-1">
-                  <span className="text-right">
-                    <FacilitySelector
-                        label="Facility:"
-                    />
-                  </span>
-                </Row>
+                <Form className="align-items-right" inline>
+                  <LoggedInUser/>
+                  <FacilitySelector label="Facility:"/>
+                </Form>
               </Navbar.Collapse>
 
             </Navbar>

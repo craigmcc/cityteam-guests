@@ -12,9 +12,9 @@ import Form from "react-bootstrap/Form";
 // Internal Modules ----------------------------------------------------------
 
 import { OnChangeSelect } from "./types";
-import FacilityContext, { FacilityContextData } from "../contexts/FacilityContext";
+import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
-import LoginContext, {LoginContextType} from "../contexts/LoginContext";
 //import * as Replacers from "../util/Replacers";
 //import ReportError from "../util/ReportError";
 
@@ -32,8 +32,8 @@ export interface Props {
 
 export const FacilitySelector = (props: Props) => {
 
-    const facilityContext: FacilityContextData = useContext(FacilityContext);
-    const loginContext: LoginContextType = useContext(LoginContext);
+    const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     useEffect(() => {
         // TODO - just want to cause a re-render on any change in either context
@@ -57,12 +57,13 @@ export const FacilitySelector = (props: Props) => {
     return (
 
         <>
-            <Form.Label htmlFor="facilitySelector">
+            <Form.Label className="mr-1" htmlFor="facilitySelector">
                 {props.label ? props.label : "Facility:"}
             </Form.Label>
             <Form.Control
                 as="select"
                 autoFocus={props.autoFocus ? props.autoFocus : undefined}
+                className="mr-1"
                 disabled={props.disabled ? props.disabled : undefined}
                 id="facilitySelector"
                 onChange={onChange}
