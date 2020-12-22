@@ -88,22 +88,26 @@ export const requireAdmin: RequestHandler =
 
 /**
  * Require just a validated token, no matter what scopes might be allowed.
+ *
+ * In development mode, make sure there is a token but do not bother to
+ * authorize it.  That makes it possible to log out in development mode.
  */
 export const requireAny: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
+        const token = extractToken(req);
+        if (!token) {
+            throw new Forbidden(
+                "No access token presented",
+                "OAuthMiddleware.requireAny()"
+            );
+        }
         if (oauthEnabled) {
-            const token = extractToken(req);
-            if (!token) {
-                throw new Forbidden(
-                    "No access token presented",
-                    "OAuthMiddleware.requireAny()"
-                );
-            }
             const required = "";
             await authorizeToken(token, required);
             res.locals.token = token;
             next();
         } else {
+            res.locals.token = token;
             next();
         }
     }

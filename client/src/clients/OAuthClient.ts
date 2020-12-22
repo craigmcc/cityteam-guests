@@ -12,6 +12,8 @@ import OAuthBase from "./OAuthBase";
 import PasswordTokenRequest from "../models/PasswordTokenRequest";
 import RefreshTokenRequest from "../models/RefreshTokenRequest";
 
+import { CURRENT_ACCESS_TOKEN } from "../contexts/LoginContext";
+
 // Public Objects ------------------------------------------------------------
 
 class OAuthClient {
@@ -39,10 +41,10 @@ class OAuthClient {
         )).data;
     }
 
-    async revoke(token: string): Promise<void> {
+    async revoke(): Promise<void> {
         await OAuthBase.delete(`/token`, {
             headers: {
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${CURRENT_ACCESS_TOKEN}`
             }
         });
     }

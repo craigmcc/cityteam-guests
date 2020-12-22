@@ -17,7 +17,7 @@ const REFRESH_GRANT_TYPE = "refresh_token";
 
 // Internal Modules ----------------------------------------------------------
 
-import { requireAny } from "./OAuthMiddleware";
+import {dumpRequestDetails, requireAny} from "./OAuthMiddleware";
 import { OAuthOrchestrator } from "../server";
 import { BadRequest, ServerError } from "../util/http-errors";
 
@@ -34,7 +34,7 @@ export const OAuthTokenRouter = Router({
 // Token-Specific Routes -----------------------------------------------------
 
 // Revoke the access token (and any related refresh token)
-// that was used to authorize this request
+// that was used to authorize this request.
 OAuthTokenRouter.delete("/",
     requireAny,
     async (req: Request, res: Response) => {
@@ -52,7 +52,7 @@ OAuthTokenRouter.delete("/",
         }
     });
 
-// Request access token and optional refresh token
+// Request access token and optional refresh token.
 OAuthTokenRouter.post("/",
     async (req: Request, res: Response) => {
         let tokenRequest : TokenRequest;

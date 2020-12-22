@@ -44,8 +44,7 @@ const HomeView = () => {
     const handleLogout = async () => {
         console.info(`HomeView.handleLogout: Sending logout for user '${loginContext.username}'`);
         try {
-            await OAuthClient.revoke(loginContext.accessToken
-                ? loginContext.accessToken : "");
+            await OAuthClient.revoke();
             console.info("HomeView.handleLogout: Success");
             loginContext.handleLogout();
             console.info("HomeView.handleLogout: Completed");

@@ -32,6 +32,13 @@ export const LoginForm = (props: Props) => {
         username: ""
     });
 
+    const handleSubmit = async (values: FormikValues) => {
+        props.handleLogin({
+            password: values.password,
+            username: values.username,
+        });
+    }
+
     const validationSchema = () => {
         return Yup.object().shape({
             password: Yup.string()
@@ -39,13 +46,6 @@ export const LoginForm = (props: Props) => {
             username: Yup.string()
                 .required("Username is required")
         })
-    }
-
-    const handleSubmit = async (values: FormikValues) => {
-        props.handleLogin({
-            password: values.password,
-            username: values.username,
-        });
     }
 
     return (
