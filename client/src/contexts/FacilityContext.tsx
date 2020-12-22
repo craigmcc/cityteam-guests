@@ -58,7 +58,7 @@ export const FacilityContextProvider = (props: any) => {
                 setIndex(-1);  // TODO - try to save and restore?
                 setRefresh(false);
             } catch (error) {
-                ReportError("FacilityContext.fetchData()", error);
+                ReportError("FacilityContext.fetchData", error);
                 setFacilities([]);
                 setIndex(-1);
             }

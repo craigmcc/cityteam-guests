@@ -37,7 +37,7 @@ const HomeView = () => {
             loginContext.handleLogin(credentials.username, tokenResponse);
             console.info("HomeView.handleLogin: Completed");
         } catch (error) {
-            ReportError("HomeView.handleLogin()", error);
+            ReportError("HomeView.handleLogin", error);
         }
     }
 
@@ -50,7 +50,7 @@ const HomeView = () => {
             loginContext.handleLogout();
             console.info("HomeView.handleLogout: Completed");
         } catch (error) {
-            ReportError("HomeView.handleLogout()", error);
+            ReportError("HomeView.handleLogout", error);
         }
     }
 

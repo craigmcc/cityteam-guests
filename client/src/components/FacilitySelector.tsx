@@ -15,8 +15,6 @@ import { OnChangeSelect } from "./types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
-//import * as Replacers from "../util/Replacers";
-//import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
 
