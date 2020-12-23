@@ -14,7 +14,8 @@ import Table from "react-bootstrap/Table";
 // Internal Modules ----------------------------------------------------------
 
 //import FacilityClient from "../clients/FacilityClient";
-import FacilityContext, { FacilityContextData } from "../contexts/FacilityContext";
+import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/Replacers";
 //import ReportError from "../util/ReportError";
@@ -23,7 +24,8 @@ import * as Replacers from "../util/Replacers";
 
 const FacilityView = () => {
 
-    const facilityContext: FacilityContextData = useContext(FacilityContext);
+    const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [facility, setFacility] = useState<Facility | null>(null);
@@ -46,6 +48,10 @@ const FacilityView = () => {
 
     }, [facilityContext.facilities]);
 
+    const addEnabled = (): boolean => {
+        return loginContext.validateScope("superuser");
+    }
+
     const handleIndex = (newIndex: number): void => {
         if (newIndex === index) {
             console.info("FacilityView.handleIndex(-1)");
@@ -56,7 +62,9 @@ const FacilityView = () => {
                 + newIndex + ", "
                 + JSON.stringify(facilities[newIndex], Replacers.FACILITY)
                 + ")");
-            setFacility(facilities[newIndex]);
+            if (loginContext.validateScope("admin")) {
+                setFacility(facilities[newIndex]);
+            }
             setIndex(newIndex)
         }
     }
@@ -143,7 +151,7 @@ const FacilityView = () => {
                                         colSpan={8}
                                         key={101}
                                     >
-                                        All Facilities
+                                        Facilities
                                     </th>
                                 </tr>
                                 <tr className="table-secondary" key={102}>
@@ -180,6 +188,7 @@ const FacilityView = () => {
 
                     <Row className="ml-1 mr-1">
                         <Button
+                            disabled={!addEnabled()}
                             onClick={onAdd}
                             size="sm"
                             variant="primary"

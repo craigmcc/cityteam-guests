@@ -66,11 +66,11 @@ function App() {
                 </Nav>
                 {/* NavDropdown things can go here */}
                 {/* Right-justified non-nav stuff can go here */}
-                <Row className="align-content-end auto">
-                  <Col>
+                <Row>
+                  <Col className="col-6">
                     <LoggedInUser/>
                   </Col>
-                  <Col>
+                  <Col className="col-6">
                     <FacilitySelector/>
                   </Col>
                 </Row>

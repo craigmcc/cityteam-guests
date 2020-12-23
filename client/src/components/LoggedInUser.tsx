@@ -72,7 +72,7 @@ export const LoggedInUser = () => {
             <Form>
 
                     <Form.Label htmlFor="loggedInUsername">
-                        <span className="mr-3">User:</span>
+                        <span>User </span>
                         {(loginContext.loggedIn) ? (
                             <Button
                                 onClick={handleLogout}
@@ -89,7 +89,7 @@ export const LoggedInUser = () => {
                                 type="button"
                                 variant="outline-dark"
                             >
-                                <span>Log In&nbsp;</span>
+                                Log In
                             </Button>
                         )}
                     </Form.Label>

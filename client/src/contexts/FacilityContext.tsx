@@ -5,11 +5,11 @@
 
 // External Modules -----------------------------------------------------------
 
-import React, {createContext, /*useContext,*/ useEffect, useState} from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 
 // Internal Modules -----------------------------------------------------------
 
-//import LoginContext from "./LoginContext";
+import LoginContext from "./LoginContext";
 import FacilityClient from "../clients/FacilityClient";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/Replacers";
@@ -40,7 +40,7 @@ export default FacilityContext;
 
 export const FacilityContextProvider = (props: any) => {
 
-//    const loginContext = useContext(LoginContext);
+    const loginContext = useContext(LoginContext);
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [index, setIndex] = useState<number>(-1);
@@ -50,12 +50,22 @@ export const FacilityContextProvider = (props: any) => {
 
         const fetchFacilities = async () => {
             try {
-                const newFacilities: Facility[] = await FacilityClient.active();
-                console.info("FacilityContext.fetchData("
+                const newFacilities: Facility[] = [];
+                if (loginContext.loggedIn && loginContext.scope) {
+//                    console.info(`FacilityContext.validateScopeAgainst(${loginContext.scope})`);
+                    const activeFacilities: Facility[] = await FacilityClient.active();
+                    activeFacilities.forEach(activeFacility => {
+//                        console.info(`FacilityContext.validateScopeFor(${activeFacility.scope})`);
+                        if (loginContext.validateScope(activeFacility.scope)) {
+                            newFacilities.push(activeFacility);
+                        }
+                    });
+                }
+                console.info("FacilityContext.fetchFacilities("
                     + JSON.stringify(newFacilities, Replacers.FACILITY)
                     + ")");
                 setFacilities(newFacilities);
-                setIndex(-1);  // TODO - try to save and restore?
+                setIndex(newFacilities.length > 0 ? 0 : -1);
                 setRefresh(false);
             } catch (error) {
                 ReportError("FacilityContext.fetchData", error);
@@ -66,7 +76,7 @@ export const FacilityContextProvider = (props: any) => {
 
         fetchFacilities()
 
-    }, [refresh]);
+    }, [loginContext, refresh]);
 
     // Create the context object
     const facilityContext: FacilityContextData = {

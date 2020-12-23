@@ -46,6 +46,7 @@ export default LoginContext;
 
 // For use by HTTP clients to include in their requests
 export let CURRENT_ACCESS_TOKEN: string | null = null;
+export let CURRENT_SCOPE: string | null = null;
 
 export const LoginContextProvider = (props: any) => {
 
@@ -71,6 +72,7 @@ export const LoginContextProvider = (props: any) => {
         setScope(tokenResponse.scope);
         setUsername(newUsername);
         CURRENT_ACCESS_TOKEN = tokenResponse.access_token;
+        CURRENT_SCOPE = tokenResponse.scope;
     }
 
     const handleLogout = (): void => {
@@ -82,14 +84,15 @@ export const LoginContextProvider = (props: any) => {
         setScope(null);
         setUsername(null);
         CURRENT_ACCESS_TOKEN = null;
+        CURRENT_SCOPE = null;
     }
 
     // Return true if there is a logged in user that has the required
     // scope being requested
     const validateScope = (required: string): boolean => {
-        if (loggedIn && scope) {
+        if (loggedIn && CURRENT_SCOPE) {
             // Handle superuser scope
-            if (scope.includes("superuser")) {
+            if (CURRENT_SCOPE.includes("superuser")) {
                 return true;
             }
             // Handle request for logged in user with any scope
@@ -103,7 +106,7 @@ export const LoginContextProvider = (props: any) => {
                 return true;
             }
             let allowedScopes: string[]
-                = scope ? scope.split(" ") : [];
+                = CURRENT_SCOPE ? CURRENT_SCOPE.split(" ") : [];
             if (allowedScopes.length === 0) {
                 return false;
             }
