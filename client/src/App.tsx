@@ -6,7 +6,6 @@
 
 import React from 'react';
 import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 //import NavDropdown from "react-bootstrap/cjs/NavDropdown";
@@ -72,7 +71,7 @@ function App() {
                     <LoggedInUser/>
                   </Col>
                   <Col>
-                    <FacilitySelector label="Facility:"/>
+                    <FacilitySelector/>
                   </Col>
                 </Row>
               </Navbar.Collapse>

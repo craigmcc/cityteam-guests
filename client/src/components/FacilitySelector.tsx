@@ -56,7 +56,7 @@ export const FacilitySelector = (props: Props) => {
 
         <>
             <Form>
-                <Form.Label htmlFor="facilitySelector">
+                <Form.Label className="mb-3" htmlFor="facilitySelector">
                     {props.label ? props.label : "Facility:"}
                 </Form.Label>
                 <Form.Control
