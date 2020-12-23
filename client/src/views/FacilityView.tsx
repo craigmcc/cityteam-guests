@@ -13,12 +13,13 @@ import Table from "react-bootstrap/Table";
 
 // Internal Modules ----------------------------------------------------------
 
-//import FacilityClient from "../clients/FacilityClient";
+import FacilityClient from "../clients/FacilityClient";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
+import FacilityForm, { HandleFacility } from "../forms/FacilityForm";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/Replacers";
-//import ReportError from "../util/ReportError";
+import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
@@ -66,6 +67,54 @@ const FacilityView = () => {
                 setFacility(facilities[newIndex]);
             }
             setIndex(newIndex)
+        }
+    }
+
+    const handleInsert: HandleFacility
+        = async (newFacility) =>
+    {
+        try {
+            const inserted: Facility = await FacilityClient.insert(newFacility);
+            console.info("FacilityView.handleInsert("
+                + JSON.stringify(inserted, Replacers.FACILITY)
+                + ")");
+            setIndex(-1);
+            setFacility(null);
+            facilityContext.setRefresh(true);
+        } catch (error) {
+            ReportError("FacilityView.handleInsert", error);
+        }
+    }
+
+    const handleRemove: HandleFacility
+        = async (newFacility: Facility) =>
+    {
+        try {
+            const removed: Facility = await FacilityClient.remove(newFacility.id);
+            console.info("FacilityView.handleRemove("
+                + JSON.stringify(removed, Replacers.FACILITY)
+                + ")");
+            setIndex(-1);
+            setFacility(null);
+            facilityContext.setRefresh(true);
+        } catch (error) {
+            ReportError("FacilityView.handleRemove", error);
+        }
+    }
+
+    const handleUpdate: HandleFacility
+        = async (newFacility) =>
+    {
+        try {
+            const updated: Facility = await FacilityClient.update(newFacility.id, newFacility);
+            console.info("FacilityView.handleUpdate("
+                + JSON.stringify(updated, Replacers.FACILITY)
+                + ")");
+            setIndex(-1);
+            setFacility(null);
+            facilityContext.setRefresh(true);
+        } catch (error) {
+            ReportError("FacilityView.handleInsert", error);
         }
     }
 
@@ -231,7 +280,12 @@ const FacilityView = () => {
                         </Row>
 
                         <Row>
-                            <pre>{JSON.stringify(facility, null, 2)}</pre>
+                            <FacilityForm
+                                facility={facility}
+                                handleInsert={handleInsert}
+                                handleRemove={handleRemove}
+                                handleUpdate={handleUpdate}
+                            />
                         </Row>
 
                     </>

@@ -49,6 +49,44 @@ export const validateFacilityId = async (facilityId: number): Promise<boolean> =
     }
 }
 
+export const validateFacilityNameUnique
+    = async (facility: Facility): Promise<boolean> =>
+{
+    if (facility) {
+        let options: any = {
+            where: {
+                name: facility.name
+            }
+        }
+        if (facility.id) {
+            options.where.id = {[Op.ne]: facility.id}
+        }
+        let results: Facility[] = await Facility.findAll(options);
+        return (results.length === 0);
+    } else {
+        return true;
+    }
+}
+
+export const validateFacilityScopeUnique
+    = async (facility: Facility): Promise<boolean> =>
+{
+    if (facility) {
+        let options: any = {
+            where: {
+                scope: facility.scope
+            }
+        }
+        if (facility.id) {
+            options.where.id = {[Op.ne]: facility.id}
+        }
+        let results: Facility[] = await Facility.findAll(options);
+        return (results.length === 0);
+    } else {
+        return true;
+    }
+}
+
 export const validateGuestId = async (facilityId: number, guestId: number | undefined): Promise<boolean> => {
     if (guestId) {
         const guest: Guest | null = await Guest.findByPk(guestId);

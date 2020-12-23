@@ -20,6 +20,11 @@ import AbstractModel from "./AbstractModel";
 //import Checkin from "./Checkin";
 import Guest from "./Guest";
 import Template from "./Template";
+import {
+    validateFacilityNameUnique,
+    validateFacilityScopeUnique,
+} from "../util/async-validators";
+import {BadRequest} from "../util/http-errors";
 
 // Public Modules ------------------------------------------------------------
 
@@ -27,7 +32,20 @@ import Template from "./Template";
     comment: "CityTeam Facilities with overnight guests.",
     modelName: "facility",
     tableName: "facilities",
-    validate: { }   // TODO - model level validations
+    validate: {
+        isFacilityNameUnique: async function(this: Facility): Promise<void> {
+            if (!(await validateFacilityNameUnique(this))) {
+                throw new BadRequest
+                    (`name: Name '${this.name}' is already in use`);
+            }
+        },
+        isFacilityScopeUnique: async function(this: Facility): Promise<void> {
+            if (!(await validateFacilityScopeUnique(this))) {
+                throw new BadRequest
+                    (`scope: Scope '${this.scope}' is already in use`);
+            }
+        },
+    }
 })
 export class Facility extends AbstractModel<Facility> {
 

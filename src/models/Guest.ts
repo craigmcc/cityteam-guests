@@ -19,7 +19,7 @@ import AbstractModel from "./AbstractModel";
 import Facility from "./Facility";
 import {
     validateFacilityId,
-    validateGuestNameUnique, validateTemplateNameUnique,
+    validateGuestNameUnique,
 } from "../util/async-validators";
 
 // Public Modules ------------------------------------------------------------

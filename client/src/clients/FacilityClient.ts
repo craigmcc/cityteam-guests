@@ -53,6 +53,10 @@ class FacilityClient {
         return (await ApiBase.get(FACILITIES_BASE + `/name/${name}`)).data;
     }
 
+    async scope<Facility>(scope: string, params?: object): Promise<Facility> {
+        return (await ApiBase.get(FACILITIES_BASE + `/scope/${scope}`)).data;
+    }
+
     // ***** Facility -> Checkin Methods *****
 
     // ***** Facility -> Guest Methods *****
