@@ -45,7 +45,7 @@ import {BadRequest} from "../util/http-errors";
                     (`scope: Scope '${this.scope}' is already in use`);
             }
         },
-    }
+    },
 })
 export class Facility extends AbstractModel<Facility> {
 

@@ -46,7 +46,7 @@ class FacilityClient {
     }
 
     async exact<Facility>(name: string, params?: object): Promise<Facility> {
-        return (await ApiBase.get(FACILITIES_BASE + `/name/${name}`)).data;
+        return (await ApiBase.get(FACILITIES_BASE + `/exact/${name}`)).data;
     }
 
     async name<Facility>(name: string, params?: object): Promise<Facility[]> {

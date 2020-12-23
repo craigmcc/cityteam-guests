@@ -109,15 +109,13 @@ const FacilityForm = (props: Props) => {
                         return validateEmail(value ? value : "");
                     }),
             name: Yup.string()
-                .required("Name is required"),
-/* TODO - nested await
+                .required("Name is required")
                 .test("unique-name",
                     "That name is already in use",
-                    function async (this) {
-                        return await FacilityClient.exact(toFacility(this).name);
+                    async function (this) {
+                        return await validateFacilityNameUnique(toFacility(this.parent));
                     }
                 ),
-*/
             phone: Yup.string()
                 .test("valid-phone",
                     "Invalid phone number format",
@@ -125,15 +123,13 @@ const FacilityForm = (props: Props) => {
                         return validatePhone(value ? value : "");
                     }),
             scope: Yup.string()
-                .required("Scope is required"),
-/* TODO - nested await
+                .required("Scope is required")
                 .test("unique-scope",
                     "That scope is already in use",
-                    function async (this) {
-                        return await FacilityClient.scope(toFacility(this).scope);
+                     async function (this) {
+                        return await validateFacilityScopeUnique(toFacility(this.parent));
                     }
                 ),
-*/
             state: Yup.string()
                 .test("valid-state",
                     "Invalid state abbreviation",

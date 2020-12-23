@@ -8,7 +8,7 @@
 
 // External Modules ----------------------------------------------------------
 
-const { Op } = require("sequelize-typescript");
+const { Op } = require("sequelize");
 
 // Internal Modules ----------------------------------------------------------
 
@@ -53,13 +53,20 @@ export const validateFacilityNameUnique
     = async (facility: Facility): Promise<boolean> =>
 {
     if (facility) {
-        let options: any = {
-            where: {
-                name: facility.name
+        let options: any = {};
+        if (facility.id && (facility.id > 0)) {
+            options = {
+                where: {
+                    id: {[Op.ne]: facility.id},
+                    name: facility.name
+                }
             }
-        }
-        if (facility.id) {
-            options.where.id = {[Op.ne]: facility.id}
+        } else {
+            options = {
+                where: {
+                    name: facility.name
+                }
+            }
         }
         let results: Facility[] = await Facility.findAll(options);
         return (results.length === 0);
@@ -72,13 +79,20 @@ export const validateFacilityScopeUnique
     = async (facility: Facility): Promise<boolean> =>
 {
     if (facility) {
-        let options: any = {
-            where: {
-                scope: facility.scope
+        let options: any = {};
+        if (facility.id && (facility.id > 0)) {
+            options = {
+                where: {
+                    id: {[Op.ne]: facility.id},
+                    scope: facility.scope
+                }
             }
-        }
-        if (facility.id) {
-            options.where.id = {[Op.ne]: facility.id}
+        } else {
+            options = {
+                where: {
+                    scope: facility.scope
+                }
+            }
         }
         let results: Facility[] = await Facility.findAll(options);
         return (results.length === 0);

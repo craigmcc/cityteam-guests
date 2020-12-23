@@ -119,7 +119,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         let results = await Facility.findAll(options);
         if (results.length !== 1) {
             throw new NotFound(
-                `name: Missing Facility '${name}'`,
+                `name: Missing Facility name '${name}'`,
                 "FacilityServices.exact()");
         }
         return results[0];
