@@ -14,7 +14,12 @@ import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
-import { NotFound } from "../util/http-errors";
+import TemplateServices, {
+    fields as templateFields,
+    fieldsWithId as templateFieldsWithId
+} from "./TemplateServices";
+
+import {Forbidden, NotFound} from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
 import {
     CHECKIN_ORDER,
@@ -30,17 +35,17 @@ export class FacilityServices extends AbstractServices<Facility> {
     // Standard CRUD Methods -------------------------------------------------
 
     public async all(query?: any): Promise<Facility[]> {
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: FACILITY_ORDER
         }, query);
         return Facility.findAll(options);
     }
 
     public async find(facilityId: number, query?: any): Promise<Facility> {
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             where: { id: facilityId }
         }, query);
-        let results = await Facility.findAll(options);
+        const results = await Facility.findAll(options);
         if (results.length === 1) {
             return results[0];
         } else {
@@ -51,23 +56,19 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async insert(facility: Facility): Promise<Facility> {
-        try {
-            return await Facility.create(facility, {
-                fields: fields,
-            });
-        } catch (error) {
-            throw error;
-        }
+        return await Facility.create(facility, {
+            fields: fields,
+        });
     }
 
     public async remove(facilityId: number): Promise<Facility> {
-        let removed = await Facility.findByPk(facilityId);
+        const removed = await Facility.findByPk(facilityId);
         if (!removed) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.remove()");
         }
-        let count = await Facility.destroy({
+        const count = await Facility.destroy({
             where: { id: facilityId }
         });
         if (count < 1) {
@@ -79,21 +80,17 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async update(facilityId: number, facility: Facility): Promise<Facility> {
-        try {
-            facility.id = facilityId;
-            let result: [number, Facility[]] = await Facility.update(facility, {
-                fields: fieldsWithId,
-                where: { id: facilityId }
-            });
-            if (result[0] < 1) {
-                throw new NotFound(
-                    `facilityId: Cannot update Facility ${facilityId}`,
-                    "FacilityServices.update()");
-            }
-            return await this.find(facilityId);
-        } catch (error) {
-            throw error;
+        facility.id = facilityId;
+        const result: [number, Facility[]] = await Facility.update(facility, {
+            fields: fieldsWithId,
+            where: { id: facilityId }
+        });
+        if (result[0] < 1) {
+            throw new NotFound(
+                `facilityId: Cannot update Facility ${facilityId}`,
+                "FacilityServices.update()");
         }
+        return await this.find(facilityId);
     }
 
     // Model-Specific Methods ------------------------------------------------
@@ -101,7 +98,7 @@ export class FacilityServices extends AbstractServices<Facility> {
     // ***** Facility Lookups *****
 
     public async active(query?: any): Promise<Facility[]> {
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: FACILITY_ORDER,
             where: {
                 active: true
@@ -111,7 +108,7 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async exact(name: string, query?: any): Promise<Facility> {
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             where: {
                 name: name
             }
@@ -126,7 +123,7 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async name(name: string, query?: any): Promise<Facility[]> {
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: FACILITY_ORDER,
             where: {
                 name: { [Op.iLike]: `%${name}%` }
@@ -136,7 +133,7 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async scope(scope: string, query?: any): Promise<Facility> {
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             where: {
                 scope: scope
             }
@@ -150,29 +147,29 @@ export class FacilityServices extends AbstractServices<Facility> {
         return results[0];
     }
 
-    // ***** Checkin Lookups *****
+    // ***** Checkin Interactions *****
 
     public async checkinsAll(facilityId: number, query?: any): Promise<Checkin[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.checkinsAll()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: CHECKIN_ORDER
         }, query);
         return await facility.$get("checkins", options);
     }
 
     public async checkinsAvailable(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.checkinsAll()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: CHECKIN_ORDER,
             where: {
                 checkinDate: checkinDate,
@@ -183,7 +180,7 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async checkinsDate(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
@@ -196,16 +193,16 @@ export class FacilityServices extends AbstractServices<Facility> {
         return await facility.$get("checkins", options);
     }
 
-    // ***** Guest Lookups *****
+    // ***** Guest Interactions *****
 
     public async guestsActive(facilityId: number, query?: any): Promise<Guest[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.guestsActive()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: GUEST_ORDER,
             where: {
                 active: true,
@@ -215,13 +212,13 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async guestsAll(facilityId: number, query?: any): Promise<Guest[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.guestsAll()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: GUEST_ORDER
         }, query);
         return await facility.$get("guests", options);
@@ -233,20 +230,20 @@ export class FacilityServices extends AbstractServices<Facility> {
         lastName: string,
         query?: any
     ): Promise<Guest> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.guestsExact()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: GUEST_ORDER,
             where: {
                 firstName: firstName,
                 lastName: lastName,
             },
         }, query);
-        let results = await facility.$get("guests", options);
+        const results = await facility.$get("guests", options);
         if (results.length < 1) {
             throw new NotFound(
                 `names: Missing Guest '${firstName} ${lastName}'`,
@@ -258,13 +255,13 @@ export class FacilityServices extends AbstractServices<Facility> {
     public async guestsName(
         facilityId: number, name: string, query?: any
     ): Promise<Guest[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
-                "FacilityService.guestsName()");
+                "FacilityServices.guestsName()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: GUEST_ORDER,
             where: {
                 [Op.or]: {
@@ -340,16 +337,16 @@ export class FacilityServices extends AbstractServices<Facility> {
         return summaries;
     }
 
-    // ***** Template Lookups *****
+    // ***** Template Interactions *****
 
     public async templatesActive(facilityId: number, query?: any): Promise<Template[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.templatesActive()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: TEMPLATE_ORDER,
             where: {
                 active: true,
@@ -359,13 +356,13 @@ export class FacilityServices extends AbstractServices<Facility> {
     }
 
     public async templatesAll(facilityId: number, query?: any): Promise<Template[]> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.templatesAll()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: TEMPLATE_ORDER
         }, query);
         return await facility.$get("templates", options);
@@ -376,13 +373,13 @@ export class FacilityServices extends AbstractServices<Facility> {
         name: string,
         query?: any
     ): Promise<Template> {
-        let facility = await Facility.findByPk(facilityId);
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.templatesExact()");
         }
-        let options: FindOptions = appendQuery({
+        const options: FindOptions = appendQuery({
             order: TEMPLATE_ORDER,
             where: {
                 name: name
@@ -397,22 +394,104 @@ export class FacilityServices extends AbstractServices<Facility> {
         return results[0];
     }
 
-    public async templatesName(
-        facilityId: number, name: string, query?: any
-    ): Promise<Template[]> {
-        let facility = await Facility.findByPk(facilityId);
+    public async templatesInsert(
+        facilityId: number, template: Template
+    ): Promise<Template> {
+        const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
-                "FacilityService.templatesName()");
+                "FacilityServices.templatesInsert()");
         }
-        let options: FindOptions = appendQuery({
+        template.facilityId = facilityId; // No cheating
+        return await Template.create(template, {
+            fields: templateFields,
+        });
+    }
+
+    public async templatesName(
+        facilityId: number, name: string, query?: any
+    ): Promise<Template[]> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.templatesName()");
+        }
+        const options: FindOptions = appendQuery({
             order: TEMPLATE_ORDER,
             where: {
                 name: {[Op.iLike]: `%${name}%`},
             },
         }, query);
         return await facility.$get("templates", options);
+    }
+
+    public async templatesRemove(
+        facilityId: number, templateId: number
+    ) : Promise<Template> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.templatesName()");
+        }
+        const removed = await Template.findByPk(templateId);
+        if (!removed) {
+            throw new NotFound(
+                `templateId: Missing Template ${templateId}`,
+                "FacilityServices.templatesName()");
+        }
+        if (removed.facilityId !== facility.id) { // No cheating
+            throw new Forbidden(
+                `templateId: Template ${templateId} does not belong to this Facility`,
+                "FacilityServices.templatesRemove()");
+        }
+        const count = await Template.destroy({
+            where: { id: templateId }
+        });
+        if (count < 1) {
+            throw new NotFound(
+                `templateId: Cannot remove Template ${templateId}`,
+                "FacilityServices.templatesRemove()");
+        }
+        return removed;
+    }
+
+    public async templatesUpdate(
+        facilityId: number, templateId: number, template: Template
+    ) : Promise<Template> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.templatesName()");
+        }
+        console.info("templatesUpdate.facility = ", JSON.stringify(facility));
+        const updated = await Template.findByPk(templateId);
+        if (!updated) {
+            throw new NotFound(
+                `templateId: Missing Template ${templateId}`,
+                "FacilityServices.templatesName()");
+        }
+        console.info("templatesUpdate.template = ", JSON.stringify(updated));
+        if (updated.facilityId !== facility.id) { // No cheating
+            throw new Forbidden(
+                `templateId: Template ${templateId} does not belong to this Facility`,
+                "FacilityServices.templatesUpdate()");
+        }
+        template.id = templateId; // No cheating
+        const result: [number, Template[]] = await Template.update(template, {
+            fields: templateFieldsWithId,
+            where: { id: templateId }
+        })
+        if (result[0] < 1) {
+            throw new NotFound(
+                `templateId: Cannot update Template ${templateId}`,
+                "FacilityServices.templatesUpdate()"
+            )
+        }
+        return await TemplateServices.find(templateId);
     }
 
 }

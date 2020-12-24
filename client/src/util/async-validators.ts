@@ -16,6 +16,7 @@
 
 import FacilityClient from "../clients/FacilityClient";
 import Facility from "../models/Facility";
+import Template from "../models/Template";
 
 // Public Objects ------------------------------------------------------------
 
@@ -41,6 +42,22 @@ export const validateFacilityScopeUnique
         try {
             const result: Facility = await FacilityClient.scope(facility.scope);
             return (result.id === facility.id);
+        } catch (error) {
+            return true; // Definitely unique
+        }
+    } else {
+        return true;
+    }
+}
+
+export const validateTemplateNameUnique
+    = async (template: Template): Promise<boolean> =>
+{
+    if (template) {
+        try {
+            const result: Template
+                = await FacilityClient.templatesExact(template.facilityId, template.name);
+            return (result.id === template.id);
         } catch (error) {
             return true; // Definitely unique
         }

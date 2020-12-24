@@ -82,7 +82,7 @@ export class Checkin extends AbstractModel<Checkin> {
         allowNull: false,
         comment: "Facility ID of the Facility this Guest has registered at",
         field: "facility_id",
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
         validate: {
             notNull: {
                 msg: "facilityId: Is required"
@@ -113,7 +113,7 @@ export class Checkin extends AbstractModel<Checkin> {
         allowNull: true,
         comment: "Guest ID of the Guest who has checked in for this mat (if any)",
         field: "guest_id",
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
     })
     guestId?: number;
 

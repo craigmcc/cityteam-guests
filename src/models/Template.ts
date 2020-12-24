@@ -126,7 +126,7 @@ export class Template extends AbstractModel<Template> {
         allowNull: false,
         comment: "Facility ID of the Facility this Template is for",
         field: "facility_id",
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
         unique: "uniqueNameWithinFacility",
         validate: {
             notNull: {

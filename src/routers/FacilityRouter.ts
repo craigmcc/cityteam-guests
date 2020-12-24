@@ -201,6 +201,14 @@ FacilityRouter.get("/:facilityId/templates",
             (parseInt(req.params.facilityId), req.query));
     });
 
+// Insert a new Template for this Facility
+FacilityRouter.post("/:facilityId/templates",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.templatesInsert
+        (parseInt(req.params.facilityId), req.body));
+    });
+
 // Find active Templates for this Facility
 FacilityRouter.get("/:facilityId/templates/active",
     requireRegular,
@@ -214,7 +222,7 @@ FacilityRouter.get("/:facilityId/templates/exact/:name",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.templatesExact
-        (parseInt(req.params.facilityId), req.params.name, req.query));
+            (parseInt(req.params.facilityId), req.params.name, req.query));
     });
 
 // Find Templates for this Facility by name match
@@ -223,6 +231,22 @@ FacilityRouter.get("/:facilityId/templates/name/:name",
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.templatesName
             (parseInt(req.params.facilityId), req.params.name, req.query));
+    });
+
+// Remove Template from this Facility
+FacilityRouter.delete("/:facilityId/templates/:templateId",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.templatesRemove
+            (parseInt(req.params.facilityId), parseInt(req.params.templateId)));
+    });
+
+// Update Template in this Facility
+FacilityRouter.put("/:facilityId/templates/:templateId",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.templatesUpdate
+        (parseInt(req.params.facilityId), parseInt(req.params.templateId), req.body));
     });
 
 export default FacilityRouter;

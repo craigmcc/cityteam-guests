@@ -16,12 +16,11 @@ import Table from "react-bootstrap/Table";
 import FacilityClient from "../clients/FacilityClient";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
-//import TemplateForm, { HandleTemplate } from "../forms/TemplateForm";
+import TemplateForm, { HandleTemplate } from "../forms/TemplateForm";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
 import * as Replacers from "../util/Replacers";
 import ReportError from "../util/ReportError";
-//import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
@@ -32,6 +31,7 @@ const TemplateView = () => {
 
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [index, setIndex] = useState<number>(-1);
+    const [refresh, setRefresh] = useState<boolean>(false);
     const [template, setTemplate] = useState<Template | null>(null);
     const [templates, setTemplates] = useState<Template[]>([]);
 
@@ -58,6 +58,7 @@ const TemplateView = () => {
                 } else {
                     setTemplates([]);
                 }
+                setRefresh(false);
             } catch (error) {
                 setTemplates([]);
                 ReportError("TemplateView.fetchTemplates", error);
@@ -67,7 +68,7 @@ const TemplateView = () => {
 
         fetchTemplates();
 
-    }, [facilityContext]);
+    }, [facilityContext, refresh]);
 
     const addEnabled = (): boolean => {
         return loginContext.validateScope("admin");
@@ -90,6 +91,55 @@ const TemplateView = () => {
         }
     }
 
+    const handleInsert: HandleTemplate
+        = async (newTemplate) =>
+    {
+        try {
+            const inserted: Template
+                = await FacilityClient.templatesInsert(facility.id, newTemplate);
+            console.info("TemplateView.handleInsert("
+                + JSON.stringify(inserted, Replacers.TEMPLATE)
+                + ")");
+            setIndex(-1);
+            setRefresh(true);
+            setTemplate(null);
+        } catch (error) {
+            ReportError("TemplateView.handleInsert", error);
+        }
+    }
+
+    const handleRemove: HandleTemplate
+        = async (newTemplate) => {
+        try {
+            const removed: Template
+                = await FacilityClient.templatesRemove(facility.id, newTemplate.id);
+            console.info("TemplateView.handleRemove("
+                + JSON.stringify(removed, Replacers.TEMPLATE)
+                + ")");
+            setIndex(-1);
+            setRefresh(true);
+            setTemplate(null);
+        } catch (error) {
+            ReportError("TemplateView.handleRemove", error);
+        }
+    }
+
+    const handleUpdate: HandleTemplate
+        = async (newTemplate) => {
+        try {
+            const removed: Template = await FacilityClient.templatesUpdate
+                (facility.id, newTemplate.id, newTemplate);
+            console.info("TemplateView.handleUpdate("
+                + JSON.stringify(removed, Replacers.TEMPLATE)
+                + ")");
+            setIndex(-1);
+            setRefresh(true);
+            setTemplate(null);
+        } catch (error) {
+            ReportError("TemplateView.handleUpdate", error);
+        }
+    }
+
     const listHeaders = [
         "Name",
         "Active",
@@ -98,7 +148,6 @@ const TemplateView = () => {
         "Handicap Mats",
         "Socket Mats",
         "Work Mats"
-
     ]
 
     const onAdd = () => {
@@ -156,7 +205,7 @@ const TemplateView = () => {
                             >
 
                                 <thead>
-                                    <tr className="tableDark" key={100}>
+                                    <tr className="table-dark" key={100}>
                                         <th
                                             className="text-center"
                                             colSpan={7}
@@ -225,7 +274,7 @@ const TemplateView = () => {
                                         ) : (
                                             <span>Editing Existing</span>
                                         )}
-                                        &nbsp;Facility
+                                        &nbsp;Template
                                     </>
                                 </strong>
                             </Col>
@@ -242,7 +291,12 @@ const TemplateView = () => {
                         </Row>
 
                         <Row className="ml-1 mr-1">
-                            <pre>{JSON.stringify(template, null, 2)}</pre>
+                            <TemplateForm
+                                handleInsert={handleInsert}
+                                handleRemove={handleRemove}
+                                handleUpdate={handleUpdate}
+                                template={template}
+                            />
                         </Row>
 
                     </>

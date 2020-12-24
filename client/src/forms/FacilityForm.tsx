@@ -16,8 +16,8 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
-import Facility from "../models/Facility";
 import LoginContext from "../contexts/LoginContext";
+import Facility from "../models/Facility";
 import {
     validateFacilityNameUnique,
     validateFacilityScopeUnique,
@@ -50,20 +50,12 @@ const FacilityForm = (props: Props) => {
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [superuser] = useState<boolean>(loginContext.validateScope("superuser"));
 
-    const handleInsert = (values: FormikValues): void => {
-        props.handleInsert(toFacility(values));
-    }
-
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
         if (adding) {
-            handleInsert(values);
+            props.handleInsert(toFacility(values));
         } else {
-            handleUpdate(values);
+            props.handleUpdate(toFacility(values));
         }
-    }
-
-    const handleUpdate = (values: FormikValues) => {
-        props.handleUpdate(toFacility(values));
     }
 
     const onConfirm = (): void => {
@@ -87,7 +79,7 @@ const FacilityForm = (props: Props) => {
             address2: results.address2,
             city: results.city,
             email: results.email,
-            id: results.id,
+            id: props.facility.id,
             name: results.name,
             phone: results.phone,
             scope: results.scope,
@@ -150,7 +142,7 @@ const FacilityForm = (props: Props) => {
         <>
 
             {/* Details Form */}
-            <Container id="facilityForm">
+            <Container id="FacilityForm">
 
                 <Formik
                     initialValues={initialValues}
@@ -173,246 +165,228 @@ const FacilityForm = (props: Props) => {
                            values,
                     }) => (
 
-                        <>
+                        <Form
+                            className="mx-auto"
+                            noValidate
+                            onSubmit={handleSubmit}
+                        >
 
-                            <Form
-                                noValidate
-                                onSubmit={handleSubmit}
-                            >
+                            <Form.Row id="nameActiveScopeRow">
+                                <Form.Group as={Row} className="mr-4"
+                                            controlId="name" id="nameGroup">
+                                    <Form.Label>Name:</Form.Label>
+                                    <Form.Control
+                                        autoFocus={props.autoFocus ? props.autoFocus : undefined}
+                                        htmlSize={25}
+                                        isInvalid={touched.name && !!errors.name}
+                                        isValid={!errors.name}
+                                        name="name"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.name}
+                                    />
+                                    <Form.Control.Feedback type="valid">
+                                        Name is required and must be unique.
+                                    </Form.Control.Feedback>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.name}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                                <Form.Group as={Row}
+                                            controlId="scope" id="scopeGroup">
+                                    <Form.Label>Scope:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={10}
+                                        isInvalid={touched.scope && !!errors.scope}
+                                        isValid={!errors.scope}
+                                        name="scope"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.scope}
+                                    />
+                                    <Form.Control.Feedback type="valid">
+                                        Scope is required and must be unique.
+                                    </Form.Control.Feedback>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.scope}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                                <Form.Group as={Row} controlId="active" id="activeGroup">
+                                    <Form.Check
+                                        feedback={errors.active}
+                                        defaultChecked={values.active}
+                                        id="active"
+                                        label="Active?"
+                                        name="active"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
 
-                                <Form.Row id="nameActiveScopeRow">
+                            <Form.Row id="addressRow">
+                                <Form.Group as={Row} className="mr-4"
+                                            controlId="address1" id="address1Group">
+                                    <Form.Label>Address 1:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={25}
+                                        isInvalid={touched.address1 && !!errors.address1}
+                                        isValid={!errors.address1}
+                                        name="address1"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.address1}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.address1}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                                <Form.Group as={Row} controlId="address2" id="address2Group">
+                                    <Form.Label>Address 2:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={25}
+                                        isInvalid={touched.address2 && !!errors.address2}
+                                        isValid={!errors.address2}
+                                        name="address2"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.address2}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.address2}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
 
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="name" id="nameGroup">
-                                        <Form.Label>Name:</Form.Label>
-                                        <Form.Control
-                                            autoFocus={props.autoFocus ? props.autoFocus : undefined}
-                                            htmlSize={25}
-                                            isInvalid={touched.name && !!errors.name}
-                                            isValid={!errors.name}
-                                            name="name"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.name}
-                                        />
-                                        <Form.Control.Feedback type="valid">
-                                            Name is required and must be unique.
-                                        </Form.Control.Feedback>
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.name}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
+                            <Form.Row id="cityStateZipRow">
+                                <Form.Group as={Row} className="mr-4"
+                                            controlId="city" id="cityGroup">
+                                    <Form.Label>City:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={25}
+                                        isInvalid={touched.city && !!errors.city}
+                                        isValid={!errors.city}
+                                        name="city"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.city}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.city}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                                <Form.Group as={Row} className="mr-4"
+                                            controlId="state" id="stateGroup">
+                                    <Form.Label>State:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={2}
+                                        isInvalid={touched.state && !!errors.state}
+                                        isValid={!errors.state}
+                                        name="state"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.state}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.state}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                                <Form.Group as={Row} controlId="zipCode" id="zipCodeGroup">
+                                    <Form.Label>Zip Code:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={10}
+                                        isInvalid={touched.zipCode && !!errors.zipCode}
+                                        isValid={!errors.zipCode}
+                                        name="zipCode"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.zipCode}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.zipCode}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
 
-                                    <Form.Group as={Row}
-                                                controlId="scope" id="scopeGroup">
-                                        <Form.Label>Scope:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={10}
-                                            isInvalid={touched.scope && !!errors.scope}
-                                            isValid={!errors.scope}
-                                            name="scope"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.scope}
-                                        />
-                                        <Form.Control.Feedback type="valid">
-                                            Scope is required and must be unique.
-                                        </Form.Control.Feedback>
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.scope}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
+                            <Form.Row id="emailPhoneRow">
+                                <Form.Group as={Row} className="mr-4"
+                                            controlId="email" id="emailGroup">
+                                    <Form.Label>Email:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={30}
+                                        isInvalid={touched.email && !!errors.email}
+                                        isValid={!errors.email}
+                                        name="email"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.email}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.email}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                                <Form.Group as={Row} controlId="phone" id="phoneGroup">
+                                    <Form.Label>Phone:</Form.Label>
+                                    <Form.Control
+                                        htmlSize={30}
+                                        isInvalid={touched.phone && !!errors.phone}
+                                        isValid={!errors.phone}
+                                        name="phone"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        type="text"
+                                        value={values.phone}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.phone}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
 
-                                    <Form.Group as={Row} controlId="active" id="activeGroup">
-                                        <Form.Check
-                                            feedback={errors.active}
-                                            defaultChecked={values.active}
-                                            id="active"
-                                            label="Active?"
-                                            name="active"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
+                            <Row className="mb-3">
+                                <Col className="col-10">
+                                    <Button
+                                        disabled={isSubmitting}
+                                        size="sm"
+                                        type="submit"
+                                        variant="primary"
+                                    >
+                                        Save
+                                    </Button>
+                                </Col>
+                                <Col className="col-2 float-right">
+                                    <Button
+                                        disabled={adding || !superuser}
+                                        onClick={onConfirm}
+                                        size="sm"
+                                        type="button"
+                                        variant="danger"
+                                    >
+                                        Remove
+                                    </Button>
+                                </Col>
+                            </Row>
 
-                                </Form.Row>
+                        </Form>
 
-                                <Form.Row id="addressRow">
-
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="address1" id="address1Group">
-                                        <Form.Label>Address 1:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={25}
-                                            isInvalid={touched.address1 && !!errors.address1}
-                                            isValid={!errors.address1}
-                                            name="address1"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.address1}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.address1}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group as={Row} controlId="address2" id="address2Group">
-                                        <Form.Label>Address 2:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={25}
-                                            isInvalid={touched.address2 && !!errors.address2}
-                                            isValid={!errors.address2}
-                                            name="address2"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.address2}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.address2}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                </Form.Row>
-
-                                <Form.Row id="cityStateZipRow">
-
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="city" id="cityGroup">
-                                        <Form.Label>City:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={25}
-                                            isInvalid={touched.city && !!errors.city}
-                                            isValid={!errors.city}
-                                            name="city"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.city}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.city}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="state" id="stateGroup">
-                                        <Form.Label>State:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={2}
-                                            isInvalid={touched.state && !!errors.state}
-                                            isValid={!errors.state}
-                                            name="state"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.state}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.state}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group as={Row} controlId="zipCode" id="zipCodeGroup">
-                                        <Form.Label>Zip Code:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={10}
-                                            isInvalid={touched.zipCode && !!errors.zipCode}
-                                            isValid={!errors.zipCode}
-                                            name="zipCode"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.zipCode}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.zipCode}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                </Form.Row>
-
-                                <Form.Row id="emailPhoneRow">
-
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="email" id="emailGroup">
-                                        <Form.Label>Email:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={30}
-                                            isInvalid={touched.email && !!errors.email}
-                                            isValid={!errors.email}
-                                            name="email"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.email}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.email}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group as={Row} controlId="phone" id="phoneGroup">
-                                        <Form.Label>Phone:</Form.Label>
-                                        <Form.Control
-                                            htmlSize={30}
-                                            isInvalid={touched.phone && !!errors.phone}
-                                            isValid={!errors.phone}
-                                            name="phone"
-                                            onBlur={handleBlur}
-                                            onChange={handleChange}
-                                            size="sm"
-                                            type="text"
-                                            value={values.phone}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.phone}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                </Form.Row>
-
-
-                                <Row className="mb-3">
-                                    <Col className="col-10">
-                                        <Button
-                                            disabled={isSubmitting}
-                                            size="sm"
-                                            type="submit"
-                                            variant="primary"
-                                        >
-                                            Save
-                                        </Button>
-                                    </Col>
-                                    <Col className="col-2 float-right">
-                                        <Button
-                                            disabled={adding || !superuser}
-                                            onClick={onConfirm}
-                                            size="sm"
-                                            type="button"
-                                            variant="danger"
-                                        >
-                                            Remove
-                                        </Button>
-                                    </Col>
-                                </Row>
-
-                            </Form>
-
-                        </>
                     )}
-
 
                 </Formik>
 

@@ -92,6 +92,21 @@ export class TemplateServices extends AbstractServices<Template> {
 
 export default new TemplateServices();
 
+export const fields: string[] = [
+    "active",
+    "allMats",
+    "comments",
+    "facilityId",
+    "handicapMats",
+    "name",
+    "socketMats",
+    "workMats",
+];
+
+export const fieldsWithId: string[] = [
+    ...fields,
+    "id"
+];
 // Private Objects -----------------------------------------------------------
 
 const appendQuery = (options: FindOptions, query?: any): FindOptions => {
@@ -114,17 +129,3 @@ const appendQuery = (options: FindOptions, query?: any): FindOptions => {
 
 }
 
-let fields: string[] = [
-    "active",
-    "allMats",
-    "comments",
-    "facilityId",
-    "handicapMats",
-    "name",
-    "socketMats",
-    "workMats",
-];
-let fieldsWithId: string[] = [
-    ...fields,
-    "id"
-];

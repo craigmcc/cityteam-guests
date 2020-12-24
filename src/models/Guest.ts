@@ -71,7 +71,7 @@ export class Guest extends AbstractModel<Guest> {
         allowNull: false,
         comment: "Facility ID of the Facility this Guest has registered at",
         field: "facility_id",
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
         unique: "uniqueNameWithinFacility",
         validate: {
             notNull: {

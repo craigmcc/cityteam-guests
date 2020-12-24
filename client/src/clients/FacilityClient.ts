@@ -65,8 +65,46 @@ class FacilityClient {
 
     // ***** Facility -> Template Methods *****
 
-    async templatesAll<Template>(facilityId: number, params?: object): Promise<Template[]> {
-        return (await ApiBase.get(FACILITIES_BASE + `/${facilityId}/templates`)).data;
+    async templatesActive<Template>
+            (facilityId: number, params?: object): Promise<Template[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/templates/active`)).data;
+    }
+
+    async templatesAll<Template>
+    (facilityId: number, params?: object): Promise<Template[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/templates`)).data;
+    }
+
+    async templatesExact<Template>
+            (facilityId: number, name: string, params?: object): Promise<Template> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/templates/exact/${name}`)).data;
+    }
+
+    async templatesInsert<Template>
+            (facilityId: number, template: Template): Promise<Template> {
+        return (await ApiBase.post(FACILITIES_BASE
+            + `/${facilityId}/templates`, template)).data;
+    }
+
+    async templatesName<Template>
+            (facilityId: number, name: string, params?: object): Promise<Template[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/templates/name/${name}`)).data;
+    }
+
+    async templatesRemove<Template>
+            (facilityId: number, templateId: number): Promise<Template> {
+        return (await ApiBase.delete(FACILITIES_BASE
+            + `/${facilityId}/templates/${templateId}`)).data;
+    }
+
+    async templatesUpdate<Template>
+            (facilityId: number, templateId: number, template: Template): Promise<Template> {
+        return (await ApiBase.put(FACILITIES_BASE
+            + `/${facilityId}/templates/${templateId}`, template)).data;
     }
 
 }
