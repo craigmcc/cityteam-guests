@@ -23,6 +23,7 @@ import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
 import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
+import TemplateView from "./views/TemplateView";
 
 // Component Details ---------------------------------------------------------
 
@@ -58,10 +59,11 @@ function App() {
                   <LinkContainer to="/home">
                     <NavItem className="nav-link">Home</NavItem>
                   </LinkContainer>
-                </Nav>
-                <Nav className="mr-auto">
                   <LinkContainer to="/facilities">
                     <NavItem className="nav-link">Facilities</NavItem>
+                  </LinkContainer>
+                  <LinkContainer to="/templates">
+                    <NavItem className="nav-link">Templates</NavItem>
                   </LinkContainer>
                 </Nav>
                 {/* NavDropdown things can go here */}
@@ -81,6 +83,9 @@ function App() {
             <Switch>
               <Route exact path="/facilities">
                 <FacilityView/>
+              </Route>
+              <Route exact path="/templates">
+                <TemplateView/>
               </Route>
               <Route path="/">
                 <HomeView/>

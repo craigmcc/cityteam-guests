@@ -65,6 +65,10 @@ class FacilityClient {
 
     // ***** Facility -> Template Methods *****
 
+    async templatesAll<Template>(facilityId: number, params?: object): Promise<Template[]> {
+        return (await ApiBase.get(FACILITIES_BASE + `/${facilityId}/templates`)).data;
+    }
+
 }
 
 export default new FacilityClient();

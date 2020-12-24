@@ -148,8 +148,8 @@ export const requireRegular: RequestHandler =
  */
 export const requireSuperuser: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-        console.info(`OAuthMiddleware.requireSuperuser: req.url: ${req.url}`);
-        console.info(`OAuthMiddleware.requireSuperuser: auth:    ${req.get(AUTHORIZATION_HEADER)}`);
+//        console.info(`OAuthMiddleware.requireSuperuser: req.url: ${req.url}`);
+//        console.info(`OAuthMiddleware.requireSuperuser: auth:    ${req.get(AUTHORIZATION_HEADER)}`);
         if (oauthEnabled) {
             const token = extractToken(req);
             if (!token) {

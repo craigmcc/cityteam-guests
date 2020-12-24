@@ -132,20 +132,10 @@ const FacilityView = () => {
     const onAdd = () => {
         console.info("FacilityView.onAdd()");
         setIndex(-2);
-        const blankFacility: Facility = {
-            active: true,
-            address1: "",
-            address2: "",
-            city: "",
-            email: "",
-            id: -2,
-            name: "",
-            phone: "",
-            scope: "",
-            state: "",
-            zipCode: "",
-        };
-        setFacility(blankFacility);
+        const newFacility: Facility = new Facility({
+            id: -2
+        });
+        setFacility(newFacility);
     }
 
     const onBack = () => {
