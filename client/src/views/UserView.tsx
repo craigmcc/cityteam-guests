@@ -289,6 +289,7 @@ const UserView = () => {
 
                         <Row className="ml-1 mr-1">
                             <UserForm
+                                autoFocus
                                 handleInsert={handleInsert}
                                 handleRemove={handleRemove}
                                 handleUpdate={handleUpdate}

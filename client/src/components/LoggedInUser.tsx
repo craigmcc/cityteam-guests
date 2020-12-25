@@ -118,7 +118,7 @@ export const LoggedInUser = () => {
                     <Modal.Title>Enter Credentials</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <LoginForm handleLogin={handleLogin}/>
+                    <LoginForm autoFocus handleLogin={handleLogin}/>
                 </Modal.Body>
             </Modal>
 

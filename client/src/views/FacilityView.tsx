@@ -271,6 +271,7 @@ const FacilityView = () => {
 
                         <Row>
                             <FacilityForm
+                                autoFocus={true}
                                 facility={facility}
                                 handleInsert={handleInsert}
                                 handleRemove={handleRemove}

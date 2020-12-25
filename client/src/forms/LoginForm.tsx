@@ -20,7 +20,9 @@ import Credentials from "../models/Credentials";
 // Property Details ----------------------------------------------------------
 
 export interface Props {
-    handleLogin: (credentials: Credentials) => void;
+    autoFocus?: boolean;        // Should the first element receive autfocus? [false]
+    handleLogin:                // Handle (credentials) for login request
+        (credentials: Credentials) => void;
 }
 
 // Component Details ---------------------------------------------------------
@@ -84,6 +86,7 @@ export const LoginForm = (props: Props) => {
                                 <Form.Group controlId="username">
                                     <Form.Label>Username:</Form.Label>
                                     <Form.Control
+                                        autoFocus={props.autoFocus}
                                         htmlSize={16}
                                         isInvalid={touched.username && !!errors.username}
                                         isValid={!errors.username}

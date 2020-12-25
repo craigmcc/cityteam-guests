@@ -288,10 +288,11 @@ const GuestView = () => {
 
                         <Row className="ml-1 mr-1">
                             <GuestForm
+                                autoFocus
+                                guest={guest}
                                 handleInsert={handleInsert}
                                 handleRemove={handleRemove}
                                 handleUpdate={handleUpdate}
-                                guest={guest}
                             />
                         </Row>
 

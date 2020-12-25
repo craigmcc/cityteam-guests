@@ -292,6 +292,7 @@ const TemplateView = () => {
 
                         <Row className="ml-1 mr-1">
                             <TemplateForm
+                                autoFocus
                                 handleInsert={handleInsert}
                                 handleRemove={handleRemove}
                                 handleUpdate={handleUpdate}

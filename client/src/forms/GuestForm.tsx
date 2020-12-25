@@ -137,7 +137,7 @@ const GuestForm = (props: Props) => {
                                             controlId="firstName" id="firstNameGroup">
                                     <Form.Label>First Name:</Form.Label>
                                     <Form.Control
-                                        autoFocus={props.autoFocus ? props.autoFocus : undefined}
+                                        autoFocus={props.autoFocus}
                                         htmlSize={30}
                                         isInvalid={touched.firstName && !!errors.firstName}
                                         isValid={!errors.firstName}

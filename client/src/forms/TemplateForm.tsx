@@ -182,7 +182,7 @@ const TemplateForm = (props: Props) => {
                                                 controlId="name" id="nameGroup">
                                         <Form.Label>Name:</Form.Label>
                                         <Form.Control
-                                            autoFocus={props.autoFocus ? props.autoFocus : undefined}
+                                            autoFocus={props.autoFocus}
                                             htmlSize={50}
                                             isInvalid={touched.name && !!errors.name}
                                             isValid={!errors.name}
