@@ -5,6 +5,7 @@
 // Internal Modules ----------------------------------------------------------
 
 import ApiBase from "./ApiBase";
+import { queryParameters } from "../util/query-parameters";
 //import Checkin from "../models/Checkin";
 //import Facility from "../models/Facility";
 //import Guest from "../models/Guest";
@@ -20,11 +21,13 @@ class FacilityClient {
     // ***** Standard CRUD Methods *****
 
     async all<Facility>(params?: object): Promise<Facility[]> {
-        return (await ApiBase.get(FACILITIES_BASE, params)).data;
+        return (await ApiBase.get(FACILITIES_BASE
+            + `${queryParameters(params)}`)).data;
     }
 
     async find<Facility>(facilityId: number, params?: Object): Promise<Facility> {
-        return (await ApiBase.get(FACILITIES_BASE + `/${facilityId}`)).data;
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}${queryParameters(params)}`)).data;
     }
 
     async insert<Facility>(facility: Facility): Promise<Facility> {
@@ -36,25 +39,30 @@ class FacilityClient {
     }
 
     async update<Facility>(facilityId: number, facility: Facility): Promise<Facility> {
-        return (await ApiBase.put(FACILITIES_BASE + `/${facilityId}`, facility)).data;
+        return (await ApiBase.put(FACILITIES_BASE
+            + `/${facilityId}`, facility)).data;
     }
 
     // ***** Model-Specific Methods *****
 
     async active<Facility>(params?: object): Promise<Facility[]> {
-        return (await ApiBase.get(FACILITIES_BASE + "/active", params)).data;
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/active${queryParameters(params)}`, params)).data;
     }
 
     async exact<Facility>(name: string, params?: object): Promise<Facility> {
-        return (await ApiBase.get(FACILITIES_BASE + `/exact/${name}`)).data;
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/exact/${name}${queryParameters(params)}`)).data;
     }
 
     async name<Facility>(name: string, params?: object): Promise<Facility[]> {
-        return (await ApiBase.get(FACILITIES_BASE + `/name/${name}`)).data;
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/name/${name}${queryParameters(params)}`)).data;
     }
 
     async scope<Facility>(scope: string, params?: object): Promise<Facility> {
-        return (await ApiBase.get(FACILITIES_BASE + `/scope/${scope}`)).data;
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/scope/${scope}${queryParameters(params)}`)).data;
     }
 
     // ***** Facility -> Checkin Methods *****
@@ -64,19 +72,19 @@ class FacilityClient {
     async guestsActive<Guest>
             (facilityId: number, params?: object): Promise<Guest[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/guests/active`)).data;
+            + `/${facilityId}/guests/active${queryParameters(params)}`)).data;
     }
 
     async guestsAll<Guest>
             (facilityId: number, params?: object): Promise<Guest[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/guests`)).data;
+            + `/${facilityId}/guests${queryParameters(params)}`)).data;
     }
 
     async guestsExact<Guest>
             (facilityId: number, firstName: string, lastName: string, params?: object): Promise<Guest> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/guests/exact/${firstName}/${lastName}`)).data;
+            + `/${facilityId}/guests/exact/${firstName}/${lastName}${queryParameters(params)}`)).data;
     }
 
     async guestsInsert<Guest>
@@ -88,7 +96,7 @@ class FacilityClient {
     async guestsName<Guest>
             (facilityId: number, name: string, params?: object): Promise<Guest[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/guests/name/${name}`)).data;
+            + `/${facilityId}/guests/name/${name}${queryParameters(params)}`)).data;
     }
 
     async guestsRemove<Guest>
@@ -110,19 +118,19 @@ class FacilityClient {
     async templatesActive<Template>
             (facilityId: number, params?: object): Promise<Template[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/templates/active`)).data;
+            + `/${facilityId}/templates/active${queryParameters(params)}`)).data;
     }
 
     async templatesAll<Template>
     (facilityId: number, params?: object): Promise<Template[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/templates`)).data;
+            + `/${facilityId}/templates${queryParameters(params)}`)).data;
     }
 
     async templatesExact<Template>
             (facilityId: number, name: string, params?: object): Promise<Template> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/templates/exact/${name}`)).data;
+            + `/${facilityId}/templates/exact/${name}${queryParameters(params)}`)).data;
     }
 
     async templatesInsert<Template>
@@ -134,7 +142,7 @@ class FacilityClient {
     async templatesName<Template>
             (facilityId: number, name: string, params?: object): Promise<Template[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/templates/name/${name}`)).data;
+            + `/${facilityId}/templates/name/${name}${queryParameters(params)}`)).data;
     }
 
     async templatesRemove<Template>
@@ -154,19 +162,19 @@ class FacilityClient {
     async usersActive<User>
     (facilityId: number, params?: object): Promise<User[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/users/active`)).data;
+            + `/${facilityId}/users/active${queryParameters(params)}`)).data;
     }
 
     async usersAll<User>
     (facilityId: number, params?: object): Promise<User[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/users`)).data;
+            + `/${facilityId}/users${queryParameters(params)}`)).data;
     }
 
     async usersExact<User>
     (facilityId: number, name: string, params?: object): Promise<User> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/users/exact/${name}`)).data;
+            + `/${facilityId}/users/exact/${name}${queryParameters(params)}`)).data;
     }
 
     async usersInsert<User>
@@ -178,7 +186,7 @@ class FacilityClient {
     async usersName<User>
     (facilityId: number, name: string, params?: object): Promise<User[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/users/name/${name}`)).data;
+            + `/${facilityId}/users/name/${name}${queryParameters(params)}`)).data;
     }
 
     async usersRemove<User>

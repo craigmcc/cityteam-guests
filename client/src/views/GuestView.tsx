@@ -14,6 +14,8 @@ import Table from "react-bootstrap/Table";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
+import Pagination from "../components/Pagination";
+import SearchBar from "../components/SearchBar";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import GuestForm, { HandleGuest } from "../forms/GuestForm";
@@ -29,11 +31,14 @@ const GuestView = () => {
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [facility, setFacility] = useState<Facility>(new Facility());
-    const [index, setIndex] = useState<number>(-1);
-    const [refresh, setRefresh] = useState<boolean>(false);
     const [guest, setGuest] = useState<Guest | null>(null);
     const [guests, setGuests] = useState<Guest[]>([]);
+    const [index, setIndex] = useState<number>(-1);
+    const [pageSize] = useState<number>(10);
+    const [refresh, setRefresh] = useState<boolean>(false);
+    const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
 
@@ -48,30 +53,46 @@ const GuestView = () => {
             setFacility(newFacility);
 
             try {
-                if (newFacility.id > 0) {
-                    const newGuests: Guest[]
-                        = await FacilityClient.guestsAll(newFacility.id);
+                if ((newFacility.id > 0) && (searchText.length > 0)) {
+                    console.info("GuestView.searchData("
+                        + searchText + ", "
+                        + pageSize + ", "
+                        + (pageSize * (currentPage - 1))
+                        + ")");
+                    const newGuests: Guest[] =
+                        await FacilityClient.guestsName(newFacility.id, searchText, {
+                            limit: pageSize,
+                            offset: (pageSize * (currentPage - 1))
+                        });
                     console.info("GuestView.fetchData("
-                        + JSON.stringify(newGuests, Replacers.TEMPLATE)
+                        + JSON.stringify(newGuests, Replacers.GUEST)
                         + ")");
                     setGuests(newGuests);
                 } else {
-                    setGuests([]);
+                    console.info("GuestView.searchData(skipped)");
+//                    setGuests([]);
                 }
-                setRefresh(false);
             } catch (error) {
                 setGuests([]);
                 ReportError("GuestView.fetchGuests", error);
             }
 
+            setIndex(-1);
+            setRefresh(false);
+
         }
 
         fetchGuests();
 
-    }, [facilityContext, refresh]);
+    }, [facilityContext, currentPage, pageSize, refresh, searchText]);
 
     const addEnabled = (): boolean => {
         return loginContext.validateScope("regular");
+    }
+
+    const handleChange = (newSearchText: string): void => {
+//        setRefresh(true);
+        setSearchText(newSearchText);
     }
 
     const handleIndex = (newIndex: number): void => {
@@ -164,6 +185,18 @@ const GuestView = () => {
         setGuest(null);
     }
 
+    const onNext = () => {
+        const newCurrentPage = currentPage + 1;
+        setCurrentPage(newCurrentPage);
+        setRefresh(true);
+    }
+
+    const onPrevious = () => {
+        const newCurrentPage = currentPage - 1;
+        setCurrentPage(newCurrentPage);
+        setRefresh(true);
+    }
+
     const value = (value: any): string => {
         if (typeof(value) === "boolean") {
             return value ? "Yes" : "No"
@@ -192,6 +225,25 @@ const GuestView = () => {
                     <>
 
                         {/* List View */}
+
+                        <Row className="mb-3 ml-1 mr-1">
+                            <Col className="col-10">
+                                <SearchBar
+                                    handleChange={handleChange}
+                                    placeholder="Search by all or part of either name"
+                                />
+                            </Col>
+                            <Col className="col-2">
+                                <Pagination
+                                    currentPage={currentPage}
+                                    lastPage={(guests.length === 0) ||
+                                        (guests.length < pageSize)}
+                                    onNext={onNext}
+                                    onPrevious={onPrevious}
+                                />
+                            </Col>
+                        </Row>
+
                         <Row className="mb-3 ml-1 mr-1">
                             <Table
                                 bordered
