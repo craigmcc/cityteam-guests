@@ -49,7 +49,7 @@ const SearchBar = (props: Props) => {
 
     return (
         <Form inline>
-            <Form.Label htmlFor="searchBar">
+            <Form.Label className="mr-1" htmlFor="searchBar">
                 {props.label ? props.label : undefined}
             </Form.Label>
             <Form.Control

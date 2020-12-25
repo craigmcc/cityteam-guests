@@ -227,13 +227,15 @@ const GuestView = () => {
                         {/* List View */}
 
                         <Row className="mb-3 ml-1 mr-1">
-                            <Col className="col-10">
+                            <Col className="col-11">
                                 <SearchBar
+                                    autoFocus
                                     handleChange={handleChange}
+                                    label="Search For:"
                                     placeholder="Search by all or part of either name"
                                 />
                             </Col>
-                            <Col className="col-2">
+                            <Col className="col-`">
                                 <Pagination
                                     currentPage={currentPage}
                                     lastPage={(guests.length === 0) ||
