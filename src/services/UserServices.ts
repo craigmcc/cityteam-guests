@@ -34,6 +34,8 @@ export class UserServices extends AbstractServices<User> {
         }, query);
         let results = await User.findAll(options);
         if (results.length === 1) {
+            // @ts-ignore
+            delete results[0].password;
             return results[0];
         } else {
             throw new NotFound(

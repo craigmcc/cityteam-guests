@@ -28,7 +28,7 @@ import UserServices, {
     fieldsWithId as userFieldsWithId
 } from "./UserServices";
 
-import {Forbidden, NotFound} from "../util/http-errors";
+import {BadRequest, Forbidden, NotFound} from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
 import {
     CHECKIN_ORDER,
@@ -36,6 +36,7 @@ import {
     GUEST_ORDER,
     TEMPLATE_ORDER, USER_ORDER
 } from "../util/sort-orders";
+import {hashPassword} from "../oauth/OAuthUtils";
 
 // Public Objects ------------------------------------------------------------
 
@@ -596,7 +597,12 @@ export class FacilityServices extends AbstractServices<Facility> {
                 active: true,
             },
         }, query);
-        return await facility.$get("users", options);
+        const results = await facility.$get("users", options);
+        results.forEach(result => {
+            // @ts-ignore
+            delete result.password;
+        })
+        return results;
     }
 
     public async usersAll(facilityId: number, query?: any): Promise<User[]> {
@@ -609,7 +615,12 @@ export class FacilityServices extends AbstractServices<Facility> {
         const options: FindOptions = appendQuery({
             order: USER_ORDER
         }, query);
-        return await facility.$get("users", options);
+        const results = await facility.$get("users", options);
+        results.forEach(result => {
+            // @ts-ignore
+            delete result.password;
+        })
+        return results;
     }
 
     public async usersExact(
@@ -635,6 +646,8 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `names: Missing User '${name}'`,
                 "FacilityServices.usersExact()");
         }
+        // @ts-ignore
+        delete results[0].password;
         return results[0];
     }
 
@@ -648,9 +661,16 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.usersInsert()");
         }
         user.facilityId = facilityId; // No cheating
-        return await User.create(user, {
+        if (!user.password) {
+            throw new BadRequest("password:  Is required for a new User");
+        }
+        user.password = await hashPassword(user.password);
+        const result = await User.create(user, {
             fields: userFields,
         });
+        // @ts-ignore
+        delete result.password;
+        return result;
     }
 
     public async usersName(
@@ -668,7 +688,12 @@ export class FacilityServices extends AbstractServices<Facility> {
                 name: {[Op.iLike]: `%${name}%`},
             },
         }, query);
-        return await facility.$get("users", options);
+        const results = await facility.$get("users", options);
+        results.forEach(result => {
+            // @ts-ignore
+            delete result.password;
+        })
+        return results;
     }
 
     public async usersRemove(
@@ -699,6 +724,8 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `userId: Cannot remove User ${userId}`,
                 "FacilityServices.usersRemove()");
         }
+        // @ts-ignore
+        delete removed.password;
         return removed;
     }
 
@@ -723,6 +750,14 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.usersUpdate()");
         }
         user.id = userId; // No cheating
+        if (user.password !== undefined) {
+            if (!user.password || (user.password.length === 0)) {
+                // @ts-ignore
+                delete user.password;
+            } else {
+                user.password = await hashPassword(user.password);
+            }
+        }
         const result: [number, User[]] = await User.update(user, {
             fields: userFieldsWithId,
             where: { id: userId }
@@ -759,6 +794,9 @@ const appendQuery = (options: FindOptions, query?: any): FindOptions => {
     }
     if ("" === query.withTemplates) {
         include.push(Template);
+    }
+    if ("" === query.withUsers) {
+        include.push(User);
     }
     if (include.length > 0) {
         options.include = include;

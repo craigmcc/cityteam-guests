@@ -8,4 +8,4 @@ export const CHECKIN = [ "id", "facilityId", "checkinDate", "matNumber", "guestI
 export const FACILITY = [ "id", "name" ];
 export const GUEST = [ "id", "facilityId", "firstName", "lastName" ];
 export const TEMPLATE = [ "id", "facilityId", "name" ];
-
+export const USER = [ "id", "facilityId", "username", "scope" ];

@@ -277,7 +277,7 @@ FacilityRouter.put("/:facilityId/templates/:templateId",
 
 // Find all Users for this Facility
 FacilityRouter.get("/:facilityId/users",
-    requireRegular,
+    requireAdmin,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.usersAll
             (parseInt(req.params.facilityId), req.query));
@@ -293,7 +293,7 @@ FacilityRouter.post("/:facilityId/users",
 
 // Find active Users for this Facility
 FacilityRouter.get("/:facilityId/users/active",
-    requireRegular,
+    requireAdmin,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.usersActive
             (parseInt(req.params.facilityId), req.query));
@@ -301,7 +301,7 @@ FacilityRouter.get("/:facilityId/users/active",
 
 // Find Users for this Facility by exact username
 FacilityRouter.get("/:facilityId/users/exact/:username",
-    requireRegular,
+    requireAdmin,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.usersExact
             (parseInt(req.params.facilityId), req.params.username, req.query));
@@ -309,7 +309,7 @@ FacilityRouter.get("/:facilityId/users/exact/:username",
 
 // Find Users for this Facility by name match
 FacilityRouter.get("/:facilityId/users/name/:name",
-    requireRegular,
+    requireAdmin,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.usersName
             (parseInt(req.params.facilityId), req.params.name, req.query));

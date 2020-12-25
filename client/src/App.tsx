@@ -25,6 +25,7 @@ import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
 import GuestView from "./views/GuestView";
 import TemplateView from "./views/TemplateView";
+import UserView from "./views/UserView";
 
 // Component Details ---------------------------------------------------------
 
@@ -69,6 +70,9 @@ function App() {
                   <LinkContainer to="/templates">
                     <NavItem className="nav-link">Templates</NavItem>
                   </LinkContainer>
+                  <LinkContainer to="/users">
+                    <NavItem className="nav-link">Users</NavItem>
+                  </LinkContainer>
                 </Nav>
                 {/* NavDropdown things can go here */}
                 {/* Right-justified non-nav stuff can go here */}
@@ -93,6 +97,9 @@ function App() {
               </Route>
               <Route exact path="/templates">
                 <TemplateView/>
+              </Route>
+              <Route exact path="/users">
+                <UserView/>
               </Route>
               <Route path="/">
                 <HomeView/>
