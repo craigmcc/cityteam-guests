@@ -23,6 +23,7 @@ import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
 import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
+import GuestView from "./views/GuestView";
 import TemplateView from "./views/TemplateView";
 
 // Component Details ---------------------------------------------------------
@@ -62,6 +63,9 @@ function App() {
                   <LinkContainer to="/facilities">
                     <NavItem className="nav-link">Facilities</NavItem>
                   </LinkContainer>
+                  <LinkContainer to="/guests">
+                    <NavItem className="nav-link">Guests</NavItem>
+                  </LinkContainer>
                   <LinkContainer to="/templates">
                     <NavItem className="nav-link">Templates</NavItem>
                   </LinkContainer>
@@ -83,6 +87,9 @@ function App() {
             <Switch>
               <Route exact path="/facilities">
                 <FacilityView/>
+              </Route>
+              <Route exact path="/guests">
+                <GuestView/>
               </Route>
               <Route exact path="/templates">
                 <TemplateView/>

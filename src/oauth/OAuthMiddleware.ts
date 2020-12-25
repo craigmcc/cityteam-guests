@@ -20,6 +20,7 @@ import { OAuthOrchestrator } from "../server";
 import { Forbidden } from "../util/http-errors";
 
 const AUTHORIZATION_HEADER = "Authorization";
+const NODE_ENV: string | undefined = process.env.NODE_ENV;
 
 let oauthEnabled: boolean = true;
 if (process.env.OAUTH_ENABLED !== undefined) {
@@ -119,6 +120,18 @@ export const requireNone: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         console.info("OAuthMiddleware.requireNone(): Passing request on");
         next();
+    }
+
+/**
+ * Require that we *not* be in production mode.
+ */
+export const requireNotProduction: RequestHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+        if ("production" === NODE_ENV) {
+            throw new Forbidden("This request is not allowed in production mode");
+        } else {
+            next();
+        }
     }
 
 /**

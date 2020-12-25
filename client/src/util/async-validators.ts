@@ -17,6 +17,7 @@
 import FacilityClient from "../clients/FacilityClient";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
+import Guest from "../models/Guest";
 
 // Public Objects ------------------------------------------------------------
 
@@ -42,6 +43,22 @@ export const validateFacilityScopeUnique
         try {
             const result: Facility = await FacilityClient.scope(facility.scope);
             return (result.id === facility.id);
+        } catch (error) {
+            return true; // Definitely unique
+        }
+    } else {
+        return true;
+    }
+}
+
+export const validateGuestNameUnique
+    = async (guest: Guest): Promise<boolean> =>
+{
+    if (guest) {
+        try {
+            const result: Guest = await FacilityClient.guestsExact
+                (guest.facilityId, guest.firstName, guest.lastName);
+            return (result.id === guest.id);
         } catch (error) {
             return true; // Definitely unique
         }

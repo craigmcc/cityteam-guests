@@ -61,6 +61,48 @@ class FacilityClient {
 
     // ***** Facility -> Guest Methods *****
 
+    async guestsActive<Guest>
+            (facilityId: number, params?: object): Promise<Guest[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/guests/active`)).data;
+    }
+
+    async guestsAll<Guest>
+            (facilityId: number, params?: object): Promise<Guest[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/guests`)).data;
+    }
+
+    async guestsExact<Guest>
+            (facilityId: number, firstName: string, lastName: string, params?: object): Promise<Guest> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/guests/exact/${firstName}/${lastName}`)).data;
+    }
+
+    async guestsInsert<Guest>
+            (facilityId: number, guest: Guest): Promise<Guest> {
+        return (await ApiBase.post(FACILITIES_BASE
+            + `/${facilityId}/guests`, guest)).data;
+    }
+
+    async guestsName<Guest>
+            (facilityId: number, name: string, params?: object): Promise<Guest[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/guests/name/${name}`)).data;
+    }
+
+    async guestsRemove<Guest>
+            (facilityId: number, guestId: number): Promise<Guest> {
+        return (await ApiBase.delete(FACILITIES_BASE
+            + `/${facilityId}/guests/${guestId}`)).data;
+    }
+
+    async guestsUpdate<Guest>
+            (facilityId: number, guestId: number, guest: Guest): Promise<Guest> {
+        return (await ApiBase.put(FACILITIES_BASE
+            + `/${facilityId}/guests/${guestId}`, guest)).data;
+    }
+
     // ***** Facility -> Summary Methods *****
 
     // ***** Facility -> Template Methods *****

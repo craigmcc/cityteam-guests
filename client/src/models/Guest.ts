@@ -12,6 +12,7 @@ class Guest {
         this.facilityId = data.facilityId || -1;
         this.favorite = data.favorite || null;
         this.firstName = data.firstName || "";
+        this.id = data.id || -1;
         this.lastName = data.lastName || "";
     }
 
@@ -20,6 +21,7 @@ class Guest {
     facilityId!: number;
     favorite?: number;
     firstName!: string;
+    id!: number;
     lastName!: string;
 
 }

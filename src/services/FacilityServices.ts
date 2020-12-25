@@ -14,6 +14,10 @@ import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
+import GuestServices, {
+    fields as guestFields,
+    fieldsWithId as guestFieldsWithId
+} from "./GuestServices";
 import TemplateServices, {
     fields as templateFields,
     fieldsWithId as templateFieldsWithId
@@ -252,6 +256,21 @@ export class FacilityServices extends AbstractServices<Facility> {
         return results[0];
     }
 
+    public async guestsInsert(
+        facilityId: number, guest: Guest
+    ): Promise<Guest> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.guestsInsert()");
+        }
+        guest.facilityId = facilityId; // No cheating
+        return await Guest.create(guest, {
+            fields: guestFields,
+        });
+    }
+
     public async guestsName(
         facilityId: number, name: string, query?: any
     ): Promise<Guest[]> {
@@ -271,6 +290,71 @@ export class FacilityServices extends AbstractServices<Facility> {
             },
         }, query);
         return await facility.$get("guests", options);
+    }
+
+    public async guestsRemove(
+        facilityId: number, guestId: number
+    ) : Promise<Guest> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.templatesName()");
+        }
+        const removed = await Guest.findByPk(guestId);
+        if (!removed) {
+            throw new NotFound(
+                `guestId: Missing Guest ${guestId}`,
+                "FacilityServices.guestsName()");
+        }
+        if (removed.facilityId !== facility.id) { // No cheating
+            throw new Forbidden(
+                `guestId: Guest ${guestId} does not belong to this Facility`,
+                "FacilityServices.guestsRemove()");
+        }
+        const count = await Guest.destroy({
+            where: { id: guestId }
+        });
+        if (count < 1) {
+            throw new NotFound(
+                `guestId: Cannot remove Guest ${guestId}`,
+                "FacilityServices.guestsRemove()");
+        }
+        return removed;
+    }
+
+    public async guestsUpdate(
+        facilityId: number, guestId: number, guest: Guest
+    ) : Promise<Guest> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.templatesName()");
+        }
+        const updated = await Guest.findByPk(guestId);
+        if (!updated) {
+            throw new NotFound(
+                `guestId: Missing Guest ${guestId}`,
+                "FacilityServices.guestsUpdate()");
+        }
+        if (updated.facilityId !== facility.id) { // No cheating
+            throw new Forbidden(
+                `guestId: Guest ${guestId} does not belong to this Facility`,
+                "FacilityServices.guestsUpdate()");
+        }
+        guest.id = guestId; // No cheating
+        const result: [number, Guest[]] = await Guest.update(guest, {
+            fields: guestFieldsWithId,
+            where: { id: guestId }
+        })
+        if (result[0] < 1) {
+            throw new NotFound(
+                `guestId: Cannot update Guest ${guestId}`,
+                "FacilityServices.guestsUpdate()"
+            )
+        }
+        return await GuestServices.find(guestId);
     }
 
     // ***** Summary Lookups *****
@@ -467,14 +551,12 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.templatesName()");
         }
-        console.info("templatesUpdate.facility = ", JSON.stringify(facility));
         const updated = await Template.findByPk(templateId);
         if (!updated) {
             throw new NotFound(
                 `templateId: Missing Template ${templateId}`,
-                "FacilityServices.templatesName()");
+                "FacilityServices.templatesUpdate()");
         }
-        console.info("templatesUpdate.template = ", JSON.stringify(updated));
         if (updated.facilityId !== facility.id) { // No cheating
             throw new Forbidden(
                 `templateId: Template ${templateId} does not belong to this Facility`,

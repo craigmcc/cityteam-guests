@@ -143,6 +143,7 @@ export const TEST_TEMPLATE_DATA: Partial<Template>[] = [
     }
 ]
 
+// Must set facilityId for Test Data on loading
 export const TEST_USER_DATA: Partial<User>[] = [
     {
         active: true,
@@ -155,7 +156,7 @@ export const TEST_USER_DATA: Partial<User>[] = [
         active: true,
         name: "Test Admin",
         password: "testadmin",
-        scope: "test admin",
+        scope: "test admin regular",
         username: "testadmin",
     },
     {

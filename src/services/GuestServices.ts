@@ -94,6 +94,19 @@ export class GuestServices extends AbstractServices<Guest> {
 
 export default new GuestServices();
 
+export const fields: string[] = [
+    "active",
+    "comments",
+    "facilityId",
+    "favorite",
+    "firstName",
+    "lastName",
+];
+
+export const fieldsWithId: string[] = [
+    ...fields,
+    "id"
+];
 // Private Objects -----------------------------------------------------------
 
 const appendQuery = (options: FindOptions, query?: any): FindOptions => {
@@ -116,15 +129,3 @@ const appendQuery = (options: FindOptions, query?: any): FindOptions => {
 
 }
 
-let fields: string[] = [
-    "active",
-    "comments",
-    "facilityId",
-    "favorite",
-    "firstName",
-    "lastName",
-];
-let fieldsWithId: string[] = [
-    ...fields,
-    "id"
-];

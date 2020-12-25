@@ -154,6 +154,14 @@ FacilityRouter.get("/:facilityId/guests",
             (parseInt(req.params.facilityId), req.query));
     });
 
+// Insert a new Guest for this Facility
+FacilityRouter.post("/:facilityId/guests",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.guestsInsert
+            (parseInt(req.params.facilityId), req.body));
+    });
+
 // Find active Guests for this Facility
 FacilityRouter.get("/:facilityId/guests/active",
     requireRegular,
@@ -176,6 +184,22 @@ FacilityRouter.get("/:facilityId/guests/name/:name",
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.guestsName
             (parseInt(req.params.facilityId), req.params.name, req.query));
+    });
+
+// Remove Guest from this Facility
+FacilityRouter.delete("/:facilityId/guests/:guestId",
+    requireSuperuser,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.guestsRemove
+            (parseInt(req.params.facilityId), parseInt(req.params.guestId)));
+    });
+
+// Update Guest in this Facility
+FacilityRouter.put("/:facilityId/guests/:guestId",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.guestsUpdate
+            (parseInt(req.params.facilityId), parseInt(req.params.guestId), req.body));
     });
 
 // Facility -> Summary Routes ------------------------------------------------
