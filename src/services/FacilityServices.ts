@@ -14,6 +14,7 @@ import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
+import User from "../models/User";
 import GuestServices, {
     fields as guestFields,
     fieldsWithId as guestFieldsWithId
@@ -22,6 +23,10 @@ import TemplateServices, {
     fields as templateFields,
     fieldsWithId as templateFieldsWithId
 } from "./TemplateServices";
+import UserServices, {
+    fields as userFields,
+    fieldsWithId as userFieldsWithId
+} from "./UserServices";
 
 import {Forbidden, NotFound} from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
@@ -29,7 +34,7 @@ import {
     CHECKIN_ORDER,
     FACILITY_ORDER,
     GUEST_ORDER,
-    TEMPLATE_ORDER
+    TEMPLATE_ORDER, USER_ORDER
 } from "../util/sort-orders";
 
 // Public Objects ------------------------------------------------------------
@@ -518,13 +523,13 @@ export class FacilityServices extends AbstractServices<Facility> {
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
-                "FacilityServices.templatesName()");
+                "FacilityServices.templatesRemove()");
         }
         const removed = await Template.findByPk(templateId);
         if (!removed) {
             throw new NotFound(
                 `templateId: Missing Template ${templateId}`,
-                "FacilityServices.templatesName()");
+                "FacilityServices.templatesRemove()");
         }
         if (removed.facilityId !== facility.id) { // No cheating
             throw new Forbidden(
@@ -549,7 +554,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
-                "FacilityServices.templatesName()");
+                "FacilityServices.templatesUpdate()");
         }
         const updated = await Template.findByPk(templateId);
         if (!updated) {
@@ -574,6 +579,161 @@ export class FacilityServices extends AbstractServices<Facility> {
             )
         }
         return await TemplateServices.find(templateId);
+    }
+
+    // ***** User Interactions *****
+
+    public async usersActive(facilityId: number, query?: any): Promise<User[]> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersActive()");
+        }
+        const options: FindOptions = appendQuery({
+            order: USER_ORDER,
+            where: {
+                active: true,
+            },
+        }, query);
+        return await facility.$get("users", options);
+    }
+
+    public async usersAll(facilityId: number, query?: any): Promise<User[]> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersAll()");
+        }
+        const options: FindOptions = appendQuery({
+            order: USER_ORDER
+        }, query);
+        return await facility.$get("users", options);
+    }
+
+    public async usersExact(
+        facilityId: number,
+        username: string,
+        query?: any
+    ): Promise<User> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersExact()");
+        }
+        const options: FindOptions = appendQuery({
+            order: USER_ORDER,
+            where: {
+                username: username
+            },
+        }, query);
+        let results = await facility.$get("users", options);
+        if (results.length < 1) {
+            throw new NotFound(
+                `names: Missing User '${name}'`,
+                "FacilityServices.usersExact()");
+        }
+        return results[0];
+    }
+
+    public async usersInsert(
+        facilityId: number, user: User
+    ): Promise<User> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersInsert()");
+        }
+        user.facilityId = facilityId; // No cheating
+        return await User.create(user, {
+            fields: userFields,
+        });
+    }
+
+    public async usersName(
+        facilityId: number, name: string, query?: any
+    ): Promise<User[]> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersName()");
+        }
+        const options: FindOptions = appendQuery({
+            order: USER_ORDER,
+            where: {
+                name: {[Op.iLike]: `%${name}%`},
+            },
+        }, query);
+        return await facility.$get("users", options);
+    }
+
+    public async usersRemove(
+        facilityId: number, userId: number
+    ) : Promise<User> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersRemove()");
+        }
+        const removed = await User.findByPk(userId);
+        if (!removed) {
+            throw new NotFound(
+                `userId: Missing User ${userId}`,
+                "FacilityServices.usersRemove()");
+        }
+        if (removed.facilityId !== facility.id) { // No cheating
+            throw new Forbidden(
+                `userId: User ${userId} does not belong to this Facility`,
+                "FacilityServices.usersRemove()");
+        }
+        const count = await User.destroy({
+            where: { id: userId }
+        });
+        if (count < 1) {
+            throw new NotFound(
+                `userId: Cannot remove User ${userId}`,
+                "FacilityServices.usersRemove()");
+        }
+        return removed;
+    }
+
+    public async usersUpdate(
+        facilityId: number, userId: number, user: User
+    ) : Promise<User> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersUpdate()");
+        }
+        const updated = await User.findByPk(userId);
+        if (!updated) {
+            throw new NotFound(
+                `userId: Missing User ${userId}`,
+                "FacilityServices.usersUpdate()");
+        }
+        if (updated.facilityId !== facility.id) { // No cheating
+            throw new Forbidden(
+                `userId: User ${userId} does not belong to this Facility`,
+                "FacilityServices.usersUpdate()");
+        }
+        user.id = userId; // No cheating
+        const result: [number, User[]] = await User.update(user, {
+            fields: userFieldsWithId,
+            where: { id: userId }
+        })
+        if (result[0] < 1) {
+            throw new NotFound(
+                `userId: Cannot update User ${userId}`,
+                "FacilityServices.usersUpdate()"
+            )
+        }
+        return await UserServices.find(userId);
     }
 
 }

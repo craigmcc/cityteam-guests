@@ -8,6 +8,7 @@ class User {
 
     constructor(data: any = {}) {
         this.active = data.active || true;
+        this.facilityId = data.facilityId || -1;
         this.id = data.id || -1;
         this.name = data.name;
         this.password = data.password || null;
@@ -16,6 +17,7 @@ class User {
     }
 
     active!: boolean;
+    facilityId!: number;
     id!: number;
     name!: string;
     password?: string;

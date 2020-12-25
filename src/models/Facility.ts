@@ -20,6 +20,7 @@ import AbstractModel from "./AbstractModel";
 //import Checkin from "./Checkin";
 import Guest from "./Guest";
 import Template from "./Template";
+import User from "./User";
 import {
     validateFacilityNameUnique,
     validateFacilityScopeUnique,
@@ -136,6 +137,9 @@ export class Facility extends AbstractModel<Facility> {
 
     @HasMany(() => Template)
     templates!: Template[];
+
+    @HasMany(() => User)
+    users!: User[];
 
     @Column({
         allowNull: true,

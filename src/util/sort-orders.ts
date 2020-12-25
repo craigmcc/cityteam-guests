@@ -29,3 +29,7 @@ export const TEMPLATE_ORDER: Order = [
     ["name", "ASC"],
 ];
 
+export const USER_ORDER: Order = [
+    ["facilityId", "ASC"],
+    ["username", "ASC"],
+];

@@ -149,6 +149,50 @@ class FacilityClient {
             + `/${facilityId}/templates/${templateId}`, template)).data;
     }
 
+    // ***** Facility -> User Methods *****
+
+    async usersActive<User>
+    (facilityId: number, params?: object): Promise<User[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/users/active`)).data;
+    }
+
+    async usersAll<User>
+    (facilityId: number, params?: object): Promise<User[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/users`)).data;
+    }
+
+    async usersExact<User>
+    (facilityId: number, name: string, params?: object): Promise<User> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/users/exact/${name}`)).data;
+    }
+
+    async usersInsert<User>
+    (facilityId: number, user: User): Promise<User> {
+        return (await ApiBase.post(FACILITIES_BASE
+            + `/${facilityId}/users`, user)).data;
+    }
+
+    async usersName<User>
+    (facilityId: number, name: string, params?: object): Promise<User[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/users/name/${name}`)).data;
+    }
+
+    async usersRemove<User>
+    (facilityId: number, userId: number): Promise<User> {
+        return (await ApiBase.delete(FACILITIES_BASE
+            + `/${facilityId}/users/${userId}`)).data;
+    }
+
+    async usersUpdate<User>
+    (facilityId: number, userId: number, user: User): Promise<User> {
+        return (await ApiBase.put(FACILITIES_BASE
+            + `/${facilityId}/users/${userId}`, user)).data;
+    }
+
 }
 
 export default new FacilityClient();

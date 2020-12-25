@@ -273,4 +273,62 @@ FacilityRouter.put("/:facilityId/templates/:templateId",
         (parseInt(req.params.facilityId), parseInt(req.params.templateId), req.body));
     });
 
+// Facility -> User Routes ---------------------------------------------------
+
+// Find all Users for this Facility
+FacilityRouter.get("/:facilityId/users",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersAll
+            (parseInt(req.params.facilityId), req.query));
+    });
+
+// Insert a new User for this Facility
+FacilityRouter.post("/:facilityId/users",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersInsert
+            (parseInt(req.params.facilityId), req.body));
+    });
+
+// Find active Users for this Facility
+FacilityRouter.get("/:facilityId/users/active",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersActive
+            (parseInt(req.params.facilityId), req.query));
+    });
+
+// Find Users for this Facility by exact username
+FacilityRouter.get("/:facilityId/users/exact/:username",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersExact
+            (parseInt(req.params.facilityId), req.params.username, req.query));
+    });
+
+// Find Users for this Facility by name match
+FacilityRouter.get("/:facilityId/users/name/:name",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersName
+            (parseInt(req.params.facilityId), req.params.name, req.query));
+    });
+
+// Remove User from this Facility
+FacilityRouter.delete("/:facilityId/users/:userId",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersRemove
+            (parseInt(req.params.facilityId), parseInt(req.params.userId)));
+    });
+
+// Update User in this Facility
+FacilityRouter.put("/:facilityId/users/:userId",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersUpdate
+            (parseInt(req.params.facilityId), parseInt(req.params.userId), req.body));
+    });
+
 export default FacilityRouter;
