@@ -8,6 +8,8 @@
 
 // External Modules ----------------------------------------------------------
 
+import User from "../models/User";
+
 const { Op } = require("sequelize");
 
 // Internal Modules ----------------------------------------------------------
@@ -149,6 +151,26 @@ export const validateTemplateNameUnique
             options.where.id = { [Op.ne]: template.id }
         }
         const results: Template[] = await Template.findAll(options);
+        return (results.length === 0);
+    } else {
+        return true;
+    }
+}
+
+export const validateUserUsernameUnique
+    = async (user: User): Promise<boolean> =>
+{
+    if (user) {
+        let options: any = {
+            where: {
+                facilityId: user.facilityId,
+                username: user.username,
+            }
+        }
+        if (user.id) {
+            options.where.id = { [Op.ne]: user.id }
+        }
+        const results: User[] = await User.findAll(options);
         return (results.length === 0);
     } else {
         return true;

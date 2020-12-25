@@ -50,7 +50,7 @@ export class DevModeServices {
         const test: Facility = await findFacility("test");
         const testGuests: Guest[] = await loadGuests(test, TEST_GUEST_DATA);
         const testTemplates: Template[] = await loadTemplates(test, TEST_TEMPLATE_DATA);
-        const testUsers: User[] = await loadUsers(TEST_USER_DATA);
+        const testUsers: User[] = await loadUsers(test, TEST_USER_DATA);
         console.log("reload: Loading Test Data: Complete");
 
         // Return results
@@ -115,7 +115,10 @@ const hashedPassword = async (password: string | undefined): Promise<string> => 
     return await hashPassword(password ? password : "");
 }
 
-const loadUsers = async (users: Partial<User>[]): Promise<User[]> => {
+const loadUsers = async (facility: Facility, users: Partial<User>[]): Promise<User[]> => {
+    users.forEach(user => {
+        user.facilityId = facility.id ? facility.id : 0;
+    })
     const promises = await users.map(user => hashedPassword(user.password));
     const hashedPasswords: string[] = await Promise.all(promises);
     for (let i = 0; i < users.length; i++) {

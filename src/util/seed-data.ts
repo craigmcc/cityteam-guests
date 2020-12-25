@@ -121,7 +121,22 @@ export const TEST_GUEST_DATA: Partial<Guest>[] = [
         active: true,
         firstName: "Bam Bam",
         lastName: "Rubble",
-    }
+    },
+    {
+        active: true,
+        firstName: "Charlie",
+        lastName: "Brown",
+    },
+    {
+        active: true,
+        firstName: "Homer",
+        lastName: "Simpson",
+    },
+    {
+        active: true,
+        firstName: "Bart",
+        lastName: "Simpson",
+    },
 ];
 
 // Must set facilityId for Test Data on loading
