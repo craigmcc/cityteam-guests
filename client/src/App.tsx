@@ -21,6 +21,7 @@ import FacilitySelector from "./components/FacilitySelector";
 import LoggedInUser from "./components/LoggedInUser";
 import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
+import CheckinView from "./views/CheckinView";
 import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
 import GuestView from "./views/GuestView";
@@ -61,6 +62,9 @@ function App() {
                   <LinkContainer to="/home">
                     <NavItem className="nav-link">Home</NavItem>
                   </LinkContainer>
+                  <LinkContainer to="/checkins">
+                    <NavItem className="nav-link">Checkins</NavItem>
+                  </LinkContainer>
                   <LinkContainer to="/facilities">
                     <NavItem className="nav-link">Facilities</NavItem>
                   </LinkContainer>
@@ -89,6 +93,9 @@ function App() {
             </Navbar>
 
             <Switch>
+              <Route exact path="/checkins">
+                <CheckinView/>
+              </Route>
               <Route exact path="/facilities">
                 <FacilityView/>
               </Route>

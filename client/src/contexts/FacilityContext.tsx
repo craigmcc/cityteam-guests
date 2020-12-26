@@ -12,7 +12,7 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import LoginContext from "./LoginContext";
 import FacilityClient from "../clients/FacilityClient";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/Replacers";
+import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Context Properties ---------------------------------------------------------

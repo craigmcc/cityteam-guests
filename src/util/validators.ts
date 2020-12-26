@@ -7,12 +7,34 @@
 
 // Public Objects ------------------------------------------------------------
 
+export const validateDate = (date: string): boolean => {
+    if (!date || (date.length === 0)) {
+        return true;
+    }
+    if (!datePattern.test(date)) {
+        return false;
+    }
+    // TODO - range check on each component
+    return true;
+}
+
 export const validateEmail = (email: string): boolean => {
     if (email) {
         return emailPattern.test(email);
     } else {
         return true;
     }
+}
+
+export const validateMonth = (month: string): boolean => {
+    if (!month || (month.length === 0)) {
+        return true;
+    }
+    if (!monthPattern.test(month)) {
+        return false;
+    }
+    // TODO - range check on each component
+    return true;
 }
 
 export const validatePhone = (phone: string): boolean => {
@@ -41,10 +63,14 @@ export const validateZipCode = (zipCode: string): boolean => {
 
 // Private Objects -----------------------------------------------------------
 
+const datePattern: RegExp = /^\d{4}-\d{2}-\d{2}$/;
+
 // From https://www.w3resource.com/javascript/form/email-validation.php
 // Probably not universal but serves our current needs
 const emailPattern: RegExp
     = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+const monthPattern: RegExp = /^\d{4}-\d{2}$/;
 
 const phonePattern: RegExp = /^\d{3}-\d{3}-\d{4}$/;
 

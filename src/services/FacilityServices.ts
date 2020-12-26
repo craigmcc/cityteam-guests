@@ -37,6 +37,7 @@ import {
     TEMPLATE_ORDER, USER_ORDER
 } from "../util/sort-orders";
 import {hashPassword} from "../oauth/OAuthUtils";
+import MatsList from "../util/MatsList";
 
 // Public Objects ------------------------------------------------------------
 
@@ -159,6 +160,7 @@ export class FacilityServices extends AbstractServices<Facility> {
 
     // ***** Checkin Interactions *****
 
+/*
     public async checkinsAll(facilityId: number, query?: any): Promise<Checkin[]> {
         const facility = await Facility.findByPk(facilityId);
         if (!facility) {
@@ -171,25 +173,9 @@ export class FacilityServices extends AbstractServices<Facility> {
         }, query);
         return await facility.$get("checkins", options);
     }
+*/
 
-    public async checkinsAvailable(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
-        const facility = await Facility.findByPk(facilityId);
-        if (!facility) {
-            throw new NotFound(
-                `facilityId: Missing Facility ${facilityId}`,
-                "FacilityServices.checkinsAll()");
-        }
-        const options: FindOptions = appendQuery({
-            order: CHECKIN_ORDER,
-            where: {
-                checkinDate: checkinDate,
-                guestId: { [ Op.eq]: null },
-            }
-        }, query);
-        return await facility.$get("checkins", options);
-    }
-
-    public async checkinsDate(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
+    public async checkinsAll(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
         const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
@@ -201,6 +187,99 @@ export class FacilityServices extends AbstractServices<Facility> {
             where: { checkinDate: checkinDate }
         }, query);
         return await facility.$get("checkins", options);
+    }
+
+    public async checkinsAvailable(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.checkinsAvailable()");
+        }
+        const options: FindOptions = appendQuery({
+            order: CHECKIN_ORDER,
+            where: {
+                checkinDate: checkinDate,
+                guestId: { [ Op.eq]: null },
+            }
+        }, query);
+        return await facility.$get("checkins", options);
+    }
+
+    public async checkinsGenerate(
+            facilityId: number,
+            checkinDate: string,
+            templateId: number): Promise<Checkin[]>
+    {
+
+        // Look up the requested Facility and Template
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.checkinsGenerate()");
+        }
+        const template = await Template.findByPk(templateId);
+        if (!template) {
+            throw new NotFound(
+                `templateId: Missing Template ${templateId}`,
+                "FacilityServices.checkinsGenerate()");
+        }
+        if (template.facilityId !== facility.id) {
+            throw new BadRequest(
+                `templateId: Template ${templateId} does not belong to this Facility`,
+                "FacilityServices.checkinsGenerate()");
+        }
+
+        // Verify that there are no checkins for this combination already
+        let options: FindOptions = {
+            where: {
+                checkinDate: checkinDate,
+                facilityId: facilityId,
+            }
+        }
+        const count: number = await Checkin.count(options);
+        if (count > 0) {
+            throw new BadRequest(
+                `checkinDate: There are already ${count} checkins for this date`,
+                "FacilityServices.checkinsGenerate()");
+        }
+
+        // Set up the parameters we will need
+        const allMats = new MatsList(template.allMats);
+        const handicapMats = new MatsList(template.handicapMats);
+        const socketMats = new MatsList(template.socketMats);
+        const workMats = new MatsList(template.workMats);
+
+        // Accumulate the requested (and unassigned) checkins to be created
+        const inputs: Checkin[] = [];
+        allMats.exploded().forEach(matNumber => {
+            let features: string | null = "";
+            if (handicapMats && handicapMats.isMemberOf(matNumber)) {
+                features += "H";
+            }
+            if (socketMats && socketMats.isMemberOf(matNumber)) {
+                features += "S";
+            }
+            if (workMats && workMats.isMemberOf(matNumber)) {
+                features += "W";
+            }
+            if (features.length === 0) {
+                features = null;
+            }
+            inputs.push(new Checkin({
+                checkinDate: checkinDate,
+                facilityId: facilityId,
+                features: features,
+                guestId: null,
+                matNumber: matNumber,
+            }));
+        });
+
+        // Persist and return the requested checkins
+        const outputs = await Checkin.bulkCreate(inputs, { validate: true });
+        return outputs;
+
     }
 
     // ***** Guest Interactions *****

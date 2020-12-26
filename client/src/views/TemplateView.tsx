@@ -19,7 +19,7 @@ import LoginContext from "../contexts/LoginContext";
 import TemplateForm, { HandleTemplate } from "../forms/TemplateForm";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
-import * as Replacers from "../util/Replacers";
+import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------

@@ -19,7 +19,7 @@ import LoginContext from "../contexts/LoginContext";
 import UserForm, { HandleUser } from "../forms/UserForm";
 import Facility from "../models/Facility";
 import User from "../models/User";
-import * as Replacers from "../util/Replacers";
+import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------

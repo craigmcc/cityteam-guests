@@ -67,6 +67,33 @@ class FacilityClient {
 
     // ***** Facility -> Checkin Methods *****
 
+    async checkinsAll<Checkin>(
+        facilityId: number,
+        checkinDate: string,
+        params?: object
+    ): Promise<Checkin[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+        + `/${facilityId}/checkins/${checkinDate}/all${queryParameters(params)}`)).data;
+    }
+
+    async checkinsAvailable<Checkin>(
+        facilityId: number,
+        checkinDate: string,
+        params?: object
+    ): Promise<Checkin[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/checkins/${checkinDate}/available${queryParameters(params)}`)).data;
+    }
+
+    async checkinsGenerate<Checkin>(
+        facilityId: number,
+        checkinDate: string,
+        templateId: number
+    ): Promise<Checkin[]> {
+        return (await ApiBase.post(FACILITIES_BASE
+        + `/${facilityId}/checkins/${checkinDate}/generate/${templateId}`)).data;
+    }
+
     // ***** Facility -> Guest Methods *****
 
     async guestsActive<Guest>

@@ -18,7 +18,7 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import FacilityForm, { HandleFacility } from "../forms/FacilityForm";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/Replacers";
+import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------

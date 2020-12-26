@@ -121,18 +121,20 @@ FacilityRouter.put("/:facilityId",
 // Facility -> Checkin Routes ------------------------------------------------
 
 // Find all Checkins for this Facility
+/*
 FacilityRouter.get("/:facilityId/checkins",
     requireSuperuser,
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.checkinsAll
             (parseInt(req.params.facilityId), req.query));
     });
+*/
 
 // Find all Checkins for this Facility on this checkin date
 FacilityRouter.get("/:facilityId/checkins/:checkinDate/all",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.checkinsDate
+        res.send(await FacilityServices.checkinsAll
             (parseInt(req.params.facilityId), req.params.checkinDate, req.query));
     });
 
@@ -142,6 +144,16 @@ FacilityRouter.get("/:facilityId/checkins/:checkinDate/available",
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.checkinsAvailable
            (parseInt(req.params.facilityId), req.params.checkinDate, req.query));
+    });
+
+// Generate Checkins for this Facility on this checkin date from this Template
+FacilityRouter.post("/:facilityId/checkins/:checkinDate/generate/:templateId",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.checkinsGenerate(
+                parseInt(req.params.facilityId),
+                 req.params.checkinDate,
+                parseInt(req.params.templateId)));
     });
 
 // Facility -> Guest Routes -----------------------------------------------
