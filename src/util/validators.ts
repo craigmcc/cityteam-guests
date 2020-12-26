@@ -10,54 +10,50 @@
 export const validateDate = (date: string): boolean => {
     if (!date || (date.length === 0)) {
         return true;
+    } else {
+        // TODO - range check on each component?
+        return datePattern.test(date);
     }
-    if (!datePattern.test(date)) {
-        return false;
-    }
-    // TODO - range check on each component
-    return true;
 }
 
 export const validateEmail = (email: string): boolean => {
-    if (email) {
-        return emailPattern.test(email);
-    } else {
+    if (!email || (email.length === 0)) {
         return true;
+    } else {
+        return emailPattern.test(email);
     }
 }
 
 export const validateMonth = (month: string): boolean => {
     if (!month || (month.length === 0)) {
         return true;
+    } else {
+        // TODO - range check on each component?
+        return monthPattern.test(month);
     }
-    if (!monthPattern.test(month)) {
-        return false;
-    }
-    // TODO - range check on each component
-    return true;
 }
 
 export const validatePhone = (phone: string): boolean => {
-    if (phone) {
-        return phonePattern.test(phone);
-    } else {
+    if (!phone || (phone.length === 0)) {
         return true;
+    } else {
+        return phonePattern.test(phone);
     }
 }
 
 export const validateState = (state: string): boolean => {
-    if (state) {
-        return stateAbbreviations.includes(state);
-    } else {
+    if (!state || (state.length === 0)) {
         return true;
+    } else {
+        return stateAbbreviations.includes(state);
     }
 }
 
 export const validateZipCode = (zipCode: string): boolean => {
-    if (zipCode) {
-        return zipCodePattern.test(zipCode);
-    } else {
+    if (!zipCode || (zipCode.length === 0)) {
         return true;
+    } else {
+        return zipCodePattern.test(zipCode);
     }
 }
 
@@ -76,10 +72,10 @@ const phonePattern: RegExp = /^\d{3}-\d{3}-\d{4}$/;
 
 const stateAbbreviations: string[] =
     [ "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC",
-      "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY",
-      "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT",
-      "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH",
-      "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT",
-      "VT", "VA", "WA", "WV", "WI", "WY" ];
+        "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY",
+        "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT",
+        "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH",
+        "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT",
+        "VT", "VA", "WA", "WV", "WI", "WY" ];
 
 const zipCodePattern: RegExp = /^\d{5}$|^\d{5}-\d{4}$/;

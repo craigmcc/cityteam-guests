@@ -73,13 +73,14 @@ const CheckinView = () => {
             {/* Top View (always visible) */}
             <Container fluid id="CheckinView">
                 <Row className="mt-3 mb-3 ml-1 mr-1">
-                    <Col className="col-7">
+                    <Col className="col-8">
                         <strong>
                             Checkins for {facility.name}
                         </strong>
                     </Col>
-                    <Col className="col-5">
+                    <Col className="col-4">
                         <DateSelector
+                            autoFocus
                             handleDate={handleCheckinDate}
                             label="Checkin Date:"
                             required
