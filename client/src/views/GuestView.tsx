@@ -9,13 +9,13 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import Table from "react-bootstrap/Table";
 
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
 import Pagination from "../components/Pagination";
 import SearchBar from "../components/SearchBar";
+import SimpleList from "../components/SimpleList";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import GuestForm, { HandleGuest } from "../forms/GuestForm";
@@ -53,8 +53,11 @@ const GuestView = () => {
             setFacility(newFacility);
 
             try {
-                if ((newFacility.id > 0) && (searchText.length > 0)) {
-                    console.info("GuestView.searchData("
+                if ((newFacility.id > 0) && (searchText.length === 0)) {
+                    console.info("GuestView.fetchGuests(reset)");
+                    setGuests([]);
+                } else if ((newFacility.id > 0) && (searchText.length > 0)) {
+                    console.info("GuestView.fetchGuests("
                         + searchText + ", "
                         + pageSize + ", "
                         + (pageSize * (currentPage - 1))
@@ -64,12 +67,12 @@ const GuestView = () => {
                             limit: pageSize,
                             offset: (pageSize * (currentPage - 1))
                         });
-                    console.info("GuestView.fetchData("
+                    console.info("GuestView.fetchGuests("
                         + JSON.stringify(newGuests, Replacers.GUEST)
                         + ")");
                     setGuests(newGuests);
                 } else {
-                    console.info("GuestView.searchData(skipped)");
+                    console.info("GuestView.searchGuests(skipped)");
 //                    setGuests([]);
                 }
             } catch (error) {
@@ -91,7 +94,6 @@ const GuestView = () => {
     }
 
     const handleChange = (newSearchText: string): void => {
-//        setRefresh(true);
         setSearchText(newSearchText);
     }
 
@@ -161,6 +163,14 @@ const GuestView = () => {
         }
     }
 
+    const listFields = [
+        "firstName",
+        "lastName",
+        "active",
+        "comments",
+        "favorite",
+    ]
+
     const listHeaders = [
         "First Name",
         "Last Name",
@@ -197,31 +207,12 @@ const GuestView = () => {
         setRefresh(true);
     }
 
-    const value = (value: any): string => {
-        if (typeof(value) === "boolean") {
-            return value ? "Yes" : "No"
-        } else if (!value) {
-            return "";
-        } else {
-            return value;
-        }
-    }
-
-    const values = (guest: Guest): string[] => {
-        let results: string[] = [];
-        results.push(value(guest.firstName));
-        results.push(value(guest.lastName));
-        results.push(value(guest.active));
-        results.push(value(guest.comments));
-        results.push(value(guest.favorite));
-        return results;
-    }
-
     return (
         <>
             <Container fluid id="GuestView">
 
                 {(!guest) ? (
+
                     <>
 
                         {/* List View */}
@@ -247,53 +238,14 @@ const GuestView = () => {
                         </Row>
 
                         <Row className="mb-3 ml-1 mr-1">
-                            <Table
-                                bordered
-                                hover
-                                size="sm"
-                                striped
-                            >
-
-                                <thead>
-                                <tr className="table-dark" key={100}>
-                                    <th
-                                        className="text-center"
-                                        colSpan={7}
-                                        key={101}
-                                    >
-                                        Guests for {facility ? facility.name : "(Select)"}
-                                    </th>
-                                </tr>
-                                <tr className="table-secondary" key={102}>
-                                    {listHeaders.map((header, index) => (
-                                        <th key={200 + index + 1} scope="col">
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                {guests.map((guest, rowIndex) => (
-                                    <tr
-                                        className={"table-" +
-                                        (rowIndex === index ? "primary" : "default")}
-                                        key={1000 + (rowIndex * 100)}
-                                        onClick={() => (handleIndex(rowIndex))}
-                                    >
-                                        {values(guest).map((value: string, colIndex: number) => (
-                                            <td
-                                                data-key={1000 + (rowIndex * 100) + colIndex + 1}
-                                                key={1000 + (rowIndex * 100) + colIndex + 1}
-                                            >
-                                                {value}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                                </tbody>
-
-                            </Table>
+                            <SimpleList
+                                handleIndex={handleIndex}
+                                items={guests}
+                                listFields={listFields}
+                                listHeaders={listHeaders}
+                                title={"Guests for " +
+                                    (facility ? facility.name : "(Select)")}
+                            />
                         </Row>
 
                         <Row className="ml-1 mr-1">

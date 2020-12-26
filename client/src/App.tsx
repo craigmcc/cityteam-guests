@@ -78,17 +78,12 @@ function App() {
                     <NavItem className="nav-link">Users</NavItem>
                   </LinkContainer>
                 </Nav>
-                {/* NavDropdown things can go here */}
-                {/* Right-justified non-nav stuff can go here */}
-                <Row>
-                  <Col className="col-6">
-                    <LoggedInUser/>
-                  </Col>
-                  <Col className="col-6">
-                    <FacilitySelector/>
-                  </Col>
-                </Row>
               </Navbar.Collapse>
+              {/* NavDropdown things can go here */}
+              {/* Right-justified non-nav stuff can go here */}
+                <LoggedInUser/>
+                <span className="mr-4"/>
+                <FacilitySelector/>
 
             </Navbar>
 

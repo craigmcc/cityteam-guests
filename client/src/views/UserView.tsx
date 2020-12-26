@@ -14,6 +14,7 @@ import Table from "react-bootstrap/Table";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
+import SimpleList from "../components/SimpleList";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import UserForm, { HandleUser } from "../forms/UserForm";
@@ -54,7 +55,7 @@ const UserView = () => {
                     newUsers.forEach(newUser => {
                         newUser.password = "";
                     })
-                    console.info("UserView.fetchData("
+                    console.info("UserView.fetchUsers("
                         + JSON.stringify(newUsers, Replacers.TEMPLATE)
                         + ")");
                     setUsers(newUsers);
@@ -143,6 +144,13 @@ const UserView = () => {
         }
     }
 
+    const listFields = [
+        "name",
+        "active",
+        "username",
+        "scope",
+    ]
+
     const listHeaders = [
         "Name",
         "Active",
@@ -166,81 +174,26 @@ const UserView = () => {
         setUser(null);
     }
 
-    const value = (value: any): string => {
-        if (typeof(value) === "boolean") {
-            return value ? "Yes" : "No"
-        } else if (!value) {
-            return "";
-        } else {
-            return value;
-        }
-    }
-
-    const values = (user: User): string[] => {
-        let results: string[] = [];
-        results.push(value(user.name));
-        results.push(value(user.active));
-        results.push(value(user.username));
-        results.push(value(user.scope));
-        return results;
-    }
-
     return (
         <>
             <Container fluid id="UserView">
 
                 {(!user) ? (
+
                     <>
 
                         {/* List View */}
+
                         <Row className="mb-3 ml-1 mr-1">
-                            <Table
-                                bordered
-                                hover
-                                size="sm"
-                                striped
-                            >
 
-                                <thead>
-                                <tr className="table-dark" key={100}>
-                                    <th
-                                        className="text-center"
-                                        colSpan={7}
-                                        key={101}
-                                    >
-                                        Users for {facility ? facility.name : "(Select)"}
-                                    </th>
-                                </tr>
-                                <tr className="table-secondary" key={102}>
-                                    {listHeaders.map((header, index) => (
-                                        <th key={200 + index + 1} scope="col">
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                {users.map((user, rowIndex) => (
-                                    <tr
-                                        className={"table-" +
-                                        (rowIndex === index ? "primary" : "default")}
-                                        key={1000 + (rowIndex * 100)}
-                                        onClick={() => (handleIndex(rowIndex))}
-                                    >
-                                        {values(user).map((value: string, colIndex: number) => (
-                                            <td
-                                                data-key={1000 + (rowIndex * 100) + colIndex + 1}
-                                                key={1000 + (rowIndex * 100) + colIndex + 1}
-                                            >
-                                                {value}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                                </tbody>
-
-                            </Table>
+                            <SimpleList
+                                handleIndex={handleIndex}
+                                items={users}
+                                listFields={listFields}
+                                listHeaders={listHeaders}
+                                title={"Users for " +
+                                    (facility ? facility.name : "(Select)")}
+                            />
                         </Row>
 
                         <Row className="ml-1 mr-1">

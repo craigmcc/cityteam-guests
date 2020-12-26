@@ -69,12 +69,11 @@ export const LoggedInUser = () => {
         <>
 
             {/* Logged In Display and Controls */}
-            <Form>
-
+            <Form inline>
                     <Form.Label htmlFor="loggedInUsername">
-                        <span>User </span>
                         {(loginContext.loggedIn) ? (
                             <Button
+                                className="mr-2"
                                 onClick={handleLogout}
                                 size="sm"
                                 type="button"
@@ -84,6 +83,7 @@ export const LoggedInUser = () => {
                             </Button>
                         ) : (
                             <Button
+                                className="mr-2"
                                 onClick={onShow}
                                 size="sm"
                                 type="button"
@@ -92,10 +92,11 @@ export const LoggedInUser = () => {
                                 Log In
                             </Button>
                         )}
+{/*
+                        <span className="ml-1 mr-1">User:</span>
+*/}
                     </Form.Label>
-
                     <Form.Control
-                        className="mb-1"
                         htmlSize={12}
                         id="loggedInUsername"
                         readOnly={true}

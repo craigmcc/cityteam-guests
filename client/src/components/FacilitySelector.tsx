@@ -55,8 +55,8 @@ export const FacilitySelector = (props: Props) => {
     return (
 
         <>
-            <Form>
-                <Form.Label className="mb-3" htmlFor="facilitySelector">
+            <Form inline>
+                <Form.Label  className="mr-2" htmlFor="facilitySelector">
                     {props.label ? props.label : "Facility:"}
                 </Form.Label>
                 <Form.Control
