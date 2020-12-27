@@ -96,6 +96,7 @@ const CheckinView = () => {
                 <CheckinListSubview
                     checkinDate={checkinDate}
                     handleCheckin={handleCheckin}
+                    handleStage={handleStage}
                 />
             ) : null}
 

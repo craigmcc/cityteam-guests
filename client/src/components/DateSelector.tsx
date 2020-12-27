@@ -109,7 +109,7 @@ const DateSelector = (props: Props) => {
 
         <>
             <Form inline>
-                <Form.Label className="mr-1" htmlFor="dateSelector">
+                <Form.Label className="mr-2" htmlFor="dateSelector">
                     {props.label ? props.label : "Date:"}
                 </Form.Label>
                 <Form.Control

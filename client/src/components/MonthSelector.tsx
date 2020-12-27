@@ -109,7 +109,7 @@ const MonthSelector = (props: Props) => {
 
         <>
             <Form inline>
-                <Form.Label className="mr-1" htmlFor="monthSelector">
+                <Form.Label className="mr-2" htmlFor="monthSelector">
                     {props.label ? props.label : "Month:"}
                 </Form.Label>
                 <Form.Control

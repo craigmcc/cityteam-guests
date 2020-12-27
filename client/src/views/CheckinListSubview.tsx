@@ -10,8 +10,10 @@ import Row from "react-bootstrap/Row";
 
 // Internal Modules -----------------------------------------------------------
 
+import { Stage } from "./CheckinView";
 import FacilityClient from "../clients/FacilityClient";
 import SimpleList from "../components/SimpleList";
+import { OnClick } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
@@ -28,10 +30,12 @@ import Container from "react-bootstrap/Container";
 // Incoming Properties --------------------------------------------------------
 
 export type HandleCheckin = (checkin: Checkin) => void;
+export type HandleStage = (stage: Stage) => void;
 
 export interface Props {
     checkinDate: string;            // Date for which to process checkins
     handleCheckin: HandleCheckin;   // Handle (checkin) when one is selected
+    handleStage: HandleStage;       // Handle (stage) when changing
 }
 
 // Component Details ----------------------------------------------------------
@@ -167,20 +171,40 @@ const CheckinListSubview = (props: Props) => {
         "Comments",
     ];
 
+    const onBack: OnClick = () => {
+        props.handleStage(Stage.None);
+    }
+
     return (
 
         <Container fluid id="CheckinListSubview">
 
             <>
 
+                {/* Back Link */}
+                <Row className="ml-1 mr-1 mb-3">
+                    <Col className="text-right">
+                        <Button
+                            onClick={onBack}
+                            size="sm"
+                            type="button"
+                            variant="primary"
+                        >
+                            Back
+                        </Button>
+                    </Col>
+                </Row>
+
                 {/* Generate From Template */}
                 { (facility.id >= 0) && (checkins.length === 0) ? (
                     <Row className="mb-3 ml-2 col-12">
-                        <Col className="mr-2">
+                        <Col className="mr-2 col-3">
                             <TemplateSelector
                                 handleTemplate={handleTemplate}
                                 label="Select Template:"
                             />
+                        </Col>
+                        <Col>
                             <Button
                                 disabled={template.id < 0}
                                 onClick={handleGenerate}
@@ -196,7 +220,6 @@ const CheckinListSubview = (props: Props) => {
                 )}
 
                 {/* Checkin List View */}
-
                 <Row className="ml-2 mr-2">
                     <SimpleList
                         handleIndex={handleIndex}
