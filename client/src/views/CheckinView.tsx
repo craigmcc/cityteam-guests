@@ -17,6 +17,7 @@ import Checkin from "../models/Checkin";
 import { todayDate } from "../util/dates";
 import * as Replacers from "../util/replacers";
 import Facility from "../models/Facility";
+import CheckinListSubview from "./CheckinListSubview";
 
 export enum Stage {
     None = "None",
@@ -31,7 +32,7 @@ const CheckinView = () => {
 
     const facilityContext = useContext(FacilityContext);
 
-    const [checkin, setCheckin] = useState<Checkin | null>(null);
+//    const [checkin, setCheckin] = useState<Checkin | null>(null);
     const [checkinDate, setCheckinDate] = useState<string>(todayDate());
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [stage, setStage] = useState<Stage>(Stage.None);
@@ -46,7 +47,7 @@ const CheckinView = () => {
             + ")");
         setFacility(newFacility);
 
-    }, [facilityContext])
+    }, [facilityContext, stage]);
 
     const handleCheckin = (newCheckin: Checkin): void => {
         console.info("CheckinView.handleCheckin("
@@ -58,7 +59,7 @@ const CheckinView = () => {
     const handleCheckinDate = (newCheckinDate: string): void => {
         console.info(`CheckinView.handleCheckinDate(${newCheckinDate})`);
         setCheckinDate(newCheckinDate);
-        setStage(Stage.List);
+        handleStage(Stage.List);
     }
 
     const handleStage = (newStage: Stage): void => {
@@ -73,12 +74,12 @@ const CheckinView = () => {
             {/* Top View (always visible) */}
             <Container fluid id="CheckinView">
                 <Row className="mt-3 mb-3 ml-1 mr-1">
-                    <Col className="col-8">
+                    <Col className="col-9">
                         <strong>
                             Checkins for {facility.name}
                         </strong>
                     </Col>
-                    <Col className="col-4">
+                    <Col className="col-3">
                         <DateSelector
                             autoFocus
                             handleDate={handleCheckinDate}
@@ -89,6 +90,14 @@ const CheckinView = () => {
                     </Col>
                 </Row>
             </Container>
+
+            {/* Selected Subview */}
+            {(stage === Stage.List) ? (
+                <CheckinListSubview
+                    checkinDate={checkinDate}
+                    handleCheckin={handleCheckin}
+                />
+            ) : null}
 
         </>
 

@@ -9,7 +9,6 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import Table from "react-bootstrap/Table";
 
 // Internal Modules ----------------------------------------------------------
 
@@ -56,7 +55,7 @@ const UserView = () => {
                         newUser.password = "";
                     })
                     console.info("UserView.fetchUsers("
-                        + JSON.stringify(newUsers, Replacers.TEMPLATE)
+                        + JSON.stringify(newUsers, Replacers.USER)
                         + ")");
                     setUsers(newUsers);
                 } else {

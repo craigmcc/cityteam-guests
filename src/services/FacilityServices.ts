@@ -212,6 +212,11 @@ export class FacilityServices extends AbstractServices<Facility> {
             templateId: number): Promise<Checkin[]>
     {
 
+        console.info("FacilityServices.arguments("
+            + facilityId + ", "
+            + checkinDate + ", "
+            + templateId
+            + ")");
         // Look up the requested Facility and Template
         const facility = await Facility.findByPk(facilityId);
         if (!facility) {
@@ -277,7 +282,24 @@ export class FacilityServices extends AbstractServices<Facility> {
         });
 
         // Persist and return the requested checkins
-        const outputs = await Checkin.bulkCreate(inputs, { validate: true });
+        console.info("FacilityServices.checkinsGenerate.inputs("
+            + JSON.stringify(inputs)
+            + ")");
+        const outputs = await Checkin.bulkCreate(inputs, {
+            fields: ["checkinDate", "facilityId", "features", "matNumber"]
+        });
+/*
+        const outputs: Checkin[] = [];
+        inputs.forEach(input => {
+            Checkin.create(input)
+                .then(output => {
+                    outputs.push(output);
+                })
+        })
+*/
+        console.info("FacilityServices.checkinsGenerate.outputs("
+            + JSON.stringify(outputs)
+            + ")");
         return outputs;
 
     }

@@ -47,14 +47,27 @@ export class DevModeServices {
 
         // Load test data
         console.log("reload: Loading Test Data: Starting");
-        const test: Facility = await findFacility("test");
-        const testGuests: Guest[] = await loadGuests(test, TEST_GUEST_DATA);
-        const testTemplates: Template[] = await loadTemplates(test, TEST_TEMPLATE_DATA);
-        const testUsers: User[] = await loadUsers(test, TEST_USER_DATA);
+        const testFacility: Facility = await findFacility("test");
+        const testGuests: Guest[] = await loadGuests(testFacility, TEST_GUEST_DATA);
+        const testTemplates: Template[] = await loadTemplates(testFacility, TEST_TEMPLATE_DATA);
+        const testUsers: User[] = await loadUsers(testFacility, TEST_USER_DATA);
+        let testCheckinsData: Partial<Checkin>[] = [];
+        testGuests.forEach((testGuest, index) => {
+            const testCheckin: Partial<Checkin> = {
+                checkinDate: new Date("2020-07-04"),
+                comments: `${testGuest.lastName}, ${testGuest.firstName}`,
+                facilityId: testFacility.id,
+                guestId: testGuest.id,
+                matNumber: (index + 1),
+            }
+            testCheckinsData.push(testCheckin);
+        });
+        const testCheckins: Checkin[] = await loadCheckins(testCheckinsData);
         console.log("reload: Loading Test Data: Complete");
 
         // Return results
         return {
+            allCheckins: testCheckins,
             allFacilities: allFacilities,
             allPortlandTemplates: allPortlandTemplates,
             testGuests: testGuests,
@@ -91,6 +104,10 @@ const hashPasswords = async (users: Partial<User>[]): Promise<Partial<User>[]> =
         newUsers.push(newUser);
     });
     return newUsers;
+}
+
+const loadCheckins = async (checkins: Partial<Checkin>[]): Promise<Checkin[]> => {
+    return Checkin.bulkCreate(checkins);
 }
 
 const loadFacilities = async (facilities: Partial<Facility>[]): Promise<Facility[]> => {

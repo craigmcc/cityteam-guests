@@ -187,6 +187,7 @@ const TemplateView = () => {
 
                         <Row className="mb-3 ml-1 mr-1">
                             <SimpleList
+                                handleIndex={handleIndex}
                                 items={templates}
                                 listFields={listFields}
                                 listHeaders={listHeaders}

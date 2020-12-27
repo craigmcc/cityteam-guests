@@ -33,7 +33,7 @@ export interface Props {
 
 // Component Details ---------------------------------------------------------
 
-export const MonthSelector = (props: Props) => {
+const MonthSelector = (props: Props) => {
 
     const [type, setType] = useState<string>("text");
     const [value, setValue] = useState<string>(props.value ? props.value : "");

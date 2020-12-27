@@ -15,14 +15,16 @@ import { OnChangeSelect } from "./types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
+import * as Replacers from "../util/replacers";
 
 // Incoming Properties -------------------------------------------------------
+
+export type HandleFacility = (facility: Facility) => void;
 
 export interface Props {
     autoFocus?: boolean;            // Should element receive autoFocus? [false]
     disabled?: boolean;             // Should element be disabled? [false]
-    handleFacility?: (facility: Facility) => void;
-                                    // Handle new Facility selection [No handler]
+    handleFacility?: HandleFacility;// Handle (facility) selection [No handler]
     label?: string;                 // Element label [Facility:]
 }
 
@@ -44,10 +46,10 @@ export const FacilitySelector = (props: Props) => {
             : { active: false, id: -1, name: "Unselected", scope: "unselected" };
         console.info("FacilitySelector.onChange("
             + newIndex + ", "
-            + JSON.stringify(newFacility)
+            + JSON.stringify(newFacility, Replacers.FACILITY)
             + ")");
         facilityContext.setIndex(newIndex);
-        if (props.handleFacility) {
+        if ((newIndex >= 0) && props.handleFacility) {
             props.handleFacility(newFacility);
         }
     }
