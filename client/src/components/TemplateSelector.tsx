@@ -91,25 +91,27 @@ const TemplateSelector = (props: Props) => {
 
         <>
             <Form inline>
-                <Form.Label  className="mr-2" htmlFor="templateSelector">
-                    {props.label ? props.label : "Template:"}
-                </Form.Label>
-                <Form.Control
-                    as="select"
-                    autoFocus={props.autoFocus ? props.autoFocus : undefined}
-                    disabled={props.disabled ? props.disabled : undefined}
-                    id="templateSelector"
-                    onChange={onChange}
-                    size="sm"
-                    value={index}
-                >
-                    <option key="-1" value="-1">(Select)</option>
-                    {templates.map((template, index) => (
-                        <option key={index} value={index}>
-                            {template.name}
-                        </option>
-                    ))}
-                </Form.Control>
+                <Form.Group>
+                    <Form.Label  className="mr-2" htmlFor="templateSelector">
+                        {props.label ? props.label : "Template:"}
+                    </Form.Label>
+                    <Form.Control
+                        as="select"
+                        autoFocus={props.autoFocus ? props.autoFocus : undefined}
+                        disabled={props.disabled ? props.disabled : undefined}
+                        id="templateSelector"
+                        onChange={onChange}
+                        size="sm"
+                        value={index}
+                    >
+                        <option key="-1" value="-1">(Select)</option>
+                        {templates.map((template, index) => (
+                            <option key={index} value={index}>
+                                {template.name}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
             </Form>
         </>
 

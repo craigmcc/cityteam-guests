@@ -14,6 +14,7 @@ import Template from "../models/Template";
 import User from "../models/User";
 import OAuthUserServices from "../oauth/OAuthUserServices";
 import { hashPassword } from "../oauth/OAuthUtils";
+import {toDateObject} from "../util/dates";
 import {
     ALL_FACILITY_DATA,
     ALL_PORTLAND_TEMPLATE_DATA,
@@ -54,7 +55,7 @@ export class DevModeServices {
         let testCheckinsData: Partial<Checkin>[] = [];
         testGuests.forEach((testGuest, index) => {
             const testCheckin: Partial<Checkin> = {
-                checkinDate: new Date("2020-07-04"),
+                checkinDate: toDateObject("2020-07-04"),
                 comments: `${testGuest.lastName}, ${testGuest.firstName}`,
                 facilityId: testFacility.id,
                 guestId: testGuest.id,

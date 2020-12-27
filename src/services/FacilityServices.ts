@@ -38,6 +38,7 @@ import {
 } from "../util/sort-orders";
 import {hashPassword} from "../oauth/OAuthUtils";
 import MatsList from "../util/MatsList";
+import {toDateObject} from "../util/dates";
 
 // Public Objects ------------------------------------------------------------
 
@@ -257,7 +258,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         const workMats = new MatsList(template.workMats);
 
         // Accumulate the requested (and unassigned) checkins to be created
-        const inputs: Checkin[] = [];
+        const inputs: Partial<Checkin>[] = [];
         allMats.exploded().forEach(matNumber => {
             let features: string | null = "";
             if (handicapMats && handicapMats.isMemberOf(matNumber)) {
@@ -272,13 +273,14 @@ export class FacilityServices extends AbstractServices<Facility> {
             if (features.length === 0) {
                 features = null;
             }
-            inputs.push(new Checkin({
-                checkinDate: checkinDate,
+            const input: Partial<Checkin> = {
+                checkinDate: toDateObject(checkinDate),
                 facilityId: facilityId,
-                features: features,
-                guestId: null,
+                features: features ? features : undefined,
+                guestId: undefined,
                 matNumber: matNumber,
-            }));
+            }
+            inputs.push(input);
         });
 
         // Persist and return the requested checkins
@@ -288,15 +290,6 @@ export class FacilityServices extends AbstractServices<Facility> {
         const outputs = await Checkin.bulkCreate(inputs, {
             fields: ["checkinDate", "facilityId", "features", "matNumber"]
         });
-/*
-        const outputs: Checkin[] = [];
-        inputs.forEach(input => {
-            Checkin.create(input)
-                .then(output => {
-                    outputs.push(output);
-                })
-        })
-*/
         console.info("FacilityServices.checkinsGenerate.outputs("
             + JSON.stringify(outputs)
             + ")");
