@@ -17,7 +17,10 @@ import AbstractModel from "./AbstractModel";
 import AccessToken from "./AccessToken";
 import RefreshToken from "./RefreshToken";
 import Facility from "./Facility";
-import {validateGuestNameUnique, validateUserUsernameUnique} from "../util/async-validators";
+import {
+    validateFacilityId,
+    validateUserUsernameUnique
+} from "../util/async-validators";
 import {BadRequest} from "../util/http-errors";
 
 // Public Modules ------------------------------------------------------------
@@ -27,11 +30,17 @@ import {BadRequest} from "../util/http-errors";
     modelName: "user",
     tableName: "users",
     validate: {
-        isUsernameUniqueWithinFacility: async function(this: User): Promise<void> {
+        isFacilityIdValid: async function(this: User): Promise<void> {
+            if (!(await validateFacilityId(this.facilityId))) {
+                throw new BadRequest
+                    (`facilityId: Invalid facilityId ${this.facilityId}`);
+            }
+        },
+        isUsernameUnique: async function(this: User): Promise<void> {
             if (!(await validateUserUsernameUnique(this))) {
                 throw new BadRequest
                     (`username: Username '${this.username} "
-                         + "is already in use within this Facility`);
+                         + "is already in use`);
             }
         },
     }
@@ -61,7 +70,6 @@ export class User extends AbstractModel<User> {
         comment: "Facility ID of the Facility this User belongs to",
         field: "facility_id",
         type: DataType.BIGINT,
-        unique: "uniqueUsernameWithinFacility",
         validate: {
             notNull: {
                 msg: "facilityId: Is required"
@@ -112,7 +120,7 @@ export class User extends AbstractModel<User> {
         comment: "Unique username for this user.",
         field: "username",
         type: DataType.STRING,
-        unique: "uniqueUsernameWithinFacility",
+        unique: "uniqueUsername",
         validate: {
             notNull: {
                 msg: "username: Is required"

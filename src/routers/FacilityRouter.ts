@@ -327,6 +327,14 @@ FacilityRouter.get("/:facilityId/users/name/:name",
             (parseInt(req.params.facilityId), req.params.name, req.query));
     });
 
+// Find Users globally by exact username
+FacilityRouter.get("/:facilityId/users/unique/:username",
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.usersUnique
+            (parseInt(req.params.facilityId), req.params.username, req.query));
+    });
+
 // Remove User from this Facility
 FacilityRouter.delete("/:facilityId/users/:userId",
     requireAdmin,

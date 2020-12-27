@@ -91,7 +91,7 @@ const UserForm = (props: Props) => {
             username: Yup.string()
                 .required("Username is required")
                 .test("unique-username",
-                    "That username is already in use within this Facility",
+                    "That username is already in use",
                     async function (this) {
                         return await validateUserUsernameUnique(toUser(this.parent))
                     }),

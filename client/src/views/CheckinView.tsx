@@ -63,7 +63,7 @@ const CheckinView = () => {
     }
 
     const handleStage = (newStage: Stage): void => {
-        console.info(`CheckinView.handleStage(${newStage}`);
+        console.info(`CheckinView.handleStage(${newStage})`);
         setStage(newStage);
     }
 

@@ -823,6 +823,31 @@ export class FacilityServices extends AbstractServices<Facility> {
         return removed;
     }
 
+    // Similar to usersExact except username must be globally unique
+    public async usersUnique(
+        facilityId: number,
+        username: string,
+        query?: any
+    ): Promise<User> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.usersExact()");
+        }
+        const user = await User.findOne({
+            where: { usernme: username }
+        });
+        if (!user) {
+            throw new NotFound(
+                `username: Missing User '${username}`,
+                "FacilityServices.usersUnique()");
+        }
+        // @ts-ignore
+        delete user.password;
+        return user;
+    }
+
     public async usersUpdate(
         facilityId: number, userId: number, user: User
     ) : Promise<User> {

@@ -163,7 +163,6 @@ export const validateUserUsernameUnique
     if (user) {
         let options: any = {
             where: {
-                facilityId: user.facilityId,
                 username: user.username,
             }
         }

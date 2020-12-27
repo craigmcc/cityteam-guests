@@ -199,9 +199,9 @@ class FacilityClient {
     }
 
     async usersExact<User>
-    (facilityId: number, name: string, params?: object): Promise<User> {
+    (facilityId: number, username: string, params?: object): Promise<User> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/users/exact/${name}${queryParameters(params)}`)).data;
+            + `/${facilityId}/users/exact/${username}${queryParameters(params)}`)).data;
     }
 
     async usersInsert<User>
@@ -220,6 +220,12 @@ class FacilityClient {
     (facilityId: number, userId: number): Promise<User> {
         return (await ApiBase.delete(FACILITIES_BASE
             + `/${facilityId}/users/${userId}`)).data;
+    }
+
+    async usersUnique<User>
+    (facilityId: number, username: string, params?: object): Promise<User> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/users/unique/${username}${queryParameters(params)}`)).data;
     }
 
     async usersUpdate<User>
