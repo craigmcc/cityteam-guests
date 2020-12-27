@@ -16,3 +16,17 @@ export type OnClick = (event: React.MouseEvent<HTMLElement>) => void;
 export type OnFocus = (event: React.FocusEvent<HTMLElement>) => void;
 export type OnKeyDown = (event: React.KeyboardEvent<HTMLElement>) => void;
 
+// Enumerations --------------------------------------------------------------
+
+export enum PaymentTypes {
+    $$ = "$$-Cash",
+    AG = "AG-Agency",
+    CT = "CT-CityTeam",
+    FM = "FM-Free Mat",
+    MM = "MM-Medical Mat",
+    SW = "SW-Severe Weather",
+    UK = "UK-Unknown",
+    WB = "WB-Work Bed",
+}
+
+

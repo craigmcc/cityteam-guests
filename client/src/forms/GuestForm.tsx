@@ -127,7 +127,7 @@ const GuestForm = (props: Props) => {
                        }) => (
 
                         <Form
-                            className={"mx-auto"}
+                            className="mx-auto"
                             noValidate
                             onSubmit={handleSubmit}
                         >

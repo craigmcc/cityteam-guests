@@ -57,11 +57,6 @@ const GuestView = () => {
                     console.info("GuestView.fetchGuests(reset)");
                     setGuests([]);
                 } else if ((newFacility.id > 0) && (searchText.length > 0)) {
-                    console.info("GuestView.fetchGuests("
-                        + searchText + ", "
-                        + pageSize + ", "
-                        + (pageSize * (currentPage - 1))
-                        + ")");
                     const newGuests: Guest[] =
                         await FacilityClient.guestsName(newFacility.id, searchText, {
                             limit: pageSize,
@@ -105,7 +100,7 @@ const GuestView = () => {
         } else {
             console.info("GuestView.handleIndex("
                 + newIndex + ", "
-                + JSON.stringify(guests[newIndex], Replacers.TEMPLATE)
+                + JSON.stringify(guests[newIndex], Replacers.GUEST)
                 + ")");
             if (loginContext.validateScope("regular")) {
                 setGuest(guests[newIndex]);

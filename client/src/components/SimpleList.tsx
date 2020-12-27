@@ -29,7 +29,7 @@ const SimpleList = (props: Props) => {
     const [index, setIndex] = useState<number>(-1);
 
     const handleIndex = (newIndex: number): void => {
-        console.info(`SimpleList.handleIndex(${newIndex})`);
+//        console.info(`SimpleList.handleIndex(${newIndex})`);
         setIndex(newIndex);
         if (props.handleIndex) {
             props.handleIndex(newIndex);

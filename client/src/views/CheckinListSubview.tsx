@@ -127,7 +127,7 @@ const CheckinListSubview = (props: Props) => {
             console.info("CheckinListSubview.handleIndex(-1)");
             setIndex(-1);
         } else {
-            const newCheckin: Checkin = checkins[index];
+            const newCheckin: Checkin = checkins[newIndex];
             console.info("CheckinListSubview.handleIndex("
                 + newIndex + ", "
                 + JSON.stringify(newCheckin, Replacers.CHECKIN)
@@ -149,8 +149,7 @@ const CheckinListSubview = (props: Props) => {
     }
 
     const listFields = [
-//        "matNumberAndFeatures",
-        "matNumber",
+        "matNumberAndFeatures",
         "guest.firstName",
         "guest.lastName",
         "paymentType",

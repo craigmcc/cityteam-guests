@@ -49,6 +49,15 @@ export const validateState = (state: string): boolean => {
     }
 }
 
+export const validateTime = (time: string): boolean => {
+    if (!time || (time.length === 0)) {
+        return true;
+    } else {
+        // TODO - range check on each component?
+        return timePattern.test(time);
+    }
+}
+
 export const validateZipCode = (zipCode: string): boolean => {
     if (!zipCode || (zipCode.length === 0)) {
         return true;
@@ -77,5 +86,7 @@ const stateAbbreviations: string[] =
         "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH",
         "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT",
         "VT", "VA", "WA", "WV", "WI", "WY" ];
+
+const timePattern = /^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/;
 
 const zipCodePattern: RegExp = /^\d{5}$|^\d{5}-\d{4}$/;
