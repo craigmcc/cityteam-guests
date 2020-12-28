@@ -1,6 +1,6 @@
 // GuestView -----------------------------------------------------------------
 
-// Administrator view for editing Guest objects.
+// Administrator view for listing and editing Guests.
 
 // External Modules ----------------------------------------------------------
 
@@ -13,14 +13,12 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
-import Pagination from "../components/Pagination";
-import SearchBar from "../components/SearchBar";
-import SimpleList from "../components/SimpleList";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import GuestForm, { HandleGuest } from "../forms/GuestForm";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
+import GuestsSubview, { HandleSelectedGuest } from "../subviews/GuestsSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
@@ -31,14 +29,9 @@ const GuestView = () => {
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
-    const [currentPage, setCurrentPage] = useState<number>(1);
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [guest, setGuest] = useState<Guest | null>(null);
-    const [guests, setGuests] = useState<Guest[]>([]);
-    const [index, setIndex] = useState<number>(-1);
-    const [pageSize] = useState<number>(10);
     const [refresh, setRefresh] = useState<boolean>(false);
-    const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
 
@@ -52,61 +45,16 @@ const GuestView = () => {
                 + ")");
             setFacility(newFacility);
 
-            try {
-                if ((newFacility.id > 0) && (searchText.length === 0)) {
-                    console.info("GuestView.fetchGuests(reset)");
-                    setGuests([]);
-                } else if ((newFacility.id > 0) && (searchText.length > 0)) {
-                    const newGuests: Guest[] =
-                        await FacilityClient.guestsName(newFacility.id, searchText, {
-                            limit: pageSize,
-                            offset: (pageSize * (currentPage - 1))
-                        });
-                    console.info("GuestView.fetchGuests("
-                        + JSON.stringify(newGuests, Replacers.GUEST)
-                        + ")");
-                    setGuests(newGuests);
-                } else {
-                    console.info("GuestView.searchGuests(skipped)");
-//                    setGuests([]);
-                }
-            } catch (error) {
-                setGuests([]);
-                ReportError("GuestView.fetchGuests", error);
-            }
-
-            setIndex(-1);
             setRefresh(false);
 
         }
 
         fetchGuests();
 
-    }, [facilityContext, currentPage, pageSize, refresh, searchText]);
+    }, [facilityContext, refresh]);
 
     const addEnabled = (): boolean => {
         return loginContext.validateScope("regular");
-    }
-
-    const handleChange = (newSearchText: string): void => {
-        setSearchText(newSearchText);
-    }
-
-    const handleIndex = (newIndex: number): void => {
-        if (newIndex === index) {
-            console.info("GuestView.handleIndex(-1)");
-            setIndex(-1);
-            setGuest(null);
-        } else {
-            console.info("GuestView.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(guests[newIndex], Replacers.GUEST)
-                + ")");
-            if (loginContext.validateScope("regular")) {
-                setGuest(guests[newIndex]);
-            }
-            setIndex(newIndex)
-        }
     }
 
     const handleInsert: HandleGuest
@@ -118,191 +66,150 @@ const GuestView = () => {
             console.info("GuestView.handleInsert("
                 + JSON.stringify(inserted, Replacers.TEMPLATE)
                 + ")");
-            setIndex(-1);
-            setRefresh(true);
             setGuest(null);
+            setRefresh(true);
         } catch (error) {
             ReportError("GuestView.handleInsert", error);
         }
     }
 
     const handleRemove: HandleGuest
-        = async (newGuest) => {
+        = async (newGuest) =>
+    {
         try {
             const removed: Guest
                 = await FacilityClient.guestsRemove(facility.id, newGuest.id);
             console.info("GuestView.handleRemove("
                 + JSON.stringify(removed, Replacers.TEMPLATE)
                 + ")");
-            setIndex(-1);
-            setRefresh(true);
             setGuest(null);
+            setRefresh(true);
         } catch (error) {
             ReportError("GuestView.handleRemove", error);
         }
     }
 
+    const handleSelectedGuest: HandleSelectedGuest
+        = (newGuest) =>
+    {
+        if (newGuest) {
+            console.info("GuestView.handleSelectedGuest("
+                + JSON.stringify(newGuest, Replacers.GUEST)
+                + ")");
+            setGuest(newGuest);
+        } else {
+            console.info("GuestView.handleSelectedGuest(unselected");
+            setGuest(null);
+        }
+    }
+
     const handleUpdate: HandleGuest
-        = async (newGuest) => {
+        = async (newGuest) =>
+    {
         try {
             const removed: Guest = await FacilityClient.guestsUpdate
             (facility.id, newGuest.id, newGuest);
             console.info("GuestView.handleUpdate("
                 + JSON.stringify(removed, Replacers.TEMPLATE)
                 + ")");
-            setIndex(-1);
-            setRefresh(true);
             setGuest(null);
+            setRefresh(true);
         } catch (error) {
             ReportError("GuestView.handleUpdate", error);
         }
     }
 
-    const listFields = [
-        "firstName",
-        "lastName",
-        "active",
-        "comments",
-        "favorite",
-    ]
-
-    const listHeaders = [
-        "First Name",
-        "Last Name",
-        "Active",
-        "Comments",
-        "Fav. Mat",
-    ]
-
     const onAdd = () => {
         console.info("GuestView.onAdd()");
-        setIndex(-2);
         const newGuest: Guest = new Guest({
             facilityId: facility.id,
-            id: -2
+            id: -1
         });
         setGuest(newGuest);
     }
 
     const onBack = () => {
         console.info("GuestView.onBack()");
-        setIndex(-1);
         setGuest(null);
     }
 
-    const onNext = () => {
-        const newCurrentPage = currentPage + 1;
-        setCurrentPage(newCurrentPage);
-        setRefresh(true);
-    }
-
-    const onPrevious = () => {
-        const newCurrentPage = currentPage - 1;
-        setCurrentPage(newCurrentPage);
-        setRefresh(true);
-    }
-
     return (
-        <>
-            <Container fluid id="GuestView">
 
-                {(!guest) ? (
+        <Container fluid id="GuestView">
 
-                    <>
+            {/* List View */}
+            {(!guest) ? (
 
-                        {/* List View */}
+                <>
 
-                        <Row className="mb-3 ml-1 mr-1">
-                            <Col className="col-11">
-                                <SearchBar
-                                    autoFocus
-                                    handleChange={handleChange}
-                                    label="Search For:"
-                                    placeholder="Search by all or part of either name"
-                                />
-                            </Col>
-                            <Col className="col-`">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    lastPage={(guests.length === 0) ||
-                                        (guests.length < pageSize)}
-                                    onNext={onNext}
-                                    onPrevious={onPrevious}
-                                />
-                            </Col>
-                        </Row>
+                    <Row className="ml-1 mr-1 mb-3">
+                        <GuestsSubview
+                            facility={facility}
+                            handleSelectedGuest={handleSelectedGuest}
+                        />
+                    </Row>
 
-                        <Row className="mb-3 ml-1 mr-1">
-                            <SimpleList
-                                handleIndex={handleIndex}
-                                items={guests}
-                                listFields={listFields}
-                                listHeaders={listHeaders}
-                                title={"Guests for " +
-                                    (facility ? facility.name : "(Select)")}
-                            />
-                        </Row>
+                    <Row className="ml-4">
+                        <Button
+                            disabled={!addEnabled()}
+                            onClick={onAdd}
+                            size="sm"
+                            variant="primary"
+                        >
+                            Add
+                        </Button>
+                    </Row>
 
-                        <Row className="ml-1 mr-1">
+                </>
+
+            ) : null }
+
+            {/* Detail View */}
+            {(guest) ? (
+
+                <>
+
+                    <Row className="ml-1 mr-1 mb-3">
+                        <Col className="text-left">
+                            <strong>
+                                <>
+                                    {(guest.id < 0) ? (
+                                        <span>Adding New</span>
+                                    ) : (
+                                        <span>Editing Existing</span>
+                                    )}
+                                    &nbsp;Guest
+                                </>
+                            </strong>
+                        </Col>
+                        <Col className="text-right">
                             <Button
-                                disabled={!addEnabled()}
-                                onClick={onAdd}
+                                onClick={onBack}
                                 size="sm"
-                                variant="primary"
+                                type="button"
+                                variant="secondary"
                             >
-                                Add
+                                Back
                             </Button>
-                        </Row>
+                        </Col>
+                    </Row>
 
-                    </>
+                    <Row className="ml-1 mr-1">
+                        <GuestForm
+                            autoFocus
+                            guest={guest}
+                            handleInsert={handleInsert}
+                            handleRemove={handleRemove}
+                            handleUpdate={handleUpdate}
+                        />
+                    </Row>
 
-                ) : null }
+                </>
 
-                {(guest) ? (
+            ) : null }
 
-                    <>
+        </Container>
 
-                        <Row className="ml-1 mr-1 mb-3">
-                            <Col className="text-left">
-                                <strong>
-                                    <>
-                                        {(guest.id < 0) ? (
-                                            <span>Adding New</span>
-                                        ) : (
-                                            <span>Editing Existing</span>
-                                        )}
-                                        &nbsp;Guest
-                                    </>
-                                </strong>
-                            </Col>
-                            <Col className="text-right">
-                                <Button
-                                    onClick={onBack}
-                                    size="sm"
-                                    type="button"
-                                    variant="secondary"
-                                >
-                                    Back
-                                </Button>
-                            </Col>
-                        </Row>
-
-                        <Row className="ml-1 mr-1">
-                            <GuestForm
-                                autoFocus
-                                guest={guest}
-                                handleInsert={handleInsert}
-                                handleRemove={handleRemove}
-                                handleUpdate={handleUpdate}
-                            />
-                        </Row>
-
-                    </>
-
-                ) : null }
-
-            </Container>
-        </>
     )
 
 }

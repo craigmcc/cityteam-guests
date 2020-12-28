@@ -62,10 +62,10 @@ const SimpleList = (props: Props) => {
     return (
 
         <Table
-            bordered={props.bordered ? props.bordered : undefined}
-            hover={props.hover ? props.hover : undefined}
+            bordered={props.bordered !== undefined ? props.bordered : true}
+            hover={props.hover !== undefined ? props.hover : true}
             size={props.size ? props.size : "sm"}
-            striped={props.striped ? props.striped : undefined}
+            striped={props.striped !== undefined ? props.striped : true}
         >
 
             <thead>

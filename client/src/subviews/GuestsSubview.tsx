@@ -27,12 +27,13 @@ import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
 
-export type HandleGuest = (guest: Guest | null) => void;
+export type HandleSelectedGuest = (guest: Guest | null) => void;
 
 export interface Props {
     facility: Facility | null;      // Facility for which we are listing Guests,
                                     // or null if no Facility is current
-    handleGuest: HandleGuest;       // Return selected (Guest) for processing,
+    handleSelectedGuest: HandleSelectedGuest;
+                                    // Return selected (Guest) for processing,
                                     // or null if previous selection was unselected
     title?: string                  // Table title [Guests for {facility.name}]
 }
@@ -85,7 +86,7 @@ const GuestsSubview = (props: Props) => {
 
         fetchGuests();
 
-    }, [props.facility, currentPage, searchText])
+    }, [props.facility, currentPage, pageSize, searchText])
 
     const handleChange = (newSearchText: string): void => {
         setSearchText(newSearchText);
@@ -95,6 +96,9 @@ const GuestsSubview = (props: Props) => {
         if (newIndex === index) {
             console.info("GuestsSubview.handleIndex(-1)");
             setIndex(-1);
+            if (props.handleSelectedGuest) {
+                props.handleSelectedGuest(null);
+            }
         } else {
             const newGuest = guests[newIndex];
             console.info("GuestsSubview.handleIndex("
@@ -102,8 +106,8 @@ const GuestsSubview = (props: Props) => {
                 + JSON.stringify(newGuest, Replacers.GUEST)
                 + ")");
             setIndex(newIndex);
-            if (props.handleGuest) {
-                props.handleGuest(newGuest);
+            if (props.handleSelectedGuest) {
+                props.handleSelectedGuest(newGuest);
             }
         }
     }
@@ -138,8 +142,8 @@ const GuestsSubview = (props: Props) => {
 
         <Container fluid id="GuestsSubview">
 
-            <Row className="mb-3">
-                <Col className="col-11">
+            <Row className="mb-3 ml-1 mr-1">
+                <Col className="col-11 mr-2">
                     <SearchBar
                         autoFocus
                         handleChange={handleChange}
@@ -147,7 +151,7 @@ const GuestsSubview = (props: Props) => {
                         placeholder="Search by all or part of either name"
                     />
                 </Col>
-                <Col className="col-`">
+                <Col>
                     <Pagination
                         currentPage={currentPage}
                         lastPage={(guests.length === 0) ||
