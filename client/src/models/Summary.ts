@@ -29,10 +29,15 @@ class Summary {
     totalUK: number = 0;
     totalWB: number = 0;
 
-    // Overall daily totals
-    totalAmount: number = 0.00;
+    // Overall totals
+    totalAmount: string = "$0.00";   // Will be decorated with "$"
     totalAssigned: number = 0;
+    totalMats: number = 0;
     totalUnassigned: number = 0;
+
+    // Calculated percentages
+    percentAssigned: string = "0.0%";  // Will be decorated with "%"
+    percentUnassigned: string = "0.0%";// Will be decorated with "%"
 
 }
 

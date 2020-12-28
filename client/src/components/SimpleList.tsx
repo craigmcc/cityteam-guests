@@ -14,11 +14,15 @@ import Table from "react-bootstrap/Table";
 // Incoming Properties -------------------------------------------------------
 
 export interface Props {
+    bordered?: boolean;             // Render table borders? [true]
     handleIndex?: (index: number) => void;
                                     // Handle selection of a particular row
+    hover?: boolean;                // Support hover highlighting? [true]
     items: object[];                // Items to be rendered in rows
     listFields: string[];           // List of fields (from each object) to render
     listHeaders: string[];          // List of header titles for fields
+    size?: string;                  // Table size (sm,lg) [sm]
+    striped?: boolean;              // Support row striping? [true]
     title?: string;                 // Overall table title [no title]
 }
 
@@ -58,10 +62,10 @@ const SimpleList = (props: Props) => {
     return (
 
         <Table
-            bordered
-            hover
-            size="sm"
-            striped
+            bordered={props.bordered ? props.bordered : undefined}
+            hover={props.hover ? props.hover : undefined}
+            size={props.size ? props.size : "sm"}
+            striped={props.striped ? props.striped : undefined}
         >
 
             <thead>

@@ -1,4 +1,4 @@
-// GuestListSubview ----------------------------------------------------------
+// GuestsSubview -------------------------------------------------------------
 
 // Render a searchable list of Guests for the specified Facility, with a
 // callback to handleGuest(guest) when a particular Guest is selected
@@ -34,12 +34,12 @@ export interface Props {
                                     // or null if no Facility is current
     handleGuest: HandleGuest;       // Return selected (Guest) for processing,
                                     // or null if previous selection was unselected
-    title: string                   // Table title [Guests for {facility.name}]
+    title?: string                  // Table title [Guests for {facility.name}]
 }
 
 // Component Details ---------------------------------------------------------
 
-const GuestListSubview = (props: Props) => {
+const GuestsSubview = (props: Props) => {
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [guests, setGuests] = useState<Guest[]>([]);
@@ -52,9 +52,9 @@ const GuestListSubview = (props: Props) => {
         const fetchGuests = async () => {
 
             try {
-                if (props.facility && props.facility.id > 0) {
+                if (props.facility) {
                     if (searchText.length === 0) {
-                        console.info("GuestListSubview.fetchGuests(reset)");
+                        console.info("GuestsSubview.fetchGuests(reset)");
                         setGuests([]);
                         setIndex(-1);
                     } else {
@@ -64,14 +64,14 @@ const GuestListSubview = (props: Props) => {
                                 limit: pageSize,
                                 offset: (pageSize * (currentPage - 1))
                             });
-                        console.info("GuestListSubview.fetchGuests("
+                        console.info("GuestsSubview.fetchGuests("
                             + JSON.stringify(newGuests, Replacers.GUEST)
                             + ")");
                         setGuests(newGuests);
                         setIndex(-1);
                     }
                 } else {
-                    console.info("GuestView.searchGuests(skipped)");
+                    console.info("GuestView.fetchGuests(skipped)");
                     setGuests([]);
                     setIndex(-1);
                 }
@@ -93,11 +93,11 @@ const GuestListSubview = (props: Props) => {
 
     const handleIndex = (newIndex: number): void => {
         if (newIndex === index) {
-            console.info("GuestListSubview.handleIndex(-1)");
+            console.info("GuestsSubview.handleIndex(-1)");
             setIndex(-1);
         } else {
             const newGuest = guests[newIndex];
-            console.info("GuestListSubview.handleIndex("
+            console.info("GuestsSubview.handleIndex("
                 + newIndex + ", "
                 + JSON.stringify(newGuest, Replacers.GUEST)
                 + ")");
@@ -136,7 +136,7 @@ const GuestListSubview = (props: Props) => {
 
     return (
 
-        <Container fluid id="GuestListSubview">
+        <Container fluid id="GuestsSubview">
 
             <Row className="mb-3">
                 <Col className="col-11">
@@ -175,4 +175,4 @@ const GuestListSubview = (props: Props) => {
 
 }
 
-export default GuestListSubview;
+export default GuestsSubview;
