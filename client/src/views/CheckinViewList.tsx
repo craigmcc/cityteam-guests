@@ -1,53 +1,51 @@
-// CheckinListSubview --------------------------------------------------------
+// CheckinViewList -----------------------------------------------------------
 
 // Second-level view for Checkins, listing all current Checkins for the
 // selected date, and offering to generate Checkins if none exist yet.
 
 // External Modules -----------------------------------------------------------
 
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 
 // Internal Modules -----------------------------------------------------------
 
 import { Stage } from "./CheckinView";
 import FacilityClient from "../clients/FacilityClient";
-import SimpleList from "../components/SimpleList";
 import { OnClick } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
-import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
+import CheckinsSubview from "../subviews/CheckinsSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 import TemplateSelector, { HandleTemplate } from "../components/TemplateSelector";
-import {withFlattenedObjects} from "../util/transformations";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 
 // Incoming Properties --------------------------------------------------------
 
-export type HandleCheckin = (checkin: Checkin) => void;
+export type HandleSelectedCheckin = (checkin: Checkin | null) => void;
 export type HandleStage = (stage: Stage) => void;
 
 export interface Props {
     checkinDate: string;            // Date for which to process checkins
-    handleCheckin: HandleCheckin;   // Handle (checkin) when one is selected
+    handleSelectedCheckin: HandleSelectedCheckin;
+                                    // Handle (checkin) when one is selected
+                                    // or (null) when one is unselected
     handleStage: HandleStage;       // Handle (stage) when changing
 }
 
 // Component Details ----------------------------------------------------------
 
-const CheckinListSubview = (props: Props) => {
+const CheckinViewList = (props: Props) => {
 
     const facilityContext = useContext(FacilityContext);
-    const loginContext = useContext(LoginContext);
 
     const [checkins, setCheckins] = useState<Checkin[]>([]);
     const [facility, setFacility] = useState<Facility>(new Facility());
-    const [index, setIndex] = useState<number>(-1);
     const [refresh, setRefresh] = useState<boolean>(false);
     const [template, setTemplate] = useState<Template>(new Template());
 
@@ -57,46 +55,37 @@ const CheckinListSubview = (props: Props) => {
 
             const newFacility = facilityContext.index >= 0
                 ? facilityContext.facilities[facilityContext.index]
-                : new Facility({ name: "(Select)" });
-            console.info("CheckinListSubview.setFacility("
+                : new Facility({ id: -2, name: "(Select)" });
+            console.info("CheckinViewList.setFacility("
                 + JSON.stringify(newFacility, Replacers.FACILITY)
                 + ")");
             setFacility(newFacility);
 
+            // TODO - only need this to see if generate is necessary
+            // TODO - maybe optimize to retrieve count only?
+            // TODO - otherwise, fetch is repeated in CheckinsSubview
             try {
                 if (newFacility.id > 0) {
                     const newCheckins: Checkin[] = await FacilityClient.checkinsAll
                         (newFacility.id, props.checkinDate);
-                    console.info("CheckinListSubview.fetchCheckins("
+                    console.info("CheckinViewList.fetchCheckins("
                         + JSON.stringify(newCheckins, Replacers.CHECKIN)
                         + ")");
-                    setCheckins(flattenedCheckins(newCheckins));
+                    setCheckins(newCheckins);
                 } else {
                     setCheckins([]);
                 }
                 setRefresh(false);
             } catch (error) {
                 setCheckins([]);
-                ReportError("CheckinListSubview.fetchCheckins", error);
+                ReportError("CheckinViewList.fetchCheckins", error);
             }
 
         }
 
         fetchCheckins();
 
-    }, [facilityContext, facility.id, refresh, props.checkinDate])
-
-    const flattenedCheckins = (checkins: Checkin[]) => {
-        const flattenedCheckins =
-            withFlattenedObjects(checkins, "guest");
-        flattenedCheckins.forEach(flattenedCheckin => {
-            flattenedCheckin.matNumberAndFeatures = "" + flattenedCheckin.matNumber;
-            if (flattenedCheckin.features) {
-                flattenedCheckin.matNumberAndFeatures += flattenedCheckin.features;
-            }
-        })
-        return flattenedCheckins;
-    }
+    }, [facilityContext, refresh, props.checkinDate])
 
     const handleGenerate = (): void => {
         console.info("CheckListSubview.handleGenerate("
@@ -111,64 +100,41 @@ const CheckinListSubview = (props: Props) => {
             template.id
         )
             .then(newCheckins => {
-                console.info("CheckinListSubview.handleGenerate("
+                console.info("CheckinViewList.handleGenerate("
                     + JSON.stringify(newCheckins, Replacers.CHECKIN)
                     + ")");
-                setIndex(-1);
                 setRefresh(true);
             })
             .catch(error => {
-                ReportError("CheckinListSubview.handleGenerate", error);
+                ReportError("CheckinViewList.handleGenerate", error);
             })
     }
 
-    const handleIndex = (newIndex: number): void => {
-        if (newIndex === index) {
-            console.info("CheckinListSubview.handleIndex(-1)");
-            setIndex(-1);
-        } else {
-            const newCheckin: Checkin = checkins[newIndex];
-            console.info("CheckinListSubview.handleIndex("
-                + newIndex + ", "
+    const handleSelectedCheckin: HandleSelectedCheckin
+        = (newCheckin) =>
+    {
+        if (newCheckin) {
+            console.info("CheckinViewList.handleSelectedCheckin("
                 + JSON.stringify(newCheckin, Replacers.CHECKIN)
                 + ")");
-            setIndex(newIndex);
-            if (loginContext.validateScope("regular")) {
-                if (props.handleCheckin) {
-                    props.handleCheckin(newCheckin);
-                }
+            if (props.handleSelectedCheckin) {
+                props.handleSelectedCheckin(newCheckin);
+            }
+        } else {
+            console.info("CheckinViewList.handleSelectedCheckin(unselected)");
+            if (props.handleSelectedCheckin) {
+                props.handleSelectedCheckin(null);
             }
         }
+
     }
 
     const handleTemplate: HandleTemplate = (newTemplate) => {
-        console.info("CheckinListSubview.handleTemplate("
+        console.info("CheckinViewList.handleTemplate("
             + JSON.stringify(newTemplate, Replacers.TEMPLATE)
             + ")");
         setTemplate(newTemplate);
     }
-
-    const listFields = [
-        "matNumberAndFeatures",
-        "guest.firstName",
-        "guest.lastName",
-        "paymentType",
-        "paymentAmount",
-        "showerTime",
-        "wakeupTime",
-        "comments",
-    ];
-
-    const listHeaders = [
-        "Mat",
-        "First Name",
-        "Last Name",
-        "$$",
-        "Amount",
-        "Shower",
-        "Wakeup",
-        "Comments",
-    ];
 
     const onBack: OnClick = () => {
         props.handleStage(Stage.None);
@@ -176,7 +142,7 @@ const CheckinListSubview = (props: Props) => {
 
     return (
 
-        <Container fluid id="CheckinListSubview">
+        <Container fluid id="CheckinViewList">
 
             <>
 
@@ -187,7 +153,7 @@ const CheckinListSubview = (props: Props) => {
                             onClick={onBack}
                             size="sm"
                             type="button"
-                            variant="primary"
+                            variant="secondary"
                         >
                             Back
                         </Button>
@@ -218,18 +184,12 @@ const CheckinListSubview = (props: Props) => {
                     <span/>
                 )}
 
-                {/* Checkin List View */}
-                <Row className="ml-2 mr-2">
-                    <SimpleList
-                        handleIndex={handleIndex}
-                        items={checkins}
-                        listFields={listFields}
-                        listHeaders={listHeaders}
-                        title={"Checkins for " +
-                        (facility ? facility.name : "(Select)") +
-                        " on " + props.checkinDate}
-                    />
-                </Row>
+                {/* Checkins Subview */}
+                <CheckinsSubview
+                    checkinDate={props.checkinDate}
+                    facility={facility}
+                    handleSelectedCheckin={handleSelectedCheckin}
+                />
 
             </>
 
@@ -239,4 +199,4 @@ const CheckinListSubview = (props: Props) => {
 
 }
 
-export default CheckinListSubview;
+export default CheckinViewList;

@@ -1,6 +1,6 @@
 // CheckinView ---------------------------------------------------------------
 
-// Regular user view for managing Guest checkins.
+// Regular user view for managing Guest Checkins.
 
 // External Modules ----------------------------------------------------------
 
@@ -11,13 +11,13 @@ import Row from "react-bootstrap/Row";
 
 // Internal Modules ---------------------------------------------------------
 
+import CheckinViewList, { HandleSelectedCheckin } from "./CheckinViewList";
 import DateSelector from "../components/DateSelector";
 import FacilityContext from "../contexts/FacilityContext";
 import Checkin from "../models/Checkin";
+import Facility from "../models/Facility";
 import { todayDate } from "../util/dates";
 import * as Replacers from "../util/replacers";
-import Facility from "../models/Facility";
-import CheckinListSubview from "./CheckinListSubview";
 
 export enum Stage {
     None = "None",
@@ -32,7 +32,7 @@ const CheckinView = () => {
 
     const facilityContext = useContext(FacilityContext);
 
-//    const [checkin, setCheckin] = useState<Checkin | null>(null);
+    const [checkin, setCheckin] = useState<Checkin | null>(null);
     const [checkinDate, setCheckinDate] = useState<string>(todayDate());
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [stage, setStage] = useState<Stage>(Stage.None);
@@ -49,11 +49,19 @@ const CheckinView = () => {
 
     }, [facilityContext, stage]);
 
-    const handleCheckin = (newCheckin: Checkin): void => {
-        console.info("CheckinView.handleCheckin("
-            + JSON.stringify(newCheckin, Replacers.CHECKIN)
-            + ")");
-        setStage(newCheckin.guestId ? Stage.Assigned : Stage.Unassigned);
+    const handleSelectedCheckin: HandleSelectedCheckin
+        = (newCheckin): void =>
+    {
+        if (newCheckin) {
+            console.info("CheckinView.handleSelectedCheckin("
+                + JSON.stringify(newCheckin, Replacers.CHECKIN)
+                + ")");
+            setCheckin(newCheckin);
+            handleStage(newCheckin.guestId ? Stage.Assigned : Stage.Unassigned);
+        } else {
+            console.info("CheckinView.handleSelectedCheckin(unselected)");
+        }
+        setCheckin(newCheckin);
     }
 
     const handleCheckinDate = (newCheckinDate: string): void => {
@@ -93,9 +101,9 @@ const CheckinView = () => {
 
             {/* Selected Subview */}
             {(stage === Stage.List) ? (
-                <CheckinListSubview
+                <CheckinViewList
                     checkinDate={checkinDate}
-                    handleCheckin={handleCheckin}
+                    handleSelectedCheckin={handleSelectedCheckin}
                     handleStage={handleStage}
                 />
             ) : null}

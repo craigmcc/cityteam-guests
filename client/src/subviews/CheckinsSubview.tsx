@@ -26,11 +26,17 @@ import {withFlattenedObjects} from "../util/transformations";
 
 // Incoming Properties -------------------------------------------------------
 
+export type HandleSelectedCheckin = (checkin: Checkin| null) => void;
+
 export interface Props {
     checkinDate?: string;           // Checkin date for which we are listing
                                     // Checkins, or null if no date is current
     facility?: Facility;            // Facility for which we are listing Checkins,
                                     // or null if no Facility is current
+    handleSelectedCheckin?: HandleSelectedCheckin;
+                                    // Optionally return selected (Checkin)
+                                    // for processing, or null for unselected
+                                    // If not present, no row click is supported
     title?: string;                 // Table Title [Checkins for {facility.name}
                                     // on {checkinDate}]
 }
@@ -40,12 +46,13 @@ export interface Props {
 const CheckinsSubview = (props: Props) => {
 
     const [checkins, setCheckins] = useState<Checkin[]>([]);
+    const [index, setIndex] = useState<number>(-1);
     const [summary, setSummary] = useState<Summary | null>(null);
 
     useEffect(() => {
 
         const fetchCheckins = async () => {
-            if (props.checkinDate && props.facility) {
+            if (props.checkinDate && props.facility && props.facility.id > 0) {
                 try {
                     const newCheckins: Checkin[] = await FacilityClient.checkinsAll
                         (props.facility.id, props.checkinDate, {
@@ -82,6 +89,26 @@ const CheckinsSubview = (props: Props) => {
             }
         })
         return flattenedCheckins;
+    }
+
+    const handleIndex = (newIndex: number): void => {
+        if (newIndex === index) {
+            console.info("CheckinsSubview.index(-1)");
+            if (props.handleSelectedCheckin) {
+                props.handleSelectedCheckin(null);
+            }
+            setIndex(-1);
+        } else {
+            const newCheckin: Checkin = checkins[newIndex];
+            console.info("CheckinsSubview.index("
+                + newIndex + ", "
+                + JSON.stringify(newCheckin, Replacers.CHECKIN)
+                + ")");
+            if (props.handleSelectedCheckin) {
+                props.handleSelectedCheckin(newCheckin);
+            }
+            setIndex(newIndex);
+        }
     }
 
     const listFields = [
@@ -152,7 +179,8 @@ const CheckinsSubview = (props: Props) => {
 
             <Row className="mb-3">
                 <SimpleList
-                    hover={false}
+                    handleIndex={props.handleSelectedCheckin? handleIndex : undefined}
+                    hover={props.handleSelectedCheckin ? true : false}
                     items={checkins}
                     listFields={listFields}
                     listHeaders={listHeaders}
