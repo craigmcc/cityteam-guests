@@ -64,7 +64,7 @@ const GuestView = () => {
             const inserted: Guest
                 = await FacilityClient.guestsInsert(facility.id, newGuest);
             console.info("GuestView.handleInsert("
-                + JSON.stringify(inserted, Replacers.TEMPLATE)
+                + JSON.stringify(inserted, Replacers.GUEST)
                 + ")");
             setGuest(null);
             setRefresh(true);
@@ -80,7 +80,7 @@ const GuestView = () => {
             const removed: Guest
                 = await FacilityClient.guestsRemove(facility.id, newGuest.id);
             console.info("GuestView.handleRemove("
-                + JSON.stringify(removed, Replacers.TEMPLATE)
+                + JSON.stringify(removed, Replacers.GUEST)
                 + ")");
             setGuest(null);
             setRefresh(true);

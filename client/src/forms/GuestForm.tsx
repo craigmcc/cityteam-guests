@@ -30,9 +30,9 @@ export type HandleGuest = (guest: Guest) => void;
 export interface Props {
     autoFocus?: boolean;         // Should the first element receive autofocus? [false]
     guest: Guest;                // Initial values (id<0 for adding)
-    handleInsert: HandleGuest;   // Handle (guest) insert request
-    handleRemove: HandleGuest;   // Handle (guest) remove request
-    handleUpdate: HandleGuest;   // Handle (guest) update request
+    handleInsert?: HandleGuest;  // Handle (guest) insert request
+    handleRemove?: HandleGuest;  // Handle (guest) remove request
+    handleUpdate?: HandleGuest;  // Handle (guest) update request
 }
 
 // Component Details ---------------------------------------------------------
@@ -48,9 +48,13 @@ const GuestForm = (props: Props) => {
 
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
         if (adding) {
-            props.handleInsert(toGuest(values));
+            if (props.handleInsert) {
+                props.handleInsert(toGuest(values));
+            }
         } else {
-            props.handleUpdate(toGuest(values));
+            if (props.handleUpdate) {
+                props.handleUpdate(toGuest(values));
+            }
         }
     }
 
@@ -64,7 +68,9 @@ const GuestForm = (props: Props) => {
 
     const onConfirmPositive = (): void => {
         setShowConfirm(false);
-        props.handleRemove(props.guest)
+        if (props.handleRemove) {
+            props.handleRemove(props.guest)
+        }
     }
 
     const toGuest = (values: FormikValues): Guest => {

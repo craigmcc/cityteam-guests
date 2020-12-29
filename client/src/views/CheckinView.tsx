@@ -48,7 +48,7 @@ const CheckinView = () => {
             + ")");
         setFacility(newFacility);
 
-    }, [facilityContext, stage]);
+    }, [checkin, facilityContext, stage]);
 
     const handleAssign: HandleAssign
         = (newAssign) => {

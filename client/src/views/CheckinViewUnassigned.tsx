@@ -7,7 +7,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -17,15 +17,16 @@ import Row from "react-bootstrap/Row";
 
 import { Stage } from "./CheckinView";
 import FacilityClient from "../clients/FacilityClient";
+import { OnClick } from "../components/types";
 import AssignForm from "../forms/AssignForm";
+import GuestForm from "../forms/GuestForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
-import GuestsSubview from "../subviews/GuestsSubview";
+import GuestsSubview, {HandleSelectedGuest} from "../subviews/GuestsSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
-import {OnClick} from "../components/types";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -44,9 +45,87 @@ export interface Props {
 
 const CheckinViewUnassigned = (props: Props) => {
 
+    const [adding, setAdding] = useState<boolean>(false);
+    const [assign, setAssign] = useState<Assign | null>(null);
+    const [guest, setGuest] = useState<Guest | null>(null);
+
     useEffect(() => {
         console.info("CheckinViewUnassigned.useEffect()");
-    });
+    }, [adding, guest]);
+
+    const configureAssign = (newGuest : Guest): void => {
+        const newAssign: Assign = new Assign({
+            comments: null,
+            facilityId: props.facility.id,
+            guestId: newGuest.id,
+            id: props.checkin.id,
+            paymentAmount: "5.00",
+            paymentType: "$$",
+            showerTime: null,
+            wakeupTime: null
+        });
+        console.info("CheckinViewUnassigned.configureAssign("
+            + JSON.stringify(newAssign, Replacers.ASSIGN)
+            + ")");
+        setAssign(newAssign);
+    }
+
+    const emptyGuest: Guest = new Guest({
+        facilityId: -1,
+        id: -1,
+    })
+
+    const handleAddedGuest: HandleSelectedGuest
+        = async (newGuest) =>
+    {
+        if (newGuest) {
+            try {
+                const inserted: Guest
+                    = await FacilityClient.guestsInsert(props.facility.id, newGuest);
+                console.info("CheckinViewUnassigned.handleAddedGuest("
+                    + JSON.stringify(inserted, Replacers.GUEST)
+                    + ")");
+                setGuest(inserted);
+                configureAssign(newGuest);
+            } catch (error) {
+                ReportError("GuestView.handleInsert", error);
+                setGuest(null);
+            }
+            setGuest(newGuest);
+        } else {
+            console.info("CheckinViewUnassigned.handleAddGuest(unselected)");
+        }
+    }
+
+    const handleAssignedGuest: HandleAssign
+        = async (newAssign) =>
+    {
+        console.info("CheckinViewUnassigned.handleAssignedGuest("
+            + JSON.stringify(newAssign/*, Replacers.ASSIGN*/)
+            + ")");
+        // TODO - tell the server to do this assign
+        props.handleAssign(newAssign); // TODO - after processing!
+        props.handleStage(Stage.List);
+    }
+
+    const handleSelectedGuest: HandleSelectedGuest
+        = (newGuest) =>
+    {
+        if (newGuest) {
+            console.info("CheckinViewUnassigned.handleSelectedGuest("
+                + JSON.stringify(newGuest, Replacers.GUEST)
+                + ")");
+            setGuest(newGuest);
+            configureAssign(newGuest);
+        } else {
+            console.info("CheckinViewUnassigned.handleSelectedGuest(unselected)");
+        }
+    }
+
+    const onAdd: OnClick = () => {
+        console.info("CheckViewUnassigned.onAdd()");
+        setAdding(true);
+    }
 
     const onBack: OnClick = () => {
         props.handleStage(Stage.None);
@@ -70,7 +149,101 @@ const CheckinViewUnassigned = (props: Props) => {
                 </Col>
             </Row>
 
-            {/* TODO - parts 1 and 2 */}
+            <Row className="ml-1 mr-1 mb-3">
+
+                {/* Step 1 ----------------------------------------------- */}
+                <Col className="col-7 bg-light mt-1 mb-1">
+
+                    <h6 className={"text-center"}>
+                        Step 1: Select or Add A Guest To Assign
+                    </h6>
+                    <hr/>
+
+                    {(adding) ? (
+
+                        <>
+
+                            <Row className="ml-1 mr-1 mb-3">
+                                <Col className="text-left">
+                                    <strong>
+                                        Adding New Guest
+                                    </strong>
+                                </Col>
+                                <Col className="text-right">
+                                    <Button
+                                        onClick={onBack}
+                                        size="sm"
+                                        type="button"
+                                        variant="secondary"
+                                    >
+                                        Back
+                                    </Button>
+                                </Col>
+                            </Row>
+
+                            <Row className="ml-1 mr-1">
+                                <GuestForm
+                                    autoFocus
+                                    guest={emptyGuest}
+                                    handleInsert={handleAddedGuest}
+                                />
+                            </Row>
+
+                        </>
+
+                    ) : (
+
+                        <>
+
+                            <GuestsSubview
+                                facility={props.facility}
+                                handleSelectedGuest={handleSelectedGuest}
+                            />
+
+                            <Row className="ml-4 mb-3">
+                                <Button
+                                    onClick={onAdd}
+                                    size="sm"
+                                    variant="primary"
+                                >
+                                    Add
+                                </Button>
+                            </Row>
+
+                        </>
+
+                    )}
+
+                </Col>
+
+                {/* Step 2 ----------------------------------------------- */}
+                <Col className="col-5 mt-1 mb-1">
+
+                    <h6 className={"text-center"}>
+                        Step 2: Complete Assignment Details
+                    </h6>
+                    {(guest) ? (
+                        <h6 className={"text-center"}>
+                            {/*// TODO - flattened checkin*/}
+                            Mat: {props.checkin.matNumber}
+                            &nbsp;&nbsp;&nbsp;
+                            Guest:  {guest.firstName} {guest.lastName}
+                        </h6>
+                    ) : null }
+                    <hr/>
+
+                    {(assign) ? (
+                        <AssignForm
+                            assign={assign}
+                            handleAssign={handleAssignedGuest}
+                        />
+                    ) : null }
+
+                </Col>
+
+
+            </Row>
+
 
         </Container>
 

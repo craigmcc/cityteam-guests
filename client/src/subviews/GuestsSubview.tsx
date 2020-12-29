@@ -143,7 +143,7 @@ const GuestsSubview = (props: Props) => {
         <Container fluid id="GuestsSubview">
 
             <Row className="mb-3 ml-1 mr-1">
-                <Col className="col-11 mr-2">
+                <Col className="col-10 mr-2">
                     <SearchBar
                         autoFocus
                         handleChange={handleChange}
