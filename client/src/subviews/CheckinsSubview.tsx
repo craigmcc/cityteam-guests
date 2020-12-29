@@ -31,8 +31,8 @@ export type HandleSelectedCheckin = (checkin: Checkin| null) => void;
 export interface Props {
     checkinDate?: string;           // Checkin date for which we are listing
                                     // Checkins, or null if no date is current
-    facility?: Facility;            // Facility for which we are listing Checkins,
-                                    // or null if no Facility is current
+    facility: Facility;             // Facility for which we are listing Checkins,
+                                    // or (facility.id < 0) if no Facility is current
     handleSelectedCheckin?: HandleSelectedCheckin;
                                     // Optionally return selected (Checkin)
                                     // for processing, or null for unselected

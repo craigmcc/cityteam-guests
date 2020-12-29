@@ -16,7 +16,6 @@ import Row from "react-bootstrap/Row";
 import { Stage } from "./CheckinView";
 import FacilityClient from "../clients/FacilityClient";
 import { OnClick } from "../components/types";
-import FacilityContext from "../contexts/FacilityContext";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
@@ -31,7 +30,10 @@ export type HandleSelectedCheckin = (checkin: Checkin | null) => void;
 export type HandleStage = (stage: Stage) => void;
 
 export interface Props {
-    checkinDate: string;            // Date for which to process checkins
+    checkinDate?: string;           // Checkin date for which to process checkins,
+                                    // or null if no checkin date is current
+    facility: Facility;             // Facility for which we are processing checkins,
+                                    // or (facility.id < 0) if no Facility is current
     handleSelectedCheckin: HandleSelectedCheckin;
                                     // Handle (checkin) when one is selected
                                     // or (null) when one is unselected
@@ -42,10 +44,7 @@ export interface Props {
 
 const CheckinViewList = (props: Props) => {
 
-    const facilityContext = useContext(FacilityContext);
-
     const [checkins, setCheckins] = useState<Checkin[]>([]);
-    const [facility, setFacility] = useState<Facility>(new Facility());
     const [refresh, setRefresh] = useState<boolean>(false);
     const [template, setTemplate] = useState<Template>(new Template());
 
@@ -53,21 +52,13 @@ const CheckinViewList = (props: Props) => {
 
         const fetchCheckins = async () => {
 
-            const newFacility = facilityContext.index >= 0
-                ? facilityContext.facilities[facilityContext.index]
-                : new Facility({ id: -2, name: "(Select)" });
-            console.info("CheckinViewList.setFacility("
-                + JSON.stringify(newFacility, Replacers.FACILITY)
-                + ")");
-            setFacility(newFacility);
-
             // TODO - only need this to see if generate is necessary
             // TODO - maybe optimize to retrieve count only?
             // TODO - otherwise, fetch is repeated in CheckinsSubview
             try {
-                if (newFacility.id > 0) {
+                if ((props.facility.id > 0) && props.checkinDate) {
                     const newCheckins: Checkin[] = await FacilityClient.checkinsAll
-                        (newFacility.id, props.checkinDate);
+                        (props.facility.id, props.checkinDate);
                     console.info("CheckinViewList.fetchCheckins("
                         + JSON.stringify(newCheckins, Replacers.CHECKIN)
                         + ")");
@@ -85,17 +76,17 @@ const CheckinViewList = (props: Props) => {
 
         fetchCheckins();
 
-    }, [facilityContext, refresh, props.checkinDate])
+    }, [props.checkinDate, props.facility, refresh])
 
     const handleGenerate = (): void => {
         console.info("CheckListSubview.handleGenerate("
             + JSON.stringify(template, Replacers.TEMPLATE)
             + ")");
-        if (template.id < 0) {
+        if ((template.id < 0) || (props.facility.id < 0) || !props.checkinDate) {
             return;
         }
         FacilityClient.checkinsGenerate(
-            facility.id,
+            props.facility.id,
             props.checkinDate,
             template.id
         )
@@ -144,8 +135,6 @@ const CheckinViewList = (props: Props) => {
 
         <Container fluid id="CheckinViewList">
 
-            <>
-
                 {/* Back Link */}
                 <Row className="ml-1 mr-1 mb-3">
                     <Col className="text-right">
@@ -161,7 +150,7 @@ const CheckinViewList = (props: Props) => {
                 </Row>
 
                 {/* Generate From Template */}
-                { (facility.id >= 0) && (checkins.length === 0) ? (
+                { (props.facility.id >= 0) && (checkins.length === 0) ? (
                     <Row className="mb-3 ml-2 col-12">
                         <Col className="mr-2 col-3">
                             <TemplateSelector
@@ -187,11 +176,9 @@ const CheckinViewList = (props: Props) => {
                 {/* Checkins Subview */}
                 <CheckinsSubview
                     checkinDate={props.checkinDate}
-                    facility={facility}
+                    facility={props.facility}
                     handleSelectedCheckin={handleSelectedCheckin}
                 />
-
-            </>
 
         </Container>
 
