@@ -11,15 +11,13 @@ import Form from "react-bootstrap/Form";
 
 // Internal Modules ----------------------------------------------------------
 
-import { OnChangeSelect } from "./types";
+import { HandleFacility, OnChangeSelect } from "./types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/replacers";
 
 // Incoming Properties -------------------------------------------------------
-
-export type HandleFacility = (facility: Facility) => void;
 
 export interface Props {
     autoFocus?: boolean;            // Should element receive autoFocus? [false]

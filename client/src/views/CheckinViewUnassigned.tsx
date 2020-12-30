@@ -89,7 +89,7 @@ const CheckinViewUnassigned = (props: Props) => {
                 setGuest(inserted);
                 configureAssign(newGuest);
             } catch (error) {
-                ReportError("GuestView.handleInsert", error);
+                ReportError("GuestsView.handleInsert", error);
                 setGuest(null);
             }
             setGuest(newGuest);

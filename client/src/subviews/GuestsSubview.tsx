@@ -1,15 +1,12 @@
 // GuestsSubview -------------------------------------------------------------
 
 // Render a searchable list of Guests for the specified Facility, with a
-// callback to handleGuest(guest) when a particular Guest is selected
-// or handleGuest(null) if a previously selected Guest was unselected.
-
-// IMPLEMENTATION NOTE:  Be cognizant that props.facility might be null
-// if a user has logged off but remains on this subview.
+// callback to handleSelect(guest) when a particular Guest is selected
+// or handleSelect(null) if a previously selected Guest was unselected.
 
 // External Modules ----------------------------------------------------------
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -20,19 +17,17 @@ import FacilityClient from "../clients/FacilityClient";
 import Pagination from "../components/Pagination";
 import SearchBar from "../components/SearchBar";
 import SimpleList from "../components/SimpleList";
+import { HandleGuestOptional, HandleIndex } from "../components/types";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
+import FacilityContext from "../contexts/FacilityContext";
 
 // Incoming Properties -------------------------------------------------------
 
-export type HandleSelectedGuest = (guest: Guest | null) => void;
-
 export interface Props {
-    facility: Facility | null;      // Facility for which we are listing Guests,
-                                    // or null if no Facility is current
-    handleSelectedGuest: HandleSelectedGuest;
+    handleSelect: HandleGuestOptional;
                                     // Return selected (Guest) for processing,
                                     // or null if previous selection was unselected
     title?: string                  // Table title [Guests for {facility.name}]
@@ -42,7 +37,10 @@ export interface Props {
 
 const GuestsSubview = (props: Props) => {
 
+    const facilityContext = useContext(FacilityContext);
+
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [facility, setFacility] = useState<Facility>(new Facility());
     const [guests, setGuests] = useState<Guest[]>([]);
     const [index, setIndex] = useState<number>(-1);
     const [pageSize] = useState<number>(10);
@@ -52,52 +50,57 @@ const GuestsSubview = (props: Props) => {
 
         const fetchGuests = async () => {
 
-            try {
-                if (props.facility) {
-                    if (searchText.length === 0) {
-                        console.info("GuestsSubview.fetchGuests(reset)");
-                        setGuests([]);
-                        setIndex(-1);
-                    } else {
+            // Establish the currently selected Facility
+            let currentFacility: Facility;
+            if (facilityContext.facility) {
+                currentFacility = facilityContext.facility;
+            } else {
+                currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
+            }
+            console.info("GuestsView.setFacility("
+                + JSON.stringify(currentFacility, Replacers.FACILITY)
+                + ")");
+            setFacility(currentFacility);
+
+            // Fetch Guests matching search text (if any) for this Facility (if any)
+            if (facility.id >= 0) {
+                if (searchText.length > 0) {
+                    try {
                         const newGuests: Guest[] =
                             await FacilityClient.guestsName
-                            (props.facility.id, searchText, {
-                                limit: pageSize,
-                                offset: (pageSize * (currentPage - 1))
-                            });
+                                (facility.id, searchText, {
+                                    limit: pageSize,
+                                    offset: (pageSize * (currentPage - 1))
+                                });
                         console.info("GuestsSubview.fetchGuests("
                             + JSON.stringify(newGuests, Replacers.GUEST)
                             + ")");
                         setGuests(newGuests);
                         setIndex(-1);
+                    } catch (error) {
+                        ReportError("GuestsSubview.fetchGuests", error);
+                        setGuests([]);
+                        setIndex(-1);
                     }
-                } else {
-                    console.info("GuestView.fetchGuests(skipped)");
-                    setGuests([]);
-                    setIndex(-1);
                 }
-            } catch (error) {
-                setGuests([]);
-                setIndex(-1);
-                ReportError("GuestSubview.fetchGuests", error);
             }
 
         }
 
         fetchGuests();
 
-    }, [props.facility, currentPage, pageSize, searchText])
+    }, [facilityContext, currentPage, pageSize, searchText])
 
     const handleChange = (newSearchText: string): void => {
         setSearchText(newSearchText);
     }
 
-    const handleIndex = (newIndex: number): void => {
+    const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            console.info("GuestsSubview.handleIndex(-1)");
+            console.info("GuestsSubview.handleIndex(UNSET)");
             setIndex(-1);
-            if (props.handleSelectedGuest) {
-                props.handleSelectedGuest(null);
+            if (props.handleSelect) {
+                props.handleSelect(null);
             }
         } else {
             const newGuest = guests[newIndex];
@@ -106,8 +109,8 @@ const GuestsSubview = (props: Props) => {
                 + JSON.stringify(newGuest, Replacers.GUEST)
                 + ")");
             setIndex(newIndex);
-            if (props.handleSelectedGuest) {
-                props.handleSelectedGuest(newGuest);
+            if (props.handleSelect) {
+                props.handleSelect(newGuest);
             }
         }
     }
@@ -155,7 +158,7 @@ const GuestsSubview = (props: Props) => {
                     <Pagination
                         currentPage={currentPage}
                         lastPage={(guests.length === 0) ||
-                        (guests.length < pageSize)}
+                            (guests.length < pageSize)}
                         onNext={onNext}
                         onPrevious={onPrevious}
                     />
@@ -168,8 +171,8 @@ const GuestsSubview = (props: Props) => {
                     items={guests}
                     listFields={listFields}
                     listHeaders={listHeaders}
-                    title={props.title ? props.title : "Guests for " +
-                        (props.facility ? props.facility.name : "(Select)")}
+                    title={props.title ? props.title :
+                        ("Guests for " + facility.name)}
                 />
             </Row>
 

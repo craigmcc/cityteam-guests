@@ -16,19 +16,17 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
+import { HandleGuest } from "../components/types";
 import LoginContext from "../contexts/LoginContext";
 import Guest from "../models/Guest";
-import {
-    validateGuestNameUnique,
-} from "../util/async-validators";
+import { validateGuestNameUnique } from "../util/async-validators";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
-
-export type HandleGuest = (guest: Guest) => void;
 
 // Property Details ----------------------------------------------------------
 
 export interface Props {
     autoFocus?: boolean;         // Should the first element receive autofocus? [false]
+    canRemove?: boolean;        // Can Remove be performed? [false]
     guest: Guest;                // Initial values (id<0 for adding)
     handleInsert?: HandleGuest;  // Handle (guest) insert request
     handleRemove?: HandleGuest;  // Handle (guest) remove request
@@ -42,6 +40,8 @@ const GuestForm = (props: Props) => {
     const loginContext = useContext(LoginContext);
 
     const [adding] = useState<boolean>(props.guest.id < 0);
+    const [canRemove] = useState<boolean>
+        (props.canRemove !== undefined ? props.canRemove : false);
     const [initialValues] = useState(toEmptyStrings(props.guest));
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [superuser] = useState<boolean>(loginContext.validateScope("superuser"));
@@ -244,7 +244,7 @@ const GuestForm = (props: Props) => {
                                 </Col>
                                 <Col className="col-2 float-right">
                                     <Button
-                                        disabled={adding || !superuser}
+                                        disabled={adding || !canRemove}
                                         onClick={onConfirm}
                                         size="sm"
                                         type="button"

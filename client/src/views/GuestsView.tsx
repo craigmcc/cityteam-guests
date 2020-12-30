@@ -1,4 +1,4 @@
-// GuestView -----------------------------------------------------------------
+// GuestsView ----------------------------------------------------------------
 
 // Administrator view for listing and editing Guests.
 
@@ -13,22 +13,26 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
+import { HandleGuest, HandleGuestOptional, Scopes } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
-import GuestForm, { HandleGuest } from "../forms/GuestForm";
+import GuestForm from "../forms/GuestForm";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
-import GuestsSubview, { HandleSelectedGuest } from "../subviews/GuestsSubview";
+import GuestsSubview from "../subviews/GuestsSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
-const GuestView = () => {
+const GuestsView = () => {
 
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
+    const [canAdd, setCanAdd] = useState<boolean>(false);
+    const [canEdit, setCanEdit] = useState<boolean>(false);
+    const [canRemove, setCanRemove] = useState<boolean>(false);
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [guest, setGuest] = useState<Guest | null>(null);
     const [refresh, setRefresh] = useState<boolean>(false);
@@ -37,90 +41,97 @@ const GuestView = () => {
 
         const fetchGuests = async () => {
 
-            const newFacility = facilityContext.index >= 0
-                ? facilityContext.facilities[facilityContext.index]
-                : new Facility({ name: "(Select)" });
-            console.info("GuestView.setFacility("
-                + JSON.stringify(newFacility, Replacers.FACILITY)
+            // Establish the currently selected Facility
+            let currentFacility: Facility;
+            if (facilityContext.facility) {
+                currentFacility = facilityContext.facility;
+            } else {
+                currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
+            }
+            console.info("GuestsView.setFacility("
+                + JSON.stringify(currentFacility, Replacers.FACILITY)
                 + ")");
-            setFacility(newFacility);
+            setFacility(currentFacility);
 
-            setRefresh(false);
+            // Record current permissions
+            const isRegular = loginContext.validateScope(Scopes.REGULAR);
+            setCanAdd(isRegular);
+            setCanEdit(isRegular);
+            setCanRemove(loginContext.validateScope(Scopes.SUPERUSER));
+
+            // Reset refresh flag if necessary
+            if (refresh) {
+                setRefresh(false);
+            }
 
         }
 
         fetchGuests();
 
-    }, [facilityContext, refresh]);
+    }, [facilityContext, loginContext, refresh]);
 
-    const addEnabled = (): boolean => {
-        return loginContext.validateScope("regular");
-    }
-
-    const handleInsert: HandleGuest
-        = async (newGuest) =>
-    {
+    const handleInsert: HandleGuest = async (newGuest) => {
         try {
             const inserted: Guest
                 = await FacilityClient.guestsInsert(facility.id, newGuest);
-            console.info("GuestView.handleInsert("
+            console.info("GuestsView.handleInsert("
                 + JSON.stringify(inserted, Replacers.GUEST)
                 + ")");
             setGuest(null);
             setRefresh(true);
         } catch (error) {
-            ReportError("GuestView.handleInsert", error);
+            ReportError("GuestsView.handleInsert", error);
         }
     }
 
-    const handleRemove: HandleGuest
-        = async (newGuest) =>
-    {
+    const handleRemove: HandleGuest = async (newGuest) => {
         try {
             const removed: Guest
                 = await FacilityClient.guestsRemove(facility.id, newGuest.id);
-            console.info("GuestView.handleRemove("
+            console.info("GuestsView.handleRemove("
                 + JSON.stringify(removed, Replacers.GUEST)
                 + ")");
             setGuest(null);
             setRefresh(true);
         } catch (error) {
-            ReportError("GuestView.handleRemove", error);
+            ReportError("GuestsView.handleRemove", error);
         }
     }
 
-    const handleSelectedGuest: HandleSelectedGuest
-        = (newGuest) =>
-    {
+    const handleSelect: HandleGuestOptional = (newGuest) => {
         if (newGuest) {
-            console.info("GuestView.handleSelectedGuest("
-                + JSON.stringify(newGuest, Replacers.GUEST)
-                + ")");
-            setGuest(newGuest);
+            if (canEdit) {
+                console.info("GuestsView.handleSelect(CAN EDIT, "
+                    + JSON.stringify(newGuest, Replacers.GUEST)
+                    + ")");
+                setGuest(newGuest);
+            } else {
+                console.info("GuestsView.handleSelect(CANNOT EDIT, "
+                    + JSON.stringify(newGuest, Replacers.GUEST)
+                    + ")");
+            }
         } else {
-            console.info("GuestView.handleSelectedGuest(unselected");
+            console.info("GuestsView.handleSelect(UNSET)");
             setGuest(null);
         }
     }
 
-    const handleUpdate: HandleGuest
-        = async (newGuest) =>
-    {
+    const handleUpdate: HandleGuest = async (newGuest) => {
         try {
             const removed: Guest = await FacilityClient.guestsUpdate
-            (facility.id, newGuest.id, newGuest);
-            console.info("GuestView.handleUpdate("
+                (facility.id, newGuest.id, newGuest);
+            console.info("GuestsView.handleUpdate("
                 + JSON.stringify(removed, Replacers.TEMPLATE)
                 + ")");
             setGuest(null);
             setRefresh(true);
         } catch (error) {
-            ReportError("GuestView.handleUpdate", error);
+            ReportError("GuestsView.handleUpdate", error);
         }
     }
 
     const onAdd = () => {
-        console.info("GuestView.onAdd()");
+        console.info("GuestsView.onAdd()");
         const newGuest: Guest = new Guest({
             facilityId: facility.id,
             id: -1
@@ -129,7 +140,7 @@ const GuestView = () => {
     }
 
     const onBack = () => {
-        console.info("GuestView.onBack()");
+        console.info("GuestsView.onBack()");
         setGuest(null);
     }
 
@@ -144,14 +155,13 @@ const GuestView = () => {
 
                     <Row className="ml-1 mr-1 mb-3">
                         <GuestsSubview
-                            facility={facility}
-                            handleSelectedGuest={handleSelectedGuest}
+                            handleSelect={handleSelect}
                         />
                     </Row>
 
                     <Row className="ml-4">
                         <Button
-                            disabled={!addEnabled()}
+                            disabled={!canAdd}
                             onClick={onAdd}
                             size="sm"
                             variant="primary"
@@ -197,6 +207,7 @@ const GuestView = () => {
                     <Row className="ml-1 mr-1">
                         <GuestForm
                             autoFocus
+                            canRemove={canRemove}
                             guest={guest}
                             handleInsert={handleInsert}
                             handleRemove={handleRemove}
@@ -214,4 +225,4 @@ const GuestView = () => {
 
 }
 
-export default GuestView;
+export default GuestsView;

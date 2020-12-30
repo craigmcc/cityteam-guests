@@ -6,6 +6,28 @@
 
 import React from "react";
 
+// Internal Modules ----------------------------------------------------------
+
+import Assign from "../models/Assign";
+import Checkin from "../models/Checkin";
+import Facility from "../models/Facility";
+import Guest from "../models/Guest";
+import Template from "../models/Template";
+
+// Data Object Handlers ------------------------------------------------------
+
+export type HandleAssign = (assign: Assign) => void;
+export type HandleAssignOptional = (assign: Assign | null) => void;
+export type HandleCheckin = (checkin: Checkin) => void;
+export type HandleCheckinOptional = (checkin: Checkin | null) => void;
+export type HandleFacility = (facility: Facility) => void;
+export type HandleFacilityOptional = (facility: Facility | null) => void;
+export type HandleGuest = (guest: Guest) => void;
+export type HandleGuestOptional = (guest: Guest | null) => void;
+export type HandleIndex = (index: number) => void;
+export type HandleTemplate = (template: Template) => void;
+export type HandleTemplateOptional = (template: Template | null) => void;
+
 // HTML Event Handlers -------------------------------------------------------
 
 export type OnBlur = (event: React.FocusEvent<HTMLElement>) => void;
@@ -29,4 +51,9 @@ export enum PaymentTypes {
     WB = "WB-Work Bed",
 }
 
-
+export enum Scopes {
+    ADMIN = "admin",
+    ANY = "any",
+    REGULAR = "regular",
+    SUPERUSER = "superuser",
+}

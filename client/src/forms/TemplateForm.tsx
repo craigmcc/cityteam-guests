@@ -4,8 +4,8 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, {useContext, useState} from "react";
 import { Formik, FormikHelpers, FormikValues } from "formik";
+import React, { useState } from "react";
 import Button from "react-bootstrap/button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -16,22 +16,17 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
-import LoginContext from "../contexts/LoginContext";
+import { HandleTemplate } from "../components/types";
 import Template from "../models/Template";
-import {
-    validateTemplateNameUnique,
-} from "../util/async-validators";
+import { validateTemplateNameUnique } from "../util/async-validators";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
-import {
-    validateMatsList, validateMatsSubset
-} from "../util/application-validators";
-
-export type HandleTemplate = (template: Template) => void;
+import { validateMatsList, validateMatsSubset } from "../util/application-validators";
 
 // Property Details ----------------------------------------------------------
 
 export interface Props {
     autoFocus?: boolean;            // Should the first element receive autofocus? [false]
+    canRemove?: boolean;            // Can Remove be performed? [false]
     handleInsert: HandleTemplate;   // Handle (template) insert request
     handleRemove: HandleTemplate;   // Handle (template) remove request
     handleUpdate: HandleTemplate;   // Handle (template) update request
@@ -42,12 +37,11 @@ export interface Props {
 
 const TemplateForm = (props: Props) => {
 
-    const loginContext = useContext(LoginContext);
-
     const [adding] = useState<boolean>(props.template.id < 0);
+    const [canRemove] = useState<boolean>
+        (props.canRemove !== undefined ? props.canRemove : false);
     const [initialValues] = useState(toEmptyStrings(props.template));
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
-    const [superuser] = useState<boolean>(loginContext.validateScope("superuser"));
 
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
         if (adding) {
@@ -331,7 +325,7 @@ const TemplateForm = (props: Props) => {
                                     </Col>
                                     <Col className="col-2 float-right">
                                         <Button
-                                            disabled={adding || !superuser}
+                                            disabled={adding || !canRemove}
                                             onClick={onConfirm}
                                             size="sm"
                                             type="button"

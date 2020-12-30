@@ -22,7 +22,7 @@ import { LoginContextProvider } from "./contexts/LoginContext";
 import CheckinView from "./views/CheckinView";
 import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
-import GuestView from "./views/GuestView";
+import GuestsView from "./views/GuestsView";
 import TemplateView from "./views/TemplateView";
 import UserView from "./views/UserView";
 
@@ -93,7 +93,7 @@ function App() {
                 <FacilityView/>
               </Route>
               <Route exact path="/guests">
-                <GuestView/>
+                <GuestsView/>
               </Route>
               <Route exact path="/templates">
                 <TemplateView/>
