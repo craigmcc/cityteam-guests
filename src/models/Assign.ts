@@ -1,12 +1,15 @@
 // Assign --------------------------------------------------------------------
 
-// Assignment details for a Guest being checked in.
+// Subset of Checkin data associated with assigning a specific Guest to a
+// specific Checkin.  These are not a Sequelize model (because they are not
+// stored separately in the database), but it is convenient to structure them
+// like Model classes.
 
-// Public Objects ------------------------------------------------------------
+// Public Objects {
 
 class Assign {
 
-    constructor(data: any = {}) {
+    constructor (data: any = {}) {
         this.comments = data.comments || null;
         this.facilityId = data.facilityId || -1;
         this.guestId = data.guestId || -1;
@@ -20,12 +23,11 @@ class Assign {
     comments?: string;
     facilityId!: number;
     guestId!: number;
-    id!: number;                // Will be id of corresponding Checkin
+    id!: number;
     paymentAmount?: number;
     paymentType?: string;
     showerTime?: string;
     wakeupTime?: string;
-
 }
 
 export default Assign;

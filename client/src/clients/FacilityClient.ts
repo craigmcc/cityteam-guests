@@ -6,7 +6,7 @@
 
 import ApiBase from "./ApiBase";
 import { queryParameters } from "../util/query-parameters";
-//import Checkin from "../models/Checkin";
+import Checkin from "../models/Checkin";
 //import Facility from "../models/Facility";
 //import Guest from "../models/Guest";
 //import Summary from "../models/Summary";
@@ -63,6 +63,34 @@ class FacilityClient {
     async scope<Facility>(scope: string, params?: object): Promise<Facility> {
         return (await ApiBase.get(FACILITIES_BASE
             + `/scope/${scope}${queryParameters(params)}`)).data;
+    }
+
+    // ***** Facility -> Assign Methods *****
+
+    async assignsAssign<Assign>(
+        facilityId: number,
+        checkinId: number,
+        assign: Assign
+    ): Promise<Checkin> {
+        return (await ApiBase.post(FACILITIES_BASE
+            + `/${facilityId}/assigns/${checkinId}/assign`, assign)).data;
+    }
+
+    async assignsDeassign (
+        facilityId: number,
+        checkinId: number
+    ): Promise<Checkin> {
+        return (await ApiBase.post(FACILITIES_BASE
+            + `/${facilityId}/assigns/${checkinId}/deassign`)).data;
+    }
+
+    async assignsReassign (
+        facilityId: number,
+        oldCheckinId: number,
+        newCheckinId: number
+    ): Promise<Checkin> {
+        return (await ApiBase.post(FACILITIES_BASE
+            + `/${facilityId}/assigns/${oldCheckinId}/reassign/${newCheckinId}`)).data;
     }
 
     // ***** Facility -> Checkin Methods *****

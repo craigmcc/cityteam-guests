@@ -31,13 +31,14 @@ import ReportError from "../util/ReportError";
 // Incoming Properties -------------------------------------------------------
 
 export type HandleAssign = (assign: Assign) => void;
+export type HandleAssigned = (checkin: Checkin) => void;
 export type HandleStage = (stage: Stage) => void;
 
 export interface Props {
     checkin: Checkin;               // The (unassigned) Checkin we are processing
     facility: Facility;             // Facility for which we are processing checkins,
                                     // or (facility.id < 0) if no Facility is current
-    handleAssign: HandleAssign;     // Handle (assign) when successfully completed
+    handleAssigned: HandleAssigned; // Handle (assign) when successfully completed
     handleStage: HandleStage;       // Handle (stage) when changing
 }
 
@@ -100,12 +101,20 @@ const CheckinViewUnassigned = (props: Props) => {
     const handleAssignedGuest: HandleAssign
         = async (newAssign) =>
     {
-        console.info("CheckinViewUnassigned.handleAssignedGuest("
-            + JSON.stringify(newAssign/*, Replacers.ASSIGN*/)
-            + ")");
-        // TODO - tell the server to do this assign
-        props.handleAssign(newAssign); // TODO - after processing!
-        props.handleStage(Stage.List);
+        try {
+            console.info("CheckinViewUnassigned.handleAssignedGuest.send("
+                + JSON.stringify(newAssign/*, Replacers.ASSIGN*/)
+                + ")");
+            const assigned = await FacilityClient.assignsAssign
+                (newAssign.facilityId, newAssign.id, newAssign);
+            console.info("CheckinViewUnassigned.handleAssignedGuest.result("
+                + JSON.stringify(assigned/*, Replacers.CHECKIN*/)
+                + ")");
+            props.handleAssigned(assigned);
+            props.handleStage(Stage.List);
+        } catch (error) {
+            ReportError("CheckinViewUnassigned.handleAssignedGuest", error);
+        }
     }
 
     const handleSelectedGuest: HandleSelectedGuest

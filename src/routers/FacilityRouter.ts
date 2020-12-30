@@ -118,17 +118,37 @@ FacilityRouter.put("/:facilityId",
             (parseInt(req.params.facilityId), req.body));
     });
 
-// Facility -> Checkin Routes ------------------------------------------------
+// Facility -> Assign Routes -------------------------------------------------
 
-// Find all Checkins for this Facility
-/*
-FacilityRouter.get("/:facilityId/checkins",
-    requireSuperuser,
+// Assign the specified Guest to the specified Checkin
+FacilityRouter.post("/:facilityId/assigns/:checkinId/assign",
+    requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.checkinsAll
-            (parseInt(req.params.facilityId), req.query));
+        res.send(await FacilityServices.assignsAssign(
+            parseInt(req.params.facilityId),
+            parseInt(req.params.checkinId),
+            req.body
+        ));
     });
-*/
+
+// Deassign the current Guest from the specified Checkin
+FacilityRouter.post("/:facilityId/assigns/:checkinId/deassign",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityServices.assignsDeassign(
+            parseInt(req.params.facilityId),
+            parseInt(req.params.checkinId)
+        ));
+    });
+
+// Reassign the current Guest at a specified Checkin to a new Checkin
+FacilityRouter.post("/:facilityId/assigns/:oldCheckinId/reassign/:newCheckinId",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        // TODO
+    });
+
+// Facility -> Checkin Routes ------------------------------------------------
 
 // Find all Checkins for this Facility on this checkin date
 FacilityRouter.get("/:facilityId/checkins/:checkinDate/all",

@@ -9,12 +9,17 @@ import { FindOptions, Op } from "sequelize";
 // Internal Modules ----------------------------------------------------------
 
 import AbstractServices from "./AbstractServices";
+import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
 import User from "../models/User";
+import CheckinServices, {
+    fields as checkinFields,
+    fieldsWithId as checkinFieldsWithId
+} from "./CheckinServices";
 import GuestServices, {
     fields as guestFields,
     fieldsWithId as guestFieldsWithId
@@ -159,22 +164,246 @@ export class FacilityServices extends AbstractServices<Facility> {
         return results[0];
     }
 
-    // ***** Checkin Interactions *****
+    // ***** Assign Interactions *****
 
-/*
-    public async checkinsAll(facilityId: number, query?: any): Promise<Checkin[]> {
+    public async assignsAssign
+        (facilityId: number, checkinId: number, assign: Assign): Promise<Checkin> {
+
+        // Validate required fields in the specified Assign
+        if (!assign.facilityId) {
+            throw new BadRequest(
+                `assign: Missing facilityId in assign data`,
+                "FacilityServices.assignsAssign()");
+        }
+        if (!assign.guestId) {
+            throw new BadRequest(
+                `assign: Missing guestId in assign data`,
+                "FacilityServices.assignsAssign()");
+        }
+
+        // Look up the corresponding Facility
         const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
-                "FacilityServices.checkinsAll()");
+                "FacilityServices.assignsAssign()");
         }
-        const options: FindOptions = appendQuery({
-            order: CHECKIN_ORDER
-        }, query);
-        return await facility.$get("checkins", options);
+
+        // Look up the corresponding Checkin
+        const checkin = await Checkin.findByPk(checkinId);
+        if (!checkin) {
+            throw new NotFound(
+                `checkinId: Missing Checkin ${checkinId}`,
+                "FacilityServices.assignsAssign()");
+        }
+
+        // Verify the status of this Checkin
+        if (checkin.facilityId !== facility.id) {
+            throw new BadRequest(
+                `checkinId: Checkin ${checkinId} does not belong to Facility ${facilityId}`,
+                "FacilityServices.assignsAssign()");
+        }
+        if (checkin.guestId && (checkin.guestId != assign.guestId)) {
+            throw new BadRequest(
+                `checkinId: Checkin ${checkinId} is already assigned to Guest ${checkin.guestId}`,
+                "FacilityServices.assignsAssign()");
+        }
+
+        // For an unassigned Checkin, verify that this guestId is not checked in elsewhere
+        if (!checkin.guestId) {
+            const options = {
+                where: {
+                    checkinDate: checkin.checkinDate,
+                    facilityId: checkin.facilityId,
+                    guestId: assign.guestId,
+                }
+            }
+            const results = await Checkin.findAll(options);
+            if (results.length > 0) {
+                throw new BadRequest(
+                    `guestId: Guest ${assign.guestId} is already assigned to mat ${results[0].matNumber}`,
+                    "FacilityServices.assignsAssign()");
+            }
+        }
+
+        // Perform the assignment and return the updated Checkin
+        checkin.comments = assign.comments ? assign.comments : undefined;
+        checkin.guestId = assign.guestId;
+        checkin.paymentAmount = assign.paymentAmount;
+        checkin.paymentType = assign.paymentType;
+        checkin.showerTime = assign.showerTime ? toDateObject(assign.showerTime) : undefined;
+        checkin.wakeupTime = assign.wakeupTime ? toDateObject(assign.wakeupTime) : undefined;
+        console.info("FacilityServices.assignsAssign.attempting("
+            + JSON.stringify(checkin)
+            + ")");
+        const [count, results] = await Checkin.update(checkin, {
+            where: {
+                id: checkinId
+            }
+        });
+        if (count !== 1) {
+            throw new BadRequest(
+                `checkId: Cannot update Checkin ${checkinId}`
+            )
+        }
+        return results[0];
+
     }
-*/
+
+    public async assignsDeassign
+        (facilityId: number, checkinId: number): Promise<Checkin> {
+
+        // Look up the corresponding Facility
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.assignsDeassign()");
+        }
+
+        // Look up the corresponding Checkin
+        const checkin = await Checkin.findByPk(checkinId);
+        if (!checkin) {
+            throw new NotFound(
+                `checkinId: Missing Checkin ${checkinId}`,
+                "FacilityServices.assignsDeassign()");
+        }
+
+        // Verify the status of this Checkin
+        if (checkin.facilityId !== facility.id) {
+            throw new BadRequest(
+                `checkinId: Checkin ${checkinId} does not belong to Facility ${facilityId}`,
+                "FacilityServices.assignsDeassign()");
+        }
+        if (!checkin.guestId) {
+            throw new BadRequest(
+                `checkinId: Checkin ${checkinId} is not currently assigned`,
+                "FacilityServices.assignsDeassign()");
+        }
+
+        // Update the Checkin and return it.
+        const newCheckin: Partial<Checkin> = {
+            comments: undefined,
+            guestId: undefined,
+            paymentAmount: undefined,
+            paymentType: undefined,
+            showerTime: undefined,
+            wakeupTime: undefined,
+        }
+        const [count, results] = await Checkin.update(newCheckin, {
+            where: {
+                id: checkinId
+            }
+        });
+        if (count !== 1) {
+            throw new BadRequest(
+                `checkId: Cannot update Checkin ${checkinId}`
+            )
+        }
+        return results[0];
+
+    }
+
+    public async assignsReassign
+        (facilityId: number, oldCheckinId: number, newCheckinId: number): Promise<Checkin> {
+
+        // Look up the corresponding Facility
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.assignsReassign()");
+        }
+
+        // Look up the corresponding old Checkin
+        const oldCheckin = await Checkin.findByPk(oldCheckinId);
+        if (!oldCheckin) {
+            throw new NotFound(
+                `checkinId: Missing old Checkin ${oldCheckinId}`,
+                "FacilityServices.assignsReassign()");
+        }
+
+        // Verify the status of the old Checkin
+        if (oldCheckin.facilityId !== facility.id) {
+            throw new BadRequest(
+                `checkinId: Old Checkin ${oldCheckinId} does not belong to Facility ${facilityId}`,
+                "FacilityServices.assignsReassign()");
+        }
+        if (!oldCheckin.guestId) {
+            throw new BadRequest(
+                `checkinId: Old Checkin ${oldCheckinId} is not currently assigned`,
+                "FacilityServices.assignsReassign()");
+        }
+
+        // Look up the corresponding new Checkin
+        const newCheckin = await Checkin.findByPk(newCheckinId);
+        if (!newCheckin) {
+            throw new NotFound(
+                `checkinId: Missing new Checkin ${newCheckinId}`,
+                "FacilityServices.assignsReassign()");
+        }
+
+        // Verify the status of the new Checkin
+        if (newCheckin.facilityId !== facility.id) {
+            throw new BadRequest(
+                `checkinId: New Checkin ${newCheckinId} does not belong to Facility ${facilityId}`,
+                "FacilityServices.assignsReassign()");
+        }
+        if (newCheckin.guestId) {
+            throw new BadRequest(
+                `checkinId: New Checkin ${newCheckinId} is assigned to Guest ${newCheckin.guestId}`,
+                "FacilityServices.assignsReassign()");
+        }
+
+        // Update and save the new Checkin
+        const newUpdate: Partial<Checkin> = {
+            comments: oldCheckin.comments ? oldCheckin.comments : undefined,
+            guestId: oldCheckin.guestId,
+            paymentAmount: oldCheckin.paymentAmount ? oldCheckin.paymentAmount : undefined,
+            paymentType: oldCheckin.paymentType ? oldCheckin.paymentType : undefined,
+            showerTime: oldCheckin.showerTime ? oldCheckin.showerTime : undefined,
+            wakeupTime: oldCheckin.wakeupTime ? oldCheckin.wakeupTime : undefined,
+        }
+        const [newCount, newResults] = await Checkin.update(newCheckin, {
+            where: {
+                id: newCheckinId
+            }
+        });
+        if (newCount !== 1) {
+            throw new BadRequest(
+                `newCheckinId: Cannot update Checkin ${newCheckinId}`,
+                "FacilityServices.assignsReassign()"
+            )
+        }
+
+        // Update and save the old Checkin
+        const oldCheckinUpdate: Partial<Checkin> = {
+            comments: undefined,
+            guestId: undefined,
+            paymentAmount: undefined,
+            paymentType: undefined,
+            showerTime: undefined,
+            wakeupTime: undefined,
+        }
+        const [oldCount, oldResults] = await Checkin.update(oldCheckinUpdate, {
+            where: {
+                id: oldCheckinId
+            }
+        });
+        if (oldCount !== 1) {
+            throw new BadRequest(
+                `oldCheckinId: Cannot update Checkin ${oldCheckinId}`,
+                "FacilityServices.assignsReassign()"
+
+            )
+        }
+
+        // Return the updated new Checkin
+        return newResults[0];
+
+    }
+
+    // ***** Checkin Interactions *****
 
     public async checkinsAll(facilityId: number, checkinDate: string, query?: any): Promise<Checkin[]> {
         const facility = await Facility.findByPk(facilityId);

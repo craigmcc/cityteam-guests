@@ -38,6 +38,7 @@ export interface Props {
                                     // Handle (checkin) when one is selected
                                     // or (null) when one is unselected
     handleStage: HandleStage;       // Handle (stage) when changing
+    refresh?: boolean;              // Refresh checkins on first render? [false]
 }
 
 // Component Details ----------------------------------------------------------
@@ -45,7 +46,7 @@ export interface Props {
 const CheckinViewList = (props: Props) => {
 
     const [checkins, setCheckins] = useState<Checkin[]>([]);
-    const [refresh, setRefresh] = useState<boolean>(false);
+    const [refresh, setRefresh] = useState<boolean>(true); // Including first time
     const [template, setTemplate] = useState<Template>(new Template());
 
     useEffect(() => {
@@ -76,10 +77,10 @@ const CheckinViewList = (props: Props) => {
 
         fetchCheckins();
 
-    }, [props.checkinDate, props.facility, refresh])
+    }, [props.checkinDate, props.facility, props.refresh, refresh])
 
     const handleGenerate = (): void => {
-        console.info("CheckListSubview.handleGenerate("
+        console.info("CheckListSubview.handleGenerate.click("
             + JSON.stringify(template, Replacers.TEMPLATE)
             + ")");
         if ((template.id < 0) || (props.facility.id < 0) || !props.checkinDate) {
@@ -91,7 +92,7 @@ const CheckinViewList = (props: Props) => {
             template.id
         )
             .then(newCheckins => {
-                console.info("CheckinViewList.handleGenerate("
+                console.info("CheckinViewList.handleGenerate.results("
                     + JSON.stringify(newCheckins, Replacers.CHECKIN)
                     + ")");
                 setRefresh(true);

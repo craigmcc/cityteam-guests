@@ -12,7 +12,7 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ---------------------------------------------------------
 
 import CheckinViewList, { HandleSelectedCheckin } from "./CheckinViewList";
-import CheckinViewUnassigned, {HandleAssign} from "./CheckinViewUnassigned";
+import CheckinViewUnassigned, { HandleAssigned } from "./CheckinViewUnassigned";
 import DateSelector from "../components/DateSelector";
 import FacilityContext from "../contexts/FacilityContext";
 import Checkin from "../models/Checkin";
@@ -50,12 +50,12 @@ const CheckinView = () => {
 
     }, [checkin, facilityContext, stage]);
 
-    const handleAssign: HandleAssign
-        = (newAssign) => {
-        console.info("CheckinViewUnassigned.handleAssign("
-            + JSON.stringify(newAssign, Replacers.ASSIGN)
+    const handleAssigned: HandleAssigned
+            = (newCheckin) => {
+        console.info("CheckinViewUnassigned.handleAssigned("
+            + JSON.stringify(newCheckin, Replacers.CHECKIN)
             + ")");
-        // TODO - handleAssign
+        // TODO - handleAssigned
         setStage(Stage.List);
     }
 
@@ -122,7 +122,7 @@ const CheckinView = () => {
                 <CheckinViewUnassigned
                     checkin={checkin}
                     facility={facility}
-                    handleAssign={handleAssign}
+                    handleAssigned={handleAssigned}
                     handleStage={handleStage}
                 />
             ) : null}
