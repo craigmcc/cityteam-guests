@@ -16,35 +16,31 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
-import LoginContext from "../contexts/LoginContext";
+import { HandleUser } from "../components/types";
 import User from "../models/User";
-import {
-    validateUserUsernameUnique,
-} from "../util/async-validators";
+import { validateUserUsernameUnique } from "../util/async-validators";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
-
-export type HandleUser = (user: User) => void;
 
 // Property Details ----------------------------------------------------------
 
 export interface Props {
     autoFocus?: boolean;            // Should the first element receive autofocus? [false]
-    handleInsert: HandleUser;   // Handle (user) insert request
-    handleRemove: HandleUser;   // Handle (user) remove request
-    handleUpdate: HandleUser;   // Handle (user) update request
-    user: User;             // Initial values (id<0 for adding)
+    canRemove?: boolean;            // Can Remove be performed? [false]
+    handleInsert: HandleUser;       // Handle (user) insert request
+    handleRemove: HandleUser;       // Handle (user) remove request
+    handleUpdate: HandleUser;       // Handle (user) update request
+    user: User;                     // Initial values (id<0 for adding)
 }
 
 // Component Details ---------------------------------------------------------
 
 const UserForm = (props: Props) => {
 
-    const loginContext = useContext(LoginContext);
-
     const [adding] = useState<boolean>(props.user.id < 0);
+    const [canRemove] = useState<boolean>
+        (props.canRemove != undefined ? props.canRemove : false);
     const [initialValues] = useState(toEmptyStrings(props.user));
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
-    const [superuser] = useState<boolean>(loginContext.validateScope("superuser"));
 
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
         if (adding) {
@@ -254,7 +250,7 @@ const UserForm = (props: Props) => {
                                 </Col>
                                 <Col className="col-2 float-right">
                                     <Button
-                                        disabled={adding || !superuser}
+                                        disabled={adding || !canRemove}
                                         onClick={onConfirm}
                                         size="sm"
                                         type="button"

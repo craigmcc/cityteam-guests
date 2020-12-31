@@ -1,8 +1,8 @@
-// TemplatesSubview ----------------------------------------------------------
+// UsersSubview --------------------------------------------------------------
 
-// Render a list of Templates for the current Facility, with a callback to
-// handleSelect(template) when a particular Template is selected, or
-// handleSelect(null) if a previously selected Template is unselected.
+// Render a list of Users for the current Facility, with a callback to
+// handleSelect(user) when a particular User is selected, or
+// handleSelect(null) if a previously selected User is unselected.
 
 // External Modules ----------------------------------------------------------
 
@@ -14,35 +14,35 @@ import Row from "react-bootstrap/Row";
 
 import FacilityClient from "../clients/FacilityClient";
 import SimpleList from "../components/SimpleList";
-import { HandleIndex, HandleTemplateOptional } from "../components/types";
+import { HandleUserOptional, HandleIndex } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import Facility from "../models/Facility";
-import Template from "../models/Template";
+import User from "../models/User";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
 
 export interface Props {
-    handleSelect: HandleTemplateOptional;
+    handleSelect: HandleUserOptional;
                                     // Return selected (Template) for processing,
                                     // or null if previous selection was unselected
-    title?: string;                 // Table title [Templates for {facility.name}]
+    title?: string;                 // Table title [Users for {facility.name}]
 }
 
 // Component Details ---------------------------------------------------------
 
-const TemplatesSubview = (props: Props) => {
+const UsersSubview = (props: Props) => {
 
     const facilityContext = useContext(FacilityContext);
 
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [index, setIndex] = useState<number>(-1);
-    const [templates, setTemplates] = useState<Template[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
 
-        const fetchTemplates = async () => {
+        const fetchUsers = async () => {
 
             // Establish the currently selected Facility
             let currentFacility: Facility;
@@ -51,50 +51,50 @@ const TemplatesSubview = (props: Props) => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("TemplatesSubview.setFacility("
+            console.info("UsersSubview.setFacility("
                 + JSON.stringify(currentFacility, Replacers.FACILITY)
                 + ")");
             setFacility(currentFacility);
 
-            // Fetch Templates for this Facility (if any)
+            // Fetch Users for this Facility (if any)
             if (currentFacility.id >= 0) {
                 try {
-                    const newTemplates: Template[] =
-                        await FacilityClient.templatesAll(currentFacility.id);
-                    console.info("TemplatesSubview.fetchTemplates("
-                        + JSON.stringify(newTemplates, Replacers.TEMPLATE)
+                    const newUsers: User[] =
+                        await FacilityClient.usersAll(currentFacility.id);
+                    console.info("UsersSubview.fetchUsers("
+                        + JSON.stringify(newUsers, Replacers.USER)
                         + ")");
                     setIndex(-1);
-                    setTemplates(newTemplates);
+                    setUsers(newUsers);
                 } catch (error) {
-                    ReportError("TemplatesSubview.fetchTemplates", error);
+                    ReportError("UsersSubview.fetchUsers", error);
                     setIndex(-1);
-                    setTemplates([]);
+                    setUsers([]);
                 }
             }
 
         }
 
-        fetchTemplates();
+        fetchUsers();
 
     }, [facilityContext]);
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            console.info("TemplatesSubview.handleIndex(UNSET)");
+            console.info("UsersSubview.handleIndex(UNSET)");
             setIndex(-1);
             if (props.handleSelect) {
                 props.handleSelect(null);
             }
         } else {
-            const newTemplate = templates[newIndex];
-            console.info("TemplatesSubview.handleIndex("
+            const newUser = users[newIndex];
+            console.info("UsersSubview.handleIndex("
                 + newIndex + ", "
-                + JSON.stringify(newTemplate, Replacers.TEMPLATE)
+                + JSON.stringify(newUser, Replacers.TEMPLATE)
                 + ")");
             setIndex(newIndex);
             if (props.handleSelect) {
-                props.handleSelect(newTemplate);
+                props.handleSelect(newUser);
             }
         }
     }
@@ -102,39 +102,32 @@ const TemplatesSubview = (props: Props) => {
     const listFields = [
         "name",
         "active",
-        "comments",
-        "allMats",
-        "handicapMats",
-        "socketMats",
-        "workMats",
+        "username",
+        "scope",
     ]
 
     const listHeaders = [
         "Name",
         "Active",
-        "Comments",
-        "All Mats",
-        "Handicap Mats",
-        "Socket Mats",
-        "Work Mats"
+        "Username",
+        "Scope",
     ]
 
     return (
 
-        <Container fluid id="TemplatesSubview">
+        <Container fluid id="UsersSubview">
             <Row>
                 <SimpleList
                     handleIndex={handleIndex}
-                    items={templates}
+                    items={users}
                     listFields={listFields}
                     listHeaders={listHeaders}
-                    title={props.title ? props.title : `Templates for ${facility.name}`}
+                    title={props.title ? props.title : `Users for ${facility.name}`}
                 />
             </Row>
         </Container>
-
     )
 
 }
 
-export default TemplatesSubview;
+export default UsersSubview;

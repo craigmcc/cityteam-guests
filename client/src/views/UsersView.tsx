@@ -1,4 +1,4 @@
-// UserView ------------------------------------------------------------------
+// UsersView ------------------------------------------------------------------
 
 // Administrator view for editing User objects.
 
@@ -13,163 +13,134 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
-import SimpleList from "../components/SimpleList";
+import { HandleUser, HandleUserOptional, Scopes } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
-import UserForm, { HandleUser } from "../forms/UserForm";
+import UserForm from "../forms/UserForm";
 import Facility from "../models/Facility";
 import User from "../models/User";
+import UsersSubview from "../subviews/UsersSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
-const UserView = () => {
+const UsersView = () => {
 
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
+    const [canAdd, setCanAdd] = useState<boolean>(false);
+    const [canEdit, setCanEdit] = useState<boolean>(false);
+    const [canRemove, setCanRemove] = useState<boolean>(false);
     const [facility, setFacility] = useState<Facility>(new Facility());
-    const [index, setIndex] = useState<number>(-1);
     const [refresh, setRefresh] = useState<boolean>(false);
     const [user, setUser] = useState<User | null>(null);
-    const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
 
         const fetchUsers = async () => {
 
-            const newFacility = facilityContext.index >= 0
-                ? facilityContext.facilities[facilityContext.index]
-                : new Facility({ name: "(Select)" });
-            console.info("UserView.setFacility("
-                + JSON.stringify(newFacility, Replacers.FACILITY)
+            // Establish the currently selected Facility
+            let currentFacility: Facility;
+            if (facilityContext.facility) {
+                currentFacility = facilityContext.facility;
+            } else {
+                currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
+            }
+            console.info("UsersView.setFacility("
+                + JSON.stringify(currentFacility, Replacers.FACILITY)
                 + ")");
-            setFacility(newFacility);
+            setFacility(currentFacility);
 
-            try {
-                if (newFacility.id > 0) {
-                    const newUsers: User[]
-                        = await FacilityClient.usersAll(newFacility.id);
-                    newUsers.forEach(newUser => {
-                        newUser.password = "";
-                    })
-                    console.info("UserView.fetchUsers("
-                        + JSON.stringify(newUsers, Replacers.USER)
-                        + ")");
-                    setUsers(newUsers);
-                } else {
-                    setUsers([]);
-                }
+            // Record current permissions
+            const isAdmin = loginContext.validateScope(Scopes.ADMIN);
+            setCanAdd(isAdmin);
+            setCanEdit(isAdmin);
+            setCanRemove(loginContext.validateScope(Scopes.SUPERUSER));
+
+            // Reset refresh flag if necessary
+            if (refresh) {
                 setRefresh(false);
-            } catch (error) {
-                setUsers([]);
-                ReportError("UserView.fetchUsers", error);
             }
 
         }
 
         fetchUsers();
 
-    }, [facilityContext, refresh]);
+    }, [facilityContext, loginContext, facility.id, refresh]);
 
-    const addEnabled = (): boolean => {
-        return loginContext.validateScope("admin");
-    }
-
-    const handleIndex = (newIndex: number): void => {
-        if (newIndex === index) {
-            console.info("UserView.handleIndex(-1)");
-            setIndex(-1);
-            setUser(null);
-        } else {
-            console.info("UserView.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(users[newIndex], Replacers.TEMPLATE)
-                + ")");
-            if (loginContext.validateScope("admin")) {
-                setUser(users[newIndex]);
-            }
-            setIndex(newIndex)
-        }
-    }
-
-    const handleInsert: HandleUser
-        = async (newUser) =>
-    {
+    const handleInsert: HandleUser = async (newUser) => {
         try {
             const inserted: User
                 = await FacilityClient.usersInsert(facility.id, newUser);
-            console.info("UserView.handleInsert("
+            console.info("UsersView.handleInsert("
                 + JSON.stringify(inserted, Replacers.USER)
                 + ")");
-            setIndex(-1);
             setRefresh(true);
             setUser(null);
         } catch (error) {
-            ReportError("UserView.handleInsert", error);
+            ReportError("UsersView.handleInsert", error);
         }
     }
 
-    const handleRemove: HandleUser
-        = async (newUser) => {
+    const handleRemove: HandleUser = async (newUser) => {
         try {
             const removed: User
                 = await FacilityClient.usersRemove(facility.id, newUser.id);
-            console.info("UserView.handleRemove("
+            console.info("UsersView.handleRemove("
                 + JSON.stringify(removed, Replacers.USER)
                 + ")");
-            setIndex(-1);
             setRefresh(true);
             setUser(null);
         } catch (error) {
-            ReportError("UserView.handleRemove", error);
+            ReportError("UsersView.handleRemove", error);
         }
     }
 
-    const handleUpdate: HandleUser
-        = async (newUser) => {
+    const handleSelect: HandleUserOptional = (newUser) => {
+        if (newUser) {
+            if (canEdit) {
+                console.info("UsersView.handleSelect(CAN EDIT, "
+                    + JSON.stringify(newUser, Replacers.USER)
+                    + ")");
+                setUser(newUser);
+            } else {
+                console.info("UsersView.handleSelect(CANNOT EDIT, "
+                    + JSON.stringify(newUser, Replacers.USER)
+                    + ")");
+            }
+        } else {
+            console.info("UsersView.handleSelect(UNSET)");
+            setUser(null);
+        }
+    }
+
+    const handleUpdate: HandleUser = async (newUser) => {
         try {
-            const removed: User = await FacilityClient.usersUpdate
-            (facility.id, newUser.id, newUser);
-            console.info("UserView.handleUpdate("
-                + JSON.stringify(removed, Replacers.USER)
+            const updated: User = await FacilityClient.usersUpdate
+                (facility.id, newUser.id, newUser);
+            console.info("UsersView.handleUpdate("
+                + JSON.stringify(updated, Replacers.USER)
                 + ")");
-            setIndex(-1);
             setRefresh(true);
             setUser(null);
         } catch (error) {
-            ReportError("UserView.handleUpdate", error);
+            ReportError("UsersView.handleUpdate", error);
         }
     }
-
-    const listFields = [
-        "name",
-        "active",
-        "username",
-        "scope",
-    ]
-
-    const listHeaders = [
-        "Name",
-        "Active",
-        "Username",
-        "Scope",
-    ]
 
     const onAdd = () => {
-        console.info("UserView.onAdd()");
-        setIndex(-2);
+        console.info("UsersView.onAdd()");
         const newUser: User = new User({
             facilityId: facility.id,
-            id: -2
+            id: -1
         });
         setUser(newUser);
     }
 
     const onBack = () => {
-        console.info("UserView.onBack()");
-        setIndex(-1);
+        console.info("UsersView.onBack()");
         setUser(null);
     }
 
@@ -177,27 +148,20 @@ const UserView = () => {
         <>
             <Container fluid id="UserView">
 
+                {/* List View */}
                 {(!user) ? (
 
                     <>
 
-                        {/* List View */}
-
-                        <Row className="mb-3 ml-1 mr-1">
-
-                            <SimpleList
-                                handleIndex={handleIndex}
-                                items={users}
-                                listFields={listFields}
-                                listHeaders={listHeaders}
-                                title={"Users for " +
-                                    (facility ? facility.name : "(Select)")}
+                        <Row className="mb-3">
+                            <UsersSubview
+                                handleSelect={handleSelect}
                             />
                         </Row>
 
                         <Row className="ml-1 mr-1">
                             <Button
-                                disabled={!addEnabled()}
+                                disabled={!canAdd}
                                 onClick={onAdd}
                                 size="sm"
                                 variant="primary"
@@ -242,6 +206,7 @@ const UserView = () => {
                         <Row className="ml-1 mr-1">
                             <UserForm
                                 autoFocus
+                                canRemove={canRemove}
                                 handleInsert={handleInsert}
                                 handleRemove={handleRemove}
                                 handleUpdate={handleUpdate}
@@ -259,4 +224,4 @@ const UserView = () => {
 
 }
 
-export default UserView;
+export default UsersView;

@@ -89,7 +89,7 @@ const GuestsSubview = (props: Props) => {
 
         fetchGuests();
 
-    }, [facilityContext, currentPage, pageSize, searchText])
+    }, [facilityContext, facility.id, currentPage, pageSize, searchText])
 
     const handleChange = (newSearchText: string): void => {
         setSearchText(newSearchText);

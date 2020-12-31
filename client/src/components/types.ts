@@ -13,6 +13,7 @@ import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import Template from "../models/Template";
+import User from "../models/User";
 
 // Data Object Handlers ------------------------------------------------------
 
@@ -27,6 +28,8 @@ export type HandleGuestOptional = (guest: Guest | null) => void;
 export type HandleIndex = (index: number) => void;
 export type HandleTemplate = (template: Template) => void;
 export type HandleTemplateOptional = (template: Template | null) => void;
+export type HandleUser = (user: User) => void;
+export type HandleUserOptional = (user: User | null) => void;
 
 // HTML Event Handlers -------------------------------------------------------
 

@@ -102,12 +102,12 @@ const TemplatesView = () => {
         if (newTemplate) {
             if (canEdit) {
                 console.info("TemplatesView.handleSelect(CAN EDIT, "
-                    + JSON.stringify(newTemplate, Replacers.GUEST)
+                    + JSON.stringify(newTemplate, Replacers.TEMPLATE)
                     + ")");
                 setTemplate(newTemplate);
             } else {
                 console.info("TemplatesView.handleSelect(CANNOT EDIT, "
-                    + JSON.stringify(newTemplate, Replacers.GUEST)
+                    + JSON.stringify(newTemplate, Replacers.TEMPLATE)
                     + ")");
             }
         } else {

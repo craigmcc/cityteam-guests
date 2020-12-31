@@ -24,7 +24,7 @@ import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
 import GuestsView from "./views/GuestsView";
 import TemplatesView from "./views/TemplatesView";
-import UserView from "./views/UserView";
+import UsersView from "./views/UsersView";
 
 // Component Details ---------------------------------------------------------
 
@@ -99,7 +99,7 @@ function App() {
                 <TemplatesView/>
               </Route>
               <Route exact path="/users">
-                <UserView/>
+                <UsersView/>
               </Route>
               <Route path="/">
                 <HomeView/>

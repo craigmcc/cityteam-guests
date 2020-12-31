@@ -1065,7 +1065,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.usersExact()");
         }
         const user = await User.findOne({
-            where: { usernme: username }
+            where: { username: username }
         });
         if (!user) {
             throw new NotFound(
