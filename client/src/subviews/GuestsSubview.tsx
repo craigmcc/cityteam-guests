@@ -1,8 +1,8 @@
 // GuestsSubview -------------------------------------------------------------
 
-// Render a searchable list of Guests for the specified Facility, with a
+// Render a searchable list of Guests for the current Facility, with a
 // callback to handleSelect(guest) when a particular Guest is selected
-// or handleSelect(null) if a previously selected Guest was unselected.
+// or handleSelect(null) if a previously selected Guest is unselected.
 
 // External Modules ----------------------------------------------------------
 
@@ -18,11 +18,11 @@ import Pagination from "../components/Pagination";
 import SearchBar from "../components/SearchBar";
 import SimpleList from "../components/SimpleList";
 import { HandleGuestOptional, HandleIndex } from "../components/types";
+import FacilityContext from "../contexts/FacilityContext";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
-import FacilityContext from "../contexts/FacilityContext";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -57,7 +57,7 @@ const GuestsSubview = (props: Props) => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("GuestsView.setFacility("
+            console.info("GuestsSubview.setFacility("
                 + JSON.stringify(currentFacility, Replacers.FACILITY)
                 + ")");
             setFacility(currentFacility);
@@ -145,7 +145,7 @@ const GuestsSubview = (props: Props) => {
 
         <Container fluid id="GuestsSubview">
 
-            <Row className="mb-3 ml-1 mr-1">
+            <Row className="mb-3">
                 <Col className="col-10 mr-2">
                     <SearchBar
                         autoFocus
@@ -165,14 +165,13 @@ const GuestsSubview = (props: Props) => {
                 </Col>
             </Row>
 
-            <Row className="mb-3 ml-1 mr-1">
+            <Row>
                 <SimpleList
                     handleIndex={handleIndex}
                     items={guests}
                     listFields={listFields}
                     listHeaders={listHeaders}
-                    title={props.title ? props.title :
-                        ("Guests for " + facility.name)}
+                    title={props.title ? props.title : `Guests for ${facility.name}`}
                 />
             </Row>
 

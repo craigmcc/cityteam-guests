@@ -23,7 +23,7 @@ import CheckinView from "./views/CheckinView";
 import HomeView from "./views/HomeView";
 import FacilityView from "./views/FacilityView";
 import GuestsView from "./views/GuestsView";
-import TemplateView from "./views/TemplateView";
+import TemplatesView from "./views/TemplatesView";
 import UserView from "./views/UserView";
 
 // Component Details ---------------------------------------------------------
@@ -96,7 +96,7 @@ function App() {
                 <GuestsView/>
               </Route>
               <Route exact path="/templates">
-                <TemplateView/>
+                <TemplatesView/>
               </Route>
               <Route exact path="/users">
                 <UserView/>

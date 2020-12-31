@@ -68,7 +68,7 @@ const GuestsView = () => {
 
         fetchGuests();
 
-    }, [facilityContext, loginContext, refresh]);
+    }, [facilityContext, loginContext, facility.id, refresh]);
 
     const handleInsert: HandleGuest = async (newGuest) => {
         try {
@@ -118,10 +118,10 @@ const GuestsView = () => {
 
     const handleUpdate: HandleGuest = async (newGuest) => {
         try {
-            const removed: Guest = await FacilityClient.guestsUpdate
+            const updated: Guest = await FacilityClient.guestsUpdate
                 (facility.id, newGuest.id, newGuest);
             console.info("GuestsView.handleUpdate("
-                + JSON.stringify(removed, Replacers.TEMPLATE)
+                + JSON.stringify(updated, Replacers.GUEST)
                 + ")");
             setGuest(null);
             setRefresh(true);
@@ -153,7 +153,7 @@ const GuestsView = () => {
 
                 <>
 
-                    <Row className="ml-1 mr-1 mb-3">
+                    <Row className="mb-3">
                         <GuestsSubview
                             handleSelect={handleSelect}
                         />

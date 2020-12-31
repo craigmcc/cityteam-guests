@@ -17,14 +17,14 @@ import Row from "react-bootstrap/Row";
 
 import { Stage } from "./CheckinView";
 import FacilityClient from "../clients/FacilityClient";
-import { OnClick } from "../components/types";
+import {HandleGuestOptional, OnClick} from "../components/types";
 import AssignForm from "../forms/AssignForm";
 import GuestForm from "../forms/GuestForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
-import GuestsSubview, {HandleSelectedGuest} from "../subviews/GuestsSubview";
+import GuestsSubview from "../subviews/GuestsSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
@@ -76,9 +76,7 @@ const CheckinViewUnassigned = (props: Props) => {
         id: -1,
     })
 
-    const handleAddedGuest: HandleSelectedGuest
-        = async (newGuest) =>
-    {
+    const handleAddedGuest: HandleGuestOptional = async (newGuest) => {
         if (newGuest) {
             try {
                 const inserted: Guest
@@ -117,9 +115,7 @@ const CheckinViewUnassigned = (props: Props) => {
         }
     }
 
-    const handleSelectedGuest: HandleSelectedGuest
-        = (newGuest) =>
-    {
+    const handleSelectedGuest: HandleGuestOptional = (newGuest) => {
         if (newGuest) {
             console.info("CheckinViewUnassigned.handleSelectedGuest("
                 + JSON.stringify(newGuest, Replacers.GUEST)
@@ -205,8 +201,7 @@ const CheckinViewUnassigned = (props: Props) => {
                         <>
 
                             <GuestsSubview
-                                facility={props.facility}
-                                handleSelectedGuest={handleSelectedGuest}
+                                handleSelect={handleSelectedGuest}
                             />
 
                             <Row className="ml-4 mb-3">

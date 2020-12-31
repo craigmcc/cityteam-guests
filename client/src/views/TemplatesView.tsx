@@ -1,6 +1,6 @@
-// TemplateView --------------------------------------------------------------
+// TemplatesView --------------------------------------------------------------
 
-// Administrator view for editing Template objects.
+// Administrator view for listing and editing Templates.
 
 // External Modules ----------------------------------------------------------
 
@@ -13,19 +13,19 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
-import SimpleList from "../components/SimpleList";
-import { HandleIndex, HandleTemplate, Scopes } from "../components/types";
+import { HandleTemplate, HandleTemplateOptional, Scopes } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import TemplateForm from "../forms/TemplateForm";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
+import TemplatesSubview from "../subviews/TemplatesSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
-const TemplateView = () => {
+const TemplatesView = () => {
 
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
@@ -34,10 +34,8 @@ const TemplateView = () => {
     const [canEdit, setCanEdit] = useState<boolean>(false);
     const [canRemove, setCanRemove] = useState<boolean>(false);
     const [facility, setFacility] = useState<Facility>(new Facility());
-    const [index, setIndex] = useState<number>(-1);
     const [refresh, setRefresh] = useState<boolean>(false);
     const [template, setTemplate] = useState<Template | null>(null);
-    const [templates, setTemplates] = useState<Template[]>([]);
 
     useEffect(() => {
 
@@ -50,27 +48,10 @@ const TemplateView = () => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("TemplateView.setFacility("
+            console.info("TemplatesView.setFacility("
                 + JSON.stringify(currentFacility, Replacers.FACILITY)
                 + ")");
             setFacility(currentFacility);
-
-            // Select the relevant Templates for this Facility
-            if (currentFacility.id >= 0) {
-                try {
-                    const newTemplates: Template[]
-                        = await FacilityClient.templatesAll(currentFacility.id);
-                    console.info("TemplateView.fetchTemplates("
-                        + JSON.stringify(newTemplates, Replacers.TEMPLATE)
-                        + ")");
-                    setTemplates(newTemplates);
-                } catch (error) {
-                    setTemplates([]);
-                    ReportError("TemplateView.fetchTemplates", error);
-                }
-            } else {
-                setTemplates([]);
-            }
 
             // Record current permissions
             const isAdmin = loginContext.validateScope(Scopes.ADMIN);
@@ -87,40 +68,19 @@ const TemplateView = () => {
 
         fetchTemplates();
 
-    }, [facilityContext, loginContext, refresh]);
-
-    const handleIndex: HandleIndex = (newIndex) => {
-        if (newIndex === index) {
-            console.info("TemplateView.handleIndex(UNSET)");
-            setIndex(-1);
-            setTemplate(null);
-        } else if (canEdit) {
-            console.info("TemplateView.handleIndex(CAN EDIT, "
-                + newIndex + ", "
-                + JSON.stringify(templates[newIndex], Replacers.TEMPLATE)
-                + ")");
-            setIndex(newIndex)
-            setTemplate(templates[newIndex]);
-        } else {
-            console.info("TemplateView.handleIndex(CANNOT EDIT, "
-                + newIndex + ", "
-                + JSON.stringify(templates[newIndex], Replacers.TEMPLATE)
-                + ")");
-        }
-    }
+    }, [facilityContext, loginContext, facility.id, refresh]);
 
     const handleInsert: HandleTemplate = async (newTemplate) => {
         try {
             const inserted: Template
                 = await FacilityClient.templatesInsert(facility.id, newTemplate);
-            console.info("TemplateView.handleInsert("
+            console.info("TemplatesView.handleInsert("
                 + JSON.stringify(inserted, Replacers.TEMPLATE)
                 + ")");
-            setIndex(-1);
             setRefresh(true);
             setTemplate(null);
         } catch (error) {
-            ReportError("TemplateView.handleInsert", error);
+            ReportError("TemplatesView.handleInsert", error);
         }
     }
 
@@ -128,14 +88,31 @@ const TemplateView = () => {
         try {
             const removed: Template
                 = await FacilityClient.templatesRemove(facility.id, newTemplate.id);
-            console.info("TemplateView.handleRemove("
+            console.info("TemplatesView.handleRemove("
                 + JSON.stringify(removed, Replacers.TEMPLATE)
                 + ")");
-            setIndex(-1);
             setRefresh(true);
             setTemplate(null);
         } catch (error) {
-            ReportError("TemplateView.handleRemove", error);
+            ReportError("TemplatesView.handleRemove", error);
+        }
+    }
+
+    const handleSelect: HandleTemplateOptional = (newTemplate) => {
+        if (newTemplate) {
+            if (canEdit) {
+                console.info("TemplatesView.handleSelect(CAN EDIT, "
+                    + JSON.stringify(newTemplate, Replacers.GUEST)
+                    + ")");
+                setTemplate(newTemplate);
+            } else {
+                console.info("TemplatesView.handleSelect(CANNOT EDIT, "
+                    + JSON.stringify(newTemplate, Replacers.GUEST)
+                    + ")");
+            }
+        } else {
+            console.info("TemplatesView.handleSelect(UNSET)");
+            setTemplate(null);
         }
     }
 
@@ -143,40 +120,18 @@ const TemplateView = () => {
         try {
             const updated: Template = await FacilityClient.templatesUpdate
                 (facility.id, newTemplate.id, newTemplate);
-            console.info("TemplateView.handleUpdate("
+            console.info("TemplatesView.handleUpdate("
                 + JSON.stringify(updated, Replacers.TEMPLATE)
                 + ")");
-            setIndex(-1);
             setRefresh(true);
             setTemplate(null);
         } catch (error) {
-            ReportError("TemplateView.handleUpdate", error);
+            ReportError("TemplatesView.handleUpdate", error);
         }
     }
 
-    const listFields = [
-        "name",
-        "active",
-        "comments",
-        "allMats",
-        "handicapMats",
-        "socketMats",
-        "workMats",
-    ]
-
-    const listHeaders = [
-        "Name",
-        "Active",
-        "Comments",
-        "All Mats",
-        "Handicap Mats",
-        "Socket Mats",
-        "Work Mats"
-    ]
-
     const onAdd = () => {
-        console.info("TemplateView.onAdd()");
-        setIndex(-1);
+        console.info("TemplatesView.onAdd()");
         const newTemplate: Template = new Template({
             facilityId: facility.id,
             id: -1
@@ -185,8 +140,7 @@ const TemplateView = () => {
     }
 
     const onBack = () => {
-        console.info("TemplateView.onBack()");
-        setIndex(-1);
+        console.info("TemplatesView.onBack()");
         setTemplate(null);
     }
 
@@ -194,22 +148,18 @@ const TemplateView = () => {
         <>
             <Container fluid id="TemplateView">
 
+                {/* List View */}
                 {(!template) ? (
+
                     <>
 
-                        {/* List View */}
-
-                        <Row className="mb-3 ml-1 mr-1">
-                            <SimpleList
-                                handleIndex={handleIndex}
-                                items={templates}
-                                listFields={listFields}
-                                listHeaders={listHeaders}
-                                title={`Templates for ${facility.name}`}
+                        <Row className="mb-3">
+                            <TemplatesSubview
+                                handleSelect={handleSelect}
                             />
                         </Row>
 
-                        <Row className="ml-1 mr-1">
+                        <Row className="ml-4">
                             <Button
                                 disabled={!canAdd}
                                 onClick={onAdd}
@@ -224,11 +174,12 @@ const TemplateView = () => {
 
                 ) : null }
 
+                {/* Detail View */}
                 {(template) ? (
 
                     <>
 
-                        <Row className="ml-1 mr-1 mb-3">
+                        <Row className="mb-3">
                             <Col className="text-left">
                                 <strong>
                                     <>
@@ -253,7 +204,7 @@ const TemplateView = () => {
                             </Col>
                         </Row>
 
-                        <Row className="ml-1 mr-1">
+                        <Row>
                             <TemplateForm
                                 autoFocus
                                 canRemove={canRemove}
@@ -274,4 +225,4 @@ const TemplateView = () => {
 
 }
 
-export default TemplateView;
+export default TemplatesView;
