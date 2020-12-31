@@ -43,6 +43,12 @@ const authenticateUser: AuthenticateUser
             "OAuthOrchestratorHandlers.authenticateUser()"
         );
     }
+    if (!oauthUser.active) {
+        throw new NotFound(
+            "username: Invalid or missing username or password",
+            "OAuthOrchestratorHandlers.authenticateUser()"
+        );
+    }
 
     // Validate against the specified password
     if (!(await verifyPassword(password, oauthUser.password))) {

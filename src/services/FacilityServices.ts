@@ -16,19 +16,19 @@ import Guest from "../models/Guest";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
 import User from "../models/User";
-import CheckinServices, {
+import {
     fields as checkinFields,
     fieldsWithId as checkinFieldsWithId
 } from "./CheckinServices";
-import GuestServices, {
+import {
     fields as guestFields,
     fieldsWithId as guestFieldsWithId
 } from "./GuestServices";
-import TemplateServices, {
+import {
     fields as templateFields,
     fieldsWithId as templateFieldsWithId
 } from "./TemplateServices";
-import UserServices, {
+import {
     fields as userFields,
     fieldsWithId as userFieldsWithId
 } from "./UserServices";
@@ -41,9 +41,9 @@ import {
     GUEST_ORDER,
     TEMPLATE_ORDER, USER_ORDER
 } from "../util/sort-orders";
-import {hashPassword} from "../oauth/OAuthUtils";
+import { hashPassword } from "../oauth/OAuthUtils";
 import MatsList from "../util/MatsList";
-import {toDateObject} from "../util/dates";
+import { toDateObject } from "../util/dates";
 
 // Public Objects ------------------------------------------------------------
 
@@ -100,6 +100,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         facility.id = facilityId;
         const result: [number, Facility[]] = await Facility.update(facility, {
             fields: fieldsWithId,
+            returning: true,
             where: { id: facilityId }
         });
         if (result[0] < 1) {
@@ -107,7 +108,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `facilityId: Cannot update Facility ${facilityId}`,
                 "FacilityServices.update()");
         }
-        return await this.find(facilityId);
+        return result[1][0];
     }
 
     // Model-Specific Methods ------------------------------------------------
@@ -675,6 +676,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         guest.id = guestId; // No cheating
         const result: [number, Guest[]] = await Guest.update(guest, {
             fields: guestFieldsWithId,
+            returning: true,
             where: { id: guestId }
         })
         if (result[0] < 1) {
@@ -683,7 +685,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.guestsUpdate()"
             )
         }
-        return await GuestServices.find(guestId);
+        return result[1][0];
     }
 
     // ***** Summary Lookups *****
@@ -894,6 +896,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         template.id = templateId; // No cheating
         const result: [number, Template[]] = await Template.update(template, {
             fields: templateFieldsWithId,
+            returning: true,
             where: { id: templateId }
         })
         if (result[0] < 1) {
@@ -902,7 +905,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.templatesUpdate()"
             )
         }
-        return await TemplateServices.find(templateId);
+        return result[1][0];
     }
 
     // ***** User Interactions *****
@@ -922,8 +925,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         }, query);
         const results = await facility.$get("users", options);
         results.forEach(result => {
-            // @ts-ignore
-            delete result.password;
+            result.password = "";
         })
         return results;
     }
@@ -940,9 +942,8 @@ export class FacilityServices extends AbstractServices<Facility> {
         }, query);
         const results = await facility.$get("users", options);
         results.forEach(result => {
-            // @ts-ignore
-            delete result.password;
-        })
+            result.password = "";
+        });
         return results;
     }
 
@@ -969,8 +970,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `names: Missing User '${name}'`,
                 "FacilityServices.usersExact()");
         }
-        // @ts-ignore
-        delete results[0].password;
+        results[0].password = "";
         return results[0];
     }
 
@@ -984,15 +984,14 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.usersInsert()");
         }
         user.facilityId = facilityId; // No cheating
-        if (!user.password) {
+        if (!user.password || (user.password.length === 0)) {
             throw new BadRequest("password:  Is required for a new User");
         }
         user.password = await hashPassword(user.password);
         const result = await User.create(user, {
             fields: userFields,
         });
-        // @ts-ignore
-        delete result.password;
+        result.password = "";
         return result;
     }
 
@@ -1013,8 +1012,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         }, query);
         const results = await facility.$get("users", options);
         results.forEach(result => {
-            // @ts-ignore
-            delete result.password;
+            result.password = "";
         })
         return results;
     }
@@ -1047,8 +1045,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `userId: Cannot remove User ${userId}`,
                 "FacilityServices.usersRemove()");
         }
-        // @ts-ignore
-        delete removed.password;
+        removed.password = "";
         return removed;
     }
 
@@ -1062,7 +1059,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         if (!facility) {
             throw new NotFound(
                 `facilityId: Missing Facility ${facilityId}`,
-                "FacilityServices.usersExact()");
+                "FacilityServices.usersUnique()");
         }
         const user = await User.findOne({
             where: { username: username }
@@ -1072,8 +1069,7 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `username: Missing User '${username}`,
                 "FacilityServices.usersUnique()");
         }
-        // @ts-ignore
-        delete user.password;
+        user.password = "";
         return user;
     }
 
@@ -1098,16 +1094,21 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.usersUpdate()");
         }
         user.id = userId; // No cheating
-        if (user.password !== undefined) {
-            if (!user.password || (user.password.length === 0)) {
-                // @ts-ignore
-                delete user.password;
+        if (user.password) {
+            if ((user.password === "") || (user.password === null)) {
+                // No change requested, so keep the old (hashed) password
+                user.password = updated.password;
             } else {
+                // New change requested, so hash the new password
                 user.password = await hashPassword(user.password);
             }
+        } else {
+            // Not specified, so keep the old (hashed) password
+            user.password = updated.password;
         }
         const result: [number, User[]] = await User.update(user, {
             fields: userFieldsWithId,
+            returning: true,
             where: { id: userId }
         })
         if (result[0] < 1) {
@@ -1116,7 +1117,8 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.usersUpdate()"
             )
         }
-        return await UserServices.find(userId);
+        result[1][0].password = "";
+        return result[1][0];
     }
 
 }

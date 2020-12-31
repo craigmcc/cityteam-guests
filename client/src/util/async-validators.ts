@@ -89,7 +89,7 @@ export const validateUserUsernameUnique
 {
     if (user) {
         try {
-            const result: Template
+            const result: User
                 = await FacilityClient.usersUnique(user.facilityId, user.username);
             return (result.id === user.id);
         } catch (error) {
