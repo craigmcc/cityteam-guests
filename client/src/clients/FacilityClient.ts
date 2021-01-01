@@ -7,6 +7,7 @@
 import ApiBase from "./ApiBase";
 import { queryParameters } from "../util/query-parameters";
 import Checkin from "../models/Checkin";
+import Assign from "../models/Assign";
 //import Facility from "../models/Facility";
 //import Guest from "../models/Guest";
 //import Summary from "../models/Summary";
@@ -67,7 +68,7 @@ class FacilityClient {
 
     // ***** Facility -> Assign Methods *****
 
-    async assignsAssign<Assign>(
+    async assignsAssign(
         facilityId: number,
         checkinId: number,
         assign: Assign

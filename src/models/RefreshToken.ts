@@ -70,7 +70,7 @@ export class RefreshToken extends AbstractModel<RefreshToken> {
         allowNull: false,
         comment: "Primary key of the owning User",
         field: "user_id",
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
         validate: {
             notNull: {
                 msg: "userId: Is required"

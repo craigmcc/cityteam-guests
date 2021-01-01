@@ -170,19 +170,24 @@ export class FacilityServices extends AbstractServices<Facility> {
     public async assignsAssign
         (facilityId: number, checkinId: number, assign: Assign): Promise<Checkin> {
 
-        // Validate required fields in the specified Assign
+        console.info("FacilityServices.assignsAssign.incoming("
+            + facilityId + ", "
+            + checkinId + ", "
+            + JSON.stringify(assign)
+            + ")");
+
+        // Validate specified facilityId
         if (!assign.facilityId) {
             throw new BadRequest(
                 `assign: Missing facilityId in assign data`,
                 "FacilityServices.assignsAssign()");
+        } else {
+            if (assign.facilityId !== facilityId) {
+                throw new BadRequest(
+                    `assign: facilityId is ${facilityId} but assign data says ${assign.facilityId}`,
+                    "FacilityServices.assignsAssign()");
+            }
         }
-        if (!assign.guestId) {
-            throw new BadRequest(
-                `assign: Missing guestId in assign data`,
-                "FacilityServices.assignsAssign()");
-        }
-
-        // Look up the corresponding Facility
         const facility = await Facility.findByPk(facilityId);
         if (!facility) {
             throw new NotFound(
@@ -190,21 +195,46 @@ export class FacilityServices extends AbstractServices<Facility> {
                 "FacilityServices.assignsAssign()");
         }
 
-        // Look up the corresponding Checkin
+        // Validate specified guestId
+        if (!assign.guestId) {
+            throw new BadRequest(
+                `assign: Missing guestId in assign data`,
+                "FacilityServices.assignsAssign()");
+        }
+        const guest = await Guest.findByPk(assign.guestId);
+        if (!guest) {
+            throw new BadRequest(
+                `assign: Missing Guest ${assign.guestId}`,
+                "FacilityServices.assignsAssign()");
+        }
+        console.info("FacilityServices.assignsAssign.guest("
+            + JSON.stringify(guest)
+            + ")");
+        if (guest.facilityId !== facilityId) {
+            throw new BadRequest(
+                `guestId: Guest ${guest.id} does not belong to Facility ${facilityId}`,
+                "FacilityServices.assignsAssign()");
+        }
+
+        // Validate specified checkinId
         const checkin = await Checkin.findByPk(checkinId);
         if (!checkin) {
             throw new NotFound(
                 `checkinId: Missing Checkin ${checkinId}`,
                 "FacilityServices.assignsAssign()");
         }
-
-        // Verify the status of this Checkin
         if (checkin.facilityId !== facility.id) {
             throw new BadRequest(
                 `checkinId: Checkin ${checkinId} does not belong to Facility ${facilityId}`,
                 "FacilityServices.assignsAssign()");
         }
-        if (checkin.guestId && (checkin.guestId != assign.guestId)) {
+        console.info("FacilityServices.assignsAssign.checkin("
+            + JSON.stringify(checkin)
+            + ")");
+
+        // For an assigned Checkin, must be assigned to the specified guestId
+        // (allows for information updates)
+        if (checkin.guestId && (checkin.guestId !== assign.guestId)) {
             throw new BadRequest(
                 `checkinId: Checkin ${checkinId} is already assigned to Guest ${checkin.guestId}`,
                 "FacilityServices.assignsAssign()");
@@ -230,14 +260,25 @@ export class FacilityServices extends AbstractServices<Facility> {
         // Perform the assignment and return the updated Checkin
         checkin.comments = assign.comments ? assign.comments : undefined;
         checkin.guestId = assign.guestId;
-        checkin.paymentAmount = assign.paymentAmount;
-        checkin.paymentType = assign.paymentType;
+        checkin.paymentAmount = assign.paymentAmount ? assign.paymentAmount : undefined;
+        checkin.paymentType = assign.paymentType ? assign.paymentType : undefined;
         checkin.showerTime = assign.showerTime ? toDateObject(assign.showerTime) : undefined;
         checkin.wakeupTime = assign.wakeupTime ? toDateObject(assign.wakeupTime) : undefined;
         console.info("FacilityServices.assignsAssign.attempting("
             + JSON.stringify(checkin)
             + ")");
         const [count, results] = await Checkin.update(checkin, {
+            fields: [
+                "comments",
+                "guestId",
+                "id",
+                "paymentAmount",
+                "paymentType",
+                "showerTime",
+                "wakeupTime"
+            ],
+            returning: true,
+            validate: false,
             where: {
                 id: checkinId
             }
@@ -247,6 +288,9 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `checkId: Cannot update Checkin ${checkinId}`
             )
         }
+        console.info("FacilityServices.assignsAssign.returning("
+            + JSON.stringify(results[0])
+            + ")");
         return results[0];
 
     }
@@ -1138,6 +1182,12 @@ const appendQuery = (options: FindOptions, query?: any): FindOptions => {
     let include = [];
     if ("" === query.withCheckins) {
         include.push(Checkin);
+    }
+    if ("" === query.withFacility) {
+        include.push(Facility);
+    }
+    if ("" === query.withGuest) {
+        include.push(Guest);
     }
     if ("" === query.withGuests) {
         include.push(Guest);

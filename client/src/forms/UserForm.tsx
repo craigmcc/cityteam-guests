@@ -4,7 +4,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, {useContext, useState} from "react";
+import React, { useState } from "react";
 import { Formik, FormikHelpers, FormikValues } from "formik";
 import Button from "react-bootstrap/button";
 import Col from "react-bootstrap/Col";
@@ -38,7 +38,7 @@ const UserForm = (props: Props) => {
 
     const [adding] = useState<boolean>(props.user.id < 0);
     const [canRemove] = useState<boolean>
-        (props.canRemove != undefined ? props.canRemove : false);
+        (props.canRemove !== undefined ? props.canRemove : false);
     const [initialValues] = useState(toEmptyStrings(props.user));
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
 

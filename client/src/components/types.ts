@@ -35,6 +35,7 @@ export type HandleUserOptional = (user: User | null) => void;
 
 // HTML Event Handlers -------------------------------------------------------
 
+export type OnAction = () => void; // Nothing to pass, just trigger action
 export type OnBlur = (event: React.FocusEvent<HTMLElement>) => void;
 export type OnChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => void;
 export type OnChangeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => void;

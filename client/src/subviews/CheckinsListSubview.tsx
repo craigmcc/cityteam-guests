@@ -47,7 +47,6 @@ const CheckinsListSubview = (props: Props) => {
 
     const loginContext = useContext(LoginContext);
 
-    const [canProcess, setCanProcess] = useState<boolean>(false);
     const [checkins, setCheckins] = useState<Checkin[]>([]);
     const [index, setIndex] = useState<number>(-1);
     const [refresh, setRefresh] = useState<boolean>(false);

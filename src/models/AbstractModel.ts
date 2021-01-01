@@ -31,7 +31,7 @@ export abstract class AbstractModel<Model> extends Model {
         autoIncrement: true,
         comment: "Primary key for this instance.",
         primaryKey: true,
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
     })
     id?: number;
 

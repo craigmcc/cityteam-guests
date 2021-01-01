@@ -18,10 +18,11 @@ import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import CheckinsListSubview from "../subviews/CheckinsListSubview";
+import CheckinsUnassignedSubview from "../subviews/CheckinsUnassignedSubview";
 import { todayDate } from "../util/dates";
 import * as Replacers from "../util/replacers";
 
-export enum Stage {
+/* export */ enum Stage {
     None = "None",
     List = "List",
     Assigned = "Assigned",
@@ -35,11 +36,11 @@ const CheckinView = () => {
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
-    const [assigned, setAssigned] = useState<Checkin | null>(null);
+//    const [assigned, setAssigned] = useState<Checkin | null>(null);
     const [canProcess, setCanProcess] = useState<boolean>(false);
-    const [selected, setSelected] = useState<Checkin | null>(null);
     const [checkinDate, setCheckinDate] = useState<string>(todayDate());
     const [facility, setFacility] = useState<Facility>(new Facility());
+    const [selected, setSelected] = useState<Checkin | null>(null);
     const [stage, setStage] = useState<Stage>(Stage.None);
 
     useEffect(() => {
@@ -67,8 +68,8 @@ const CheckinView = () => {
         console.info("CheckinsView.handleAssigned("
             + JSON.stringify(newAssigned, Replacers.CHECKIN)
             + ")");
-        setAssigned(newAssigned);
-        // TODO - handleAssigned() processing (if any)
+//        setAssigned(newAssigned);
+        // TODO - handleAssigned() processing (if any)?
         handleStage(Stage.List);
     }
 
@@ -81,20 +82,28 @@ const CheckinView = () => {
     // Handle a Checkin for which assignment, editing, or deassignment is to be done
     // or null if a previously selected Checkin is unselected
     const handleSelected: HandleCheckinOptional = (newSelected) => {
-        console.info("CheckinsView.handleSelected("
-            + JSON.stringify(newSelected, Replacers.CHECKIN)
-            + ")");
-        if (canProcess) {
-            setSelected(newSelected);
-            if (newSelected) {
-                handleStage(newSelected.guestId ? Stage.Assigned : Stage.Unassigned);
+        if (newSelected) {
+            console.info("CheckinsView.handleSelected("
+                + JSON.stringify(newSelected, Replacers.CHECKIN)
+                + ")");
+            if (canProcess) {
+                setSelected(newSelected);
+                handleStage
+                    (newSelected.guestId ? Stage.Assigned : Stage.Unassigned);
             }
+        } else {
+            console.info("CheckinsView.handleSelected(UNSELECTED)");
         }
     }
 
     const handleStage = (newStage : Stage): void => {
         console.info(`CheckinsView.handleStage(${newStage})`);
         setStage(newStage);
+    }
+
+    const onBack = () => {
+        console.info("CheckinsView.onBack()");
+        setStage(Stage.List);
     }
 
     return (
@@ -133,7 +142,12 @@ const CheckinView = () => {
                     />
                 ) : null}
                 {(stage === Stage.Unassigned) ? (
-                    <p>CheckinsUnassignedSubview goes here</p>
+                    <CheckinsUnassignedSubview
+                        checkin={selected ? selected : new Checkin()}
+                        facility={facility}
+                        handleAssigned={handleAssigned}
+                        onBack={onBack}
+                    />
                 ) : null}
 
             </Container>

@@ -9,6 +9,7 @@ import { FindOptions } from "sequelize";
 // Internal Modules ----------------------------------------------------------
 
 import AbstractServices from "./AbstractServices";
+import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import { NotFound } from "../util/http-errors";
@@ -118,6 +119,9 @@ const appendQuery = (options: FindOptions, query?: any): FindOptions => {
 
     // Inclusion parameters
     let include = [];
+    if ("" === query.withCheckins) {
+        include.push(Checkin);
+    }
     if ("" === query.withFacility) {
         include.push(Facility);
     }

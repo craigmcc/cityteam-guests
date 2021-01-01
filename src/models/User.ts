@@ -5,6 +5,7 @@
 // External Modules ----------------------------------------------------------
 
 import {
+    BelongsTo,
     Column,
     DataType, ForeignKey,
     HasMany,
@@ -64,12 +65,15 @@ export class User extends AbstractModel<User> {
     })
     active!: boolean;
 
+    @BelongsTo(() => Facility)
+    facility!: Facility;
+
     @ForeignKey(() => Facility)
     @Column({
         allowNull: false,
         comment: "Facility ID of the Facility this User belongs to",
         field: "facility_id",
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
         validate: {
             notNull: {
                 msg: "facilityId: Is required"

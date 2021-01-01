@@ -7,6 +7,7 @@
 // External Modules ----------------------------------------------------------
 
 const {
+    BelongsTo,
     Column,
     DataType,
     ForeignKey,
@@ -62,13 +63,52 @@ import {
 })
 export class Checkin extends AbstractModel<Checkin> {
 
+    // Field order facilityId/checkinDate/matNumber is to get index correct
+
+    @ForeignKey(() => Facility)
+    @Column({
+        allowNull: false,
+        comment: "Facility ID of the Facility this Guest has checked in at",
+        field: "facility_id",
+        type: DataType.INTEGER,
+        unique: "uniqueMatNumberWithinCheckinDateWithinFacility",
+        validate: {
+            notNull: {
+                msg: "facilityId: Is required"
+            }
+        }
+    })
+    facilityId!: number;
+
     @Column({
         allowNull: false,
         comment: "Checkin date for which this mat is available or assigned",
         field: "checkin_date",
-        type: DataType.DATEONLY
+        type: DataType.DATEONLY,
+        unique: "uniqueMatNumberWithinCheckinDateWithinFacility",
     })
     checkinDate!: Date;
+
+    @Column({
+        allowNull: false,
+        comment: "Mat number to be checked in to on this checkin date",
+        field: "mat_number",
+        type: DataType.INTEGER,
+        unique: "uniqueMatNumberWithinCheckinDateWithinFacility",
+        validate: {
+            isValidMatNumber: function(value: number): void {
+                if (value) {
+                    if (!validateMatNumber(value)) {
+                        throw new BadRequest
+                        (`matNumber:  Invalid mat number ${value}`);
+                    }
+                }
+            }
+        }
+    })
+    matNumber!: number;
+
+    // Remaining fields in alphabetical order
 
     @Column({
         allowNull: true,
@@ -77,19 +117,8 @@ export class Checkin extends AbstractModel<Checkin> {
     })
     comments?: string;
 
-    @ForeignKey(() => Facility)
-    @Column({
-        allowNull: false,
-        comment: "Facility ID of the Facility this Guest has registered at",
-        field: "facility_id",
-        type: DataType.BIGINT,
-        validate: {
-            notNull: {
-                msg: "facilityId: Is required"
-            }
-        }
-    })
-    facilityId!: number;
+    @BelongsTo(() => Facility)
+    facility!: Facility;
 
     @Column({
         allowNull: true,
@@ -108,32 +137,17 @@ export class Checkin extends AbstractModel<Checkin> {
     })
     features?: string;
 
+    @BelongsTo(() => Guest)
+    guest!: Guest;
+
     @ForeignKey(() => Guest)
     @Column({
         allowNull: true,
         comment: "Guest ID of the Guest who has checked in for this mat (if any)",
         field: "guest_id",
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
     })
     guestId?: number;
-
-    @Column({
-        allowNull: false,
-        comment: "Mat number to be checked in to on this checkin date",
-        field: "mat_number",
-        type: DataType.INTEGER,
-        validate: {
-            isValidMatNumber: function(value: number): void {
-                if (value) {
-                    if (!validateMatNumber(value)) {
-                        throw new BadRequest
-                            (`matNumber:  Invalid mat number ${value}`);
-                    }
-                }
-            }
-        }
-    })
-    matNumber!: number;
 
     @Column({
         allowNull: true,

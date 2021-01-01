@@ -13,7 +13,7 @@ import Form from "react-bootstrap/Form";
 
 // Internal Modules ----------------------------------------------------------
 
-import {HandleMonth, OnBlur, OnChangeInput, OnKeyDown} from "./types";
+import {HandleMonth, /* OnBlur,*/ OnChangeInput, OnKeyDown} from "./types";
 import { validateMonth } from "../util/validators";
 
 // Incoming Properties -------------------------------------------------------

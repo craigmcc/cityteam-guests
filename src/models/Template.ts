@@ -8,6 +8,7 @@
 import MatsList from "../util/MatsList";
 
 const {
+    BelongsTo,
     Column,
     DataType,
     ForeignKey,
@@ -121,12 +122,15 @@ export class Template extends AbstractModel<Template> {
     })
     comments?: string;
 
+    @BelongsTo(() => Facility)
+    facility!: Facility;
+
     @ForeignKey(() => Facility)
     @Column({
         allowNull: false,
         comment: "Facility ID of the Facility this Template is for",
         field: "facility_id",
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
         unique: "uniqueNameWithinFacility",
         validate: {
             notNull: {

@@ -77,9 +77,6 @@ export class Facility extends AbstractModel<Facility> {
     })
     address2?: string;
 
-//    @HasMany(() => Checkin)
-//    checkins!: Checkin[];
-
     @HasMany(() => Checkin)
     checkins!: Checkin[];
 

@@ -145,7 +145,11 @@ FacilityRouter.post("/:facilityId/assigns/:checkinId/deassign",
 FacilityRouter.post("/:facilityId/assigns/:oldCheckinId/reassign/:newCheckinId",
     requireRegular,
     async (req: Request, res: Response) => {
-        // TODO
+        res.send(await FacilityServices.assignsReassign(
+            parseInt(req.params.facilityId),
+            parseInt(req.params.oldCheckinId),
+            parseInt(req.params.newCheckinId)
+        ));
     });
 
 // Facility -> Checkin Routes ------------------------------------------------

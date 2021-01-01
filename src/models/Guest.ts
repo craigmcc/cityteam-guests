@@ -7,15 +7,18 @@
 import {BadRequest} from "../util/http-errors";
 
 const {
+    BelongsTo,
     Column,
     DataType,
     ForeignKey,
+    HasMany,
     Table
 } = require("sequelize-typescript");
 
 // Internal Modules ----------------------------------------------------------
 
 import AbstractModel from "./AbstractModel";
+import Checkin from "./Checkin";
 import Facility from "./Facility";
 import {
     validateFacilityId,
@@ -59,6 +62,9 @@ export class Guest extends AbstractModel<Guest> {
     })
     active!: boolean;
 
+    @HasMany(() => Checkin)
+    checkins!: Checkin[];
+
     @Column({
         allowNull: true,
         comment: "General comments about this Guest",
@@ -66,12 +72,15 @@ export class Guest extends AbstractModel<Guest> {
     })
     comments?: string;
 
+    @BelongsTo(() => Facility)
+    facility!: Facility;
+
     @ForeignKey(() => Facility)
     @Column({
         allowNull: false,
         comment: "Facility ID of the Facility this Guest has registered at",
         field: "facility_id",
-        type: DataType.BIGINT,
+        type: DataType.INTEGER,
         unique: "uniqueNameWithinFacility",
         validate: {
             notNull: {
