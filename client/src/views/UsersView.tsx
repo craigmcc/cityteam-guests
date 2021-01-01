@@ -153,7 +153,7 @@ const UsersView = () => {
 
                     <>
 
-                        <Row className="mb-3">
+                        <Row className="ml-1 mr-1 mb-3">
                             <UsersSubview
                                 handleSelect={handleSelect}
                             />

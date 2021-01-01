@@ -20,9 +20,9 @@ import LoggedInUser from "./components/LoggedInUser";
 import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
 import CheckinView from "./views/CheckinView";
-import HomeView from "./views/HomeView";
-import FacilityView from "./views/FacilityView";
+import FacilitiesView from "./views/FacilitiesView";
 import GuestsView from "./views/GuestsView";
+import HomeView from "./views/HomeView";
 import TemplatesView from "./views/TemplatesView";
 import UsersView from "./views/UsersView";
 
@@ -90,7 +90,7 @@ function App() {
                 <CheckinView/>
               </Route>
               <Route exact path="/facilities">
-                <FacilityView/>
+                <FacilitiesView/>
               </Route>
               <Route exact path="/guests">
                 <GuestsView/>

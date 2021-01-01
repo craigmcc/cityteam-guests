@@ -4,7 +4,7 @@
 
 // External Modules -----------------------------------------------------------
 
-import React, {useContext, useState} from "react";
+import React, { useState } from "react";
 import { Formik, FormikHelpers, FormikValues } from "formik";
 import Button from "react-bootstrap/button";
 import Col from "react-bootstrap/Col";
@@ -16,7 +16,7 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
-import LoginContext from "../contexts/LoginContext";
+import { HandleFacility } from "../components/types";
 import Facility from "../models/Facility";
 import {
     validateFacilityNameUnique,
@@ -27,12 +27,11 @@ import {
     validateEmail, validatePhone, validateState, validateZipCode
 } from "../util/validators";
 
-export type HandleFacility = (facility : Facility) => void;
-
 // Property Details ----------------------------------------------------------
 
 export interface Props {
     autoFocus?: boolean;            // Should the first element receive autofocus? [false]
+    canRemove?: boolean;            // Can Remove be performed? [false]
     facility: Facility;             // Initial values (id<0 for adding)
     handleInsert: HandleFacility;   // Handle (facility) insert request
     handleRemove: HandleFacility;   // Handle (facility) remove request
@@ -43,12 +42,11 @@ export interface Props {
 
 const FacilityForm = (props: Props) => {
 
-    const loginContext = useContext(LoginContext);
-
     const [adding] = useState<boolean>(props.facility.id < 0);
+    const [canRemove] = useState<boolean>
+        (props.canRemove !== undefined ? props.canRemove : false);
     const [initialValues] = useState(toEmptyStrings(props.facility));
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
-    const [superuser] = useState<boolean>(loginContext.validateScope("superuser"));
 
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
         if (adding) {
@@ -373,7 +371,7 @@ const FacilityForm = (props: Props) => {
                                 </Col>
                                 <Col className="col-2 float-right">
                                     <Button
-                                        disabled={adding || !superuser}
+                                        disabled={adding || !canRemove}
                                         onClick={onConfirm}
                                         size="sm"
                                         type="button"

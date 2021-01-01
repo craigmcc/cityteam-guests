@@ -146,14 +146,14 @@ const TemplatesView = () => {
 
     return (
         <>
-            <Container fluid id="TemplateView">
+            <Container fluid id="TemplatesView">
 
                 {/* List View */}
                 {(!template) ? (
 
                     <>
 
-                        <Row className="mb-3">
+                        <Row className="ml-1 mr-1 mb-3">
                             <TemplatesSubview
                                 handleSelect={handleSelect}
                             />
@@ -179,7 +179,7 @@ const TemplatesView = () => {
 
                     <>
 
-                        <Row className="mb-3">
+                        <Row className="ml-1 mr-1 mb-3">
                             <Col className="text-left">
                                 <strong>
                                     <>

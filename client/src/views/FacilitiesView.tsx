@@ -1,6 +1,6 @@
-// FacilityView --------------------------------------------------------------
+// FacilitiesView ------------------------------------------------------------
 
-// Administrator view for editing Facility objects.
+// Administrator view for listing and editing Facilities
 
 // External Modules ----------------------------------------------------------
 
@@ -13,167 +13,139 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
-import SimpleList from "../components/SimpleList";
+import
+    { HandleFacility, HandleFacilityOptional, Scopes }
+from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
-import FacilityForm, { HandleFacility } from "../forms/FacilityForm";
+import FacilityForm from "../forms/FacilityForm";
 import Facility from "../models/Facility";
+import FacilitiesSubview from "../subviews/FacilitiesSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
 
-const FacilityView = () => {
+const FacilitiesView = () => {
 
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
-    const [facilities, setFacilities] = useState<Facility[]>([]);
+    const [canAdd, setCanAdd] = useState<boolean>(false);
+    const [canEdit, setCanEdit] = useState<boolean>(false);
+    const [canRemove, setCanRemove] = useState<boolean>(false);
     const [facility, setFacility] = useState<Facility | null>(null);
-    const [index, setIndex] = useState<number>(-1);
 
     useEffect(() => {
 
-        const fetchData = () => {
-            let newFacilities: Facility[] = [];
-            facilityContext.facilities.forEach((oldFacility) => {
-                newFacilities.push(oldFacility);
-            });
-            console.info("FacilityView.fetchData("
-                + JSON.stringify(newFacilities, Replacers.FACILITY)
-                + ")");
-            setFacilities(newFacilities);
+        const fetchFacilities = async () => {
+
+            // Facilities will actually be fetched in FacilitiesSubview
+
+            // Record current permissions
+            const isAdmin = loginContext.validateScope(Scopes.ADMIN)
+            const isSuperuser = loginContext.validateScope(Scopes.SUPERUSER);
+            setCanAdd(isSuperuser);
+            setCanEdit(isAdmin);
+            setCanRemove(isSuperuser);
+
         }
 
-        fetchData();
+        fetchFacilities();
 
-    }, [facilityContext.facilities]);
+    }, [facilityContext, loginContext ]);
 
-    const addEnabled = (): boolean => {
-        return loginContext.validateScope("superuser");
-    }
-
-    const handleIndex = (newIndex: number): void => {
-        if (newIndex === index) {
-            console.info("FacilityView.handleIndex(-1)");
-            setIndex(-1);
-            setFacility(null);
-        } else {
-            console.info("FacilityView.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(facilities[newIndex], Replacers.FACILITY)
-                + ")");
-            if (loginContext.validateScope("admin")) {
-                setFacility(facilities[newIndex]);
-            }
-            setIndex(newIndex)
-        }
-    }
-
-    const handleInsert: HandleFacility
-        = async (newFacility) =>
-    {
+    const handleInsert: HandleFacility = async (newFacility) => {
         try {
-            const inserted: Facility = await FacilityClient.insert(newFacility);
-            console.info("FacilityView.handleInsert("
+            const inserted: Facility
+                = await FacilityClient.insert(newFacility);
+            console.info("FacilitiesView.handleInsert("
                 + JSON.stringify(inserted, Replacers.FACILITY)
                 + ")");
-            setIndex(-1);
             setFacility(null);
             facilityContext.setRefresh(true);
         } catch (error) {
-            ReportError("FacilityView.handleInsert", error);
+            ReportError("FacilitiesView.handleInsert", error);
         }
     }
 
-    const handleRemove: HandleFacility
-        = async (newFacility: Facility) =>
-    {
+    const handleRemove: HandleFacility = async (newFacility) => {
         try {
-            const removed: Facility = await FacilityClient.remove(newFacility.id);
-            console.info("FacilityView.handleRemove("
+            const removed: Facility
+                = await FacilityClient.remove(newFacility.id);
+            console.info("FacilitiesView.handleRemove("
                 + JSON.stringify(removed, Replacers.FACILITY)
                 + ")");
-            setIndex(-1);
             setFacility(null);
             facilityContext.setRefresh(true);
         } catch (error) {
-            ReportError("FacilityView.handleRemove", error);
+            ReportError("FacilitiesView.handleRemove", error);
         }
     }
 
-    const handleUpdate: HandleFacility
-        = async (newFacility) =>
-    {
+    const handleSelect: HandleFacilityOptional = (newFacility) => {
+        if (newFacility) {
+            if (canEdit) {
+                console.info("FacilitiesView.handleSelect(CAN EDIT, "
+                    + JSON.stringify(newFacility, Replacers.FACILITY)
+                    + ")");
+                setFacility(newFacility);
+            } else {
+                console.info("FacilitiesView.handleSelect(CANNOT EDIT, "
+                    + JSON.stringify(newFacility, Replacers.FACILITY)
+                    + ")");
+            }
+        } else {
+            console.info("FacilitiesView.handleSelect(UNSET)");
+            setFacility(null);
+        }
+    }
+
+    const handleUpdate: HandleFacility = async (newFacility) => {
         try {
-            const updated: Facility = await FacilityClient.update(newFacility.id, newFacility);
-            console.info("FacilityView.handleUpdate("
+            const updated: Facility
+                = await FacilityClient.update(newFacility.id, newFacility);
+            console.info("FacilitiesView.handleUpdate("
                 + JSON.stringify(updated, Replacers.FACILITY)
                 + ")");
-            setIndex(-1);
             setFacility(null);
             facilityContext.setRefresh(true);
         } catch (error) {
-            ReportError("FacilityView.handleInsert", error);
+            ReportError("FacilitiesView.handleUpdate", error);
         }
     }
 
-    const listFields = [
-        "name",
-        "active",
-        "city",
-        "state",
-        "zipCode",
-        "email",
-        "phone",
-        "scope",
-    ]
-
-    const listHeaders = [
-        "Name",
-        "Active",
-        "City",
-        "State",
-        "Zip Code",
-        "Email Address",
-        "Phone Number",
-        "Scope"
-    ];
-
     const onAdd = () => {
-        console.info("FacilityView.onAdd()");
-        setIndex(-2);
+        console.info("FacilitiesView.onAdd()");
         const newFacility: Facility = new Facility({
-            id: -2
+            id: -1
         });
         setFacility(newFacility);
     }
 
     const onBack = () => {
-        console.info("FacilityView.onBack()");
-        setIndex(-1);
+        console.info("FacilitiesView.onBack()");
         setFacility(null);
     }
 
     return (
         <>
-            <Container fluid id="FacilityView">
+            <Container fluid id="FacilitiesView">
 
+                {/* List View */}
                 {(!facility) ? (
 
                     <>
 
-                        <SimpleList
-                            handleIndex={handleIndex}
-                            items={facilities}
-                            listFields={listFields}
-                            listHeaders={listHeaders}
-                            title="Facilities"
-                        />
+                        <Row className="ml-1 mr-1 mb-3">
+                            <FacilitiesSubview
+                                handleSelect={handleSelect}
+                            />
+                        </Row>
 
-                        <Row className="ml-1 mr-1">
+                        <Row className="ml-4">
                             <Button
-                                disabled={!addEnabled()}
+                                disabled={!canAdd}
                                 onClick={onAdd}
                                 size="sm"
                                 variant="primary"
@@ -186,6 +158,7 @@ const FacilityView = () => {
 
                 ) : null }
 
+                {/* Detail View */}
                 {(facility) ? (
 
                     <>
@@ -217,7 +190,8 @@ const FacilityView = () => {
 
                         <Row>
                             <FacilityForm
-                                autoFocus={true}
+                                autoFocus
+                                canRemove={canRemove}
                                 facility={facility}
                                 handleInsert={handleInsert}
                                 handleRemove={handleRemove}
@@ -230,10 +204,9 @@ const FacilityView = () => {
                 ) : null }
 
             </Container>
-
         </>
     )
 
 }
 
-export default FacilityView;
+export default FacilitiesView;

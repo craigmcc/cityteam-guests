@@ -11,12 +11,14 @@ import Table from "react-bootstrap/Table";
 
 // Internal Modules ----------------------------------------------------------
 
+import { HandleIndex } from "./types";
+
 // Incoming Properties -------------------------------------------------------
 
 export interface Props {
     bordered?: boolean;             // Render table borders? [true]
-    handleIndex?: (index: number) => void;
-                                    // Handle selection of a particular row
+    handleIndex?: HandleIndex;      // Handle (index) when a row is either
+                                    // selected or unselected [no handler]
     hover?: boolean;                // Support hover highlighting? [true]
     items: object[];                // Items to be rendered in rows
     listFields: string[];           // List of fields (from each object) to render
@@ -32,7 +34,7 @@ const SimpleList = (props: Props) => {
 
     const [index, setIndex] = useState<number>(-1);
 
-    const handleIndex = (newIndex: number): void => {
+    const handleIndex: HandleIndex = (newIndex) => {
 //        console.info(`SimpleList.handleIndex(${newIndex})`);
         setIndex(newIndex);
         if (props.handleIndex) {

@@ -142,7 +142,7 @@ const TemplateForm = (props: Props) => {
         <>
 
             {/* Details Form */}
-            <Container id="templateForm">
+            <Container id="TemplateForm">
 
                 <Formik
                     initialValues={initialValues}

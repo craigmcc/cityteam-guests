@@ -146,14 +146,14 @@ const GuestsView = () => {
 
     return (
 
-        <Container fluid id="GuestView">
+        <Container fluid id="GuestsView">
 
             {/* List View */}
             {(!guest) ? (
 
                 <>
 
-                    <Row className="mb-3">
+                    <Row className="ml-1 mr-1 mb-3">
                         <GuestsSubview
                             handleSelect={handleSelect}
                         />
