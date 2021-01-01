@@ -52,10 +52,12 @@ const MonthSelector = (props: Props) => {
         setType(newType);
     }, []);
 
+/*
     const onBlur: OnBlur = (event): void => {
         console.info(`MonthSelector.onBlur(${value})`);
         processValue(value);
     }
+*/
 
     const onChange: OnChangeInput = (event): void => {
         const newValue: string = event.target.value;

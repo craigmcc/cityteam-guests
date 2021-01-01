@@ -8,6 +8,8 @@
 // External Modules ----------------------------------------------------------
 
 import React, { useContext, useEffect, useState } from "react";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 
@@ -15,12 +17,13 @@ import Row from "react-bootstrap/Row";
 
 import FacilityClient from "../clients/FacilityClient";
 import SimpleList from "../components/SimpleList";
-import {HandleCheckinOptional, Scopes} from "../components/types";
-import FacilityContext from "../contexts/FacilityContext";
+import TemplateSelector from "../components/TemplateSelector";
+import {HandleCheckinOptional, HandleTemplate} from "../components/types";
 import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Summary from "../models/Summary";
+import Template from "../models/Template";
 import CheckinsSummary from "../util/CheckinsSummary";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
@@ -42,24 +45,21 @@ export interface Props {
 
 const CheckinsListSubview = (props: Props) => {
 
-    const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
     const [canProcess, setCanProcess] = useState<boolean>(false);
     const [checkins, setCheckins] = useState<Checkin[]>([]);
     const [index, setIndex] = useState<number>(-1);
+    const [refresh, setRefresh] = useState<boolean>(false);
     const [summary, setSummary] = useState<Summary | null>(null);
+    const [template, setTemplate] = useState<Template>(new Template({ id: -1 }));
 
     useEffect(() => {
 
         const fetchCheckins = async () => {
 
-            // Record current permissions
-            const isRegular = loginContext.validateScope(Scopes.REGULAR);
-            setCanProcess(isRegular);
-
             // Fetch the Checkins (if any) for this Facility and checkinDate
-            if ((props.facility.id >= 0) && isRegular) {
+            if (props.facility.id >= 0) {
                 try {
                     const newCheckins: Checkin[] = await FacilityClient.checkinsAll
                         (props.facility.id, props.checkinDate, {
@@ -69,15 +69,18 @@ const CheckinsListSubview = (props: Props) => {
                         + JSON.stringify(newCheckins, Replacers.CHECKIN)
                         + ")");
                     setCheckins(flattenedCheckins(newCheckins));
+                    setRefresh(false);
                     setSummary(CheckinsSummary(newCheckins));
                 } catch (error) {
                     ReportError("CheckinsListSubview.fetchCheckins", error);
                     setCheckins([]);
+                    setRefresh(false);
                     setSummary(null);
                 }
             } else {
                 console.info("CheckinsListSubview.fetchCheckins(SKIPPED)");
                 setCheckins([]);
+                setRefresh(false);
                 setSummary(null);
             }
 
@@ -85,7 +88,7 @@ const CheckinsListSubview = (props: Props) => {
 
         fetchCheckins();
 
-    }, [props.checkinDate, props.facility, loginContext]);
+    }, [props.checkinDate, props.facility, loginContext, refresh]);
 
     const flattenedCheckins = (checkins: Checkin[]) => {
         const flattenedCheckins =
@@ -97,6 +100,26 @@ const CheckinsListSubview = (props: Props) => {
             }
         })
         return flattenedCheckins;
+    }
+
+    const handleGenerate = (): void => {
+        console.info("CheckinsListSubview.handleGenerate.template("
+            + JSON.stringify(template, Replacers.TEMPLATE)
+            + ")");
+        FacilityClient.checkinsGenerate(
+            props.facility.id,
+            props.checkinDate,
+            template.id
+        )
+            .then(newCheckins => {
+                console.info("CheckinsListSubview.handleGenerate.results("
+                    + JSON.stringify(newCheckins, Replacers.CHECKIN)
+                    + ")");
+                setRefresh(true);
+            })
+            .catch(error => {
+                ReportError("CheckinsListSubview.handleGenerate", error);
+            })
     }
 
     const handleIndex = (newIndex: number): void => {
@@ -117,6 +140,13 @@ const CheckinsListSubview = (props: Props) => {
             }
             setIndex(newIndex);
         }
+    }
+
+    const handleTemplate: HandleTemplate = (newTemplate) => {
+        console.info("CheckinsListSubview.handleTemplate("
+            + JSON.stringify(newTemplate)
+            + ")");
+        setTemplate(newTemplate);
     }
 
     const listFields = [
@@ -178,14 +208,36 @@ const CheckinsListSubview = (props: Props) => {
     const title = (): string => {
         return "Checkins for "
             + (props.facility ? props.facility.name : "(Select)")
-            + " on " + (props.checkinDate ? props.checkinDate : "Select");
+            + " on " + (props.checkinDate ? props.checkinDate : "(Select)");
     }
-
 
     return (
 
         <Container fluid id="CheckinsListSubview">
 
+            {/* Generate from Template */}
+            {(props.facility.id >= 0) && (checkins.length === 0) ? (
+                <Row className="mb-3 col-12">
+                    <Col className="mr-2 col-3">
+                        <TemplateSelector
+                            handleTemplate={handleTemplate}
+                            label="Select Template:"
+                        />
+                    </Col>
+                    <Col>
+                        <Button
+                            disabled={template.id < 0}
+                            onClick={handleGenerate}
+                            size="sm"
+                            variant="primary"
+                        >
+                            Generate
+                        </Button>
+                    </Col>
+                </Row>
+            ) : null }
+
+            {/* List and Summaries */}
             <Row className="mb-3">
                 <SimpleList
                     handleIndex={handleIndex}
