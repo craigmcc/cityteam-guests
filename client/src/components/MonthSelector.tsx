@@ -13,17 +13,15 @@ import Form from "react-bootstrap/Form";
 
 // Internal Modules ----------------------------------------------------------
 
-import { OnBlur, OnChangeInput, OnKeyDown } from "./types";
+import {HandleMonth, OnBlur, OnChangeInput, OnKeyDown} from "./types";
 import { validateMonth } from "../util/validators";
 
 // Incoming Properties -------------------------------------------------------
 
-export type HandleMonth = (month: string) => void;
-
 export interface Props {
     autoFocus?: boolean;            // Should element receive autoFocus? [false]
     disabled?: boolean;             // Should element be disabled? [false]
-    handleMonth: HandleMonth;        // Handle new month selection [no handler]
+    handleMonth?: HandleMonth;      // Handle new month selection [no handler]
     label?: string;                 // Element label [Month:]
     max?: string;                   // Maximum accepted value [no limit]
     min?: string;                   // Minimum accepted value [no limit]
@@ -55,20 +53,19 @@ const MonthSelector = (props: Props) => {
     }, []);
 
     const onBlur: OnBlur = (event): void => {
-//        console.info(`MonthSelector.onBlur(${value})`);
+        console.info(`MonthSelector.onBlur(${value})`);
         processValue(value);
     }
 
     const onChange: OnChangeInput = (event): void => {
         const newValue: string = event.target.value;
         setValue(newValue);
-//        console.info(`MonthSelector.onChange(${newValue})`);
+        console.info(`MonthSelector.onChange(${newValue})`);
     }
 
     const onKeyDown: OnKeyDown = (event): void => {
-//        console.info(`MonthSelector.onKeyDown(${event.key}, ${value}, `
-//            + `${(event.key === "Enter")})`);
-        if (event.key === "Enter") {
+        console.info(`DateSelector.onKeyDown(${event.key}, ${value})`);
+        if ((event.key === "Enter") || (event.key === "Tab")) {
             processValue(value);
         }
     }
@@ -119,7 +116,7 @@ const MonthSelector = (props: Props) => {
                     id="monthSelector"
                     max={props.max ? props.max : undefined}
                     min={props.min ? props.min : undefined}
-                    onBlur={onBlur}
+//                    onBlur={onBlur}
                     onChange={onChange}
                     onKeyDown={onKeyDown}
                     size="sm"
