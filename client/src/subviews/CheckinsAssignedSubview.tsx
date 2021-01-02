@@ -69,13 +69,18 @@ const CheckinsAssignedSubview = (props: Props) => {
         setShowDeassignConfirm(false);
     }
 
-    const onDeassignConfirmPositive: OnClick = () => {
+    const onDeassignConfirmPositive: OnClick = async () => {
         console.info("CheckinsAssignedSubview.onDeassignConfirmPositive("
             + JSON.stringify(props.checkin, Replacers.CHECKIN)
             + ")");
-        // TODO: do the deassign, and if successful:
-        setShowDeassignConfirm(false);
-        props.onBack();
+        try {
+            await FacilityClient.assignsDeassign
+                (props.checkin.facilityId, props.checkin.id);
+            setShowDeassignConfirm(false);
+            props.onBack();
+        } catch (error) {
+            ReportError("CheckinsAssignedSubview.onDeassignConfirmPositive", error);
+        }
     }
 
     return (

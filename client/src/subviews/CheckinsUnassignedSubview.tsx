@@ -81,7 +81,7 @@ const CheckinsUnassignedSubview = (props: Props) => {
             setAssigned(configureAssign(inserted));
             setGuest(inserted);
         } catch (error) {
-            ReportError("GuestsUnassignedSubview.handleAddedGuest", error);
+            ReportError("CheckinssUnassignedSubview.handleAddedGuest", error);
             setAssigned(null);
             setGuest(null);
         }

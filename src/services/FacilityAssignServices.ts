@@ -18,7 +18,7 @@ import { BadRequest, NotFound, ServerError } from "../util/http-errors";
 class FacilityAssignServices {
 
     public async assignsAssign
-    (facilityId: number, checkinId: number, assign: Assign): Promise<Checkin> {
+        (facilityId: number, checkinId: number, assign: Assign): Promise<Checkin> {
 
         // Validate specified facilityId
         if (!assign.facilityId) {
@@ -132,7 +132,7 @@ class FacilityAssignServices {
     }
 
     public async assignsDeassign
-    (facilityId: number, checkinId: number): Promise<Checkin> {
+        (facilityId: number, checkinId: number): Promise<Checkin> {
 
         // Look up the corresponding Facility
         const facility = await Facility.findByPk(facilityId);
@@ -162,31 +162,44 @@ class FacilityAssignServices {
                 "FacilityServices.assignsDeassign()");
         }
 
-        // Update the Checkin and return it.
-        const newCheckin: Partial<Checkin> = {
-            comments: undefined,
-            guestId: undefined,
-            paymentAmount: undefined,
-            paymentType: undefined,
-            showerTime: undefined,
-            wakeupTime: undefined,
+        // Prepare the deassignment changes
+        const updates = {
+            comments: null,
+            guestId: null,
+            paymentAmount: null,
+            paymentType: null,
+            showerTime: null,
+            wakeupTime: null,
         }
-        const [count, results] = await Checkin.update(newCheckin, {
-            where: {
-                id: checkinId
-            }
+
+        // Persist and return these changes
+        // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
+        // WARNING:  Use "fields" to choose which columns to update
+        // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
+        // WARNING:  Use "validating: false" to avoid validating things you didn't include
+        const [count, results] = await Checkin.update(updates, {
+            fields: [
+                "comments", "guestId", "paymentAmount", "paymentType",
+                "showerTime", "wakeupTime"
+            ],
+//            logging: function(content) {
+//                console.info(`Checkin.update(${content})`);
+//            },
+            returning: true,
+            validate: false,
+            where: { id: checkinId },
         });
-        if (count !== 1) {
-            throw new BadRequest(
-                `checkId: Cannot update Checkin ${checkinId}`
-            )
+        if ((count === 1) && results) {
+            return results[0];
+        } else {
+            throw new ServerError("Checkin.update returned no results",
+                "FacilityServices.assignsDeassign");
         }
-        return results[0];
 
     }
 
     public async assignsReassign
-    (facilityId: number, oldCheckinId: number, newCheckinId: number): Promise<Checkin> {
+        (facilityId: number, oldCheckinId: number, newCheckinId: number): Promise<Checkin> {
 
         // Look up the corresponding Facility
         const facility = await Facility.findByPk(facilityId);
