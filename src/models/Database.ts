@@ -34,8 +34,8 @@ export const Database = ((NODE_ENV !== "test")
         ? new Sequelize(DB_DB, DB_USER, DB_PASSWORD, {
             dialect: "postgres",
             host: DB_HOST,
-            logging: console.info,
-            // logging: false,
+            //logging: console.info,
+            logging: false,
             pool: {
                 acquire: parseInt(DB_POOL_ACQUIRE),
                 idle: parseInt(DB_POOL_IDLE),

@@ -184,7 +184,7 @@ const CheckinsListSubview = (props: Props) => {
         "totalUnassigned",
         "percentUnassigned",
         "totalMats",
-        "totalAmount",
+        "totalAmountDisplay",
     ];
 
     const summaryHeaders = [

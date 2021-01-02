@@ -41,6 +41,6 @@ console.info("Configure Database Metadata: Complete");
 const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 ExpressApplication.listen(port, () => {
     console.log(
-        `Bookcase Server in ${process.env.NODE_ENV} mode running on port ${port}`
+        `CityTeam Guests Server in ${process.env.NODE_ENV} mode running on port ${port}`
     )
 });

@@ -17,7 +17,11 @@ const CheckinsSummary = (checkins: Checkin[]): Summary => {
         summary.facilityId = checkin.facilityId;
         if (checkin.guestId) {
             if (checkin.paymentAmount) {
-                accumulatedAmount += checkin.paymentAmount;
+                if (typeof checkin.paymentAmount === "string") {
+                    accumulatedAmount += parseFloat(checkin.paymentAmount);
+                } else {
+                    accumulatedAmount += checkin.paymentAmount;
+                }
             }
             switch (checkin.paymentType) {
                 case "$$":  summary.total$$++;   break;
@@ -36,7 +40,7 @@ const CheckinsSummary = (checkins: Checkin[]): Summary => {
         }
         summary.totalMats++;
     });
-    summary.totalAmount = "$" + accumulatedAmount.toFixed(2);
+    summary.totalAmountDisplay = "$" + accumulatedAmount.toFixed(2);
     if (summary.totalMats > 0) {
         summary.percentAssigned =
             "" + (summary.totalAssigned * 100.0 / summary.totalMats).toFixed(1) + "%";

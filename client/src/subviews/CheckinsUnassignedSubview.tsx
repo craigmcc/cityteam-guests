@@ -17,7 +17,8 @@ import Row from "react-bootstrap/Row";
 
 import FacilityClient from "../clients/FacilityClient";
 import {
-    HandleAssign, HandleCheckin, HandleGuest, HandleGuestOptional, OnAction, OnClick
+    HandleAssign, HandleCheckinOptional, HandleGuest,
+    HandleGuestOptional, OnAction, OnClick
 } from "../components/types";
 import AssignForm from "../forms/AssignForm";
 import GuestForm from "../forms/GuestForm";
@@ -35,7 +36,9 @@ export interface Props {
     checkin: Checkin;               // The (unassigned) Checkin we are processing
     facility: Facility;             // Facility for which we are processing
                                     // or (facility.id < 0) if no Facility is current
-    handleAssigned?: HandleCheckin; // Handle (assign) when successfully completed
+    handleAssigned?: HandleCheckinOptional;
+                                    // Handle (assign) when successfully completed
+                                    // or null if no assignment was made
     onBack: OnAction;               // Handle back button click
 }
 
@@ -75,7 +78,7 @@ const CheckinsUnassignedSubview = (props: Props) => {
             console.info("CheckinsUnassignedSubview.handleAddedGuest("
                 + JSON.stringify(inserted, Replacers.GUEST)
                 + ")");
-            setAssigned(configureAssign(newGuest));
+            setAssigned(configureAssign(inserted));
             setGuest(inserted);
         } catch (error) {
             ReportError("GuestsUnassignedSubview.handleAddedGuest", error);
@@ -99,6 +102,9 @@ const CheckinsUnassignedSubview = (props: Props) => {
             }
         } catch (error) {
             ReportError("CheckinsUnassignedSubview.handleAssignedGuest", error);
+            if (props.handleAssigned) {
+                props.handleAssigned(null);
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import { Router } from "express";
 
 // Internal Modules ----------------------------------------------------------
 
+import CheckinRouter from "./CheckinRouter";
 import DevModeRouter from "./DevModeRouter";
 import FacilityRouter from "./FacilityRouter";
 import GuestRouter from "./GuestRouter";
@@ -27,6 +28,7 @@ ApiRouters.get("/", (req, res) => {
 
 // Model-Specific Routers ----------------------------------------------------
 
+ApiRouters.use("/checkins", CheckinRouter);
 ApiRouters.use("/devmode", DevModeRouter);
 ApiRouters.use("/facilities", FacilityRouter);
 ApiRouters.use("/guests", GuestRouter);

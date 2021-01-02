@@ -12,7 +12,7 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ---------------------------------------------------------
 
 import DateSelector from "../components/DateSelector";
-import {HandleCheckin, HandleCheckinOptional, HandleDate, Scopes} from "../components/types";
+import { HandleCheckinOptional, HandleDate, Scopes } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
@@ -22,7 +22,7 @@ import CheckinsUnassignedSubview from "../subviews/CheckinsUnassignedSubview";
 import { todayDate } from "../util/dates";
 import * as Replacers from "../util/replacers";
 
-/* export */ enum Stage {
+enum Stage {
     None = "None",
     List = "List",
     Assigned = "Assigned",
@@ -64,12 +64,15 @@ const CheckinView = () => {
     }, [selected, facilityContext, loginContext, stage]);
 
     // Handle a Checkin for which assignment (or unassignment) has been completed
-    const handleAssigned: HandleCheckin = (newAssigned) => {
-        console.info("CheckinsView.handleAssigned("
-            + JSON.stringify(newAssigned, Replacers.CHECKIN)
-            + ")");
-//        setAssigned(newAssigned);
-        // TODO - handleAssigned() processing (if any)?
+    // (null means some error prevented the assignment)
+    const handleAssigned: HandleCheckinOptional = (newAssigned) => {
+        if (newAssigned) {
+            console.info("CheckinsView.handleAssigned("
+                + JSON.stringify(newAssigned, Replacers.CHECKIN)
+                + ")");
+        } else {
+            console.info("CheckinsView.handleAssigned(SKIPPED)");
+        }
         handleStage(Stage.List);
     }
 

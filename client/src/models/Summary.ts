@@ -30,7 +30,8 @@ class Summary {
     totalWB: number = 0;
 
     // Overall totals
-    totalAmount: string = "$0.00";   // Will be decorated with "$"
+    totalAmount: number = 0;
+    totalAmountDisplay: string = "";
     totalAssigned: number = 0;
     totalMats: number = 0;
     totalUnassigned: number = 0;

@@ -33,7 +33,7 @@ import {
     fieldsWithId as userFieldsWithId
 } from "./UserServices";
 
-import {BadRequest, Forbidden, NotFound} from "../util/http-errors";
+import { BadRequest, Forbidden, NotFound, ServerError } from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
 import {
     CHECKIN_ORDER,
@@ -170,12 +170,6 @@ export class FacilityServices extends AbstractServices<Facility> {
     public async assignsAssign
         (facilityId: number, checkinId: number, assign: Assign): Promise<Checkin> {
 
-        console.info("FacilityServices.assignsAssign.incoming("
-            + facilityId + ", "
-            + checkinId + ", "
-            + JSON.stringify(assign)
-            + ")");
-
         // Validate specified facilityId
         if (!assign.facilityId) {
             throw new BadRequest(
@@ -207,12 +201,10 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `assign: Missing Guest ${assign.guestId}`,
                 "FacilityServices.assignsAssign()");
         }
-        console.info("FacilityServices.assignsAssign.guest("
-            + JSON.stringify(guest)
-            + ")");
         if (guest.facilityId !== facilityId) {
             throw new BadRequest(
-                `guestId: Guest ${guest.id} does not belong to Facility ${facilityId}`,
+                `guestId: Guest ${guest.firstName} ${guest.lastName}`
+                    + `does not belong to Facility ${facility.name}`,
                 "FacilityServices.assignsAssign()");
         }
 
@@ -228,9 +220,6 @@ export class FacilityServices extends AbstractServices<Facility> {
                 `checkinId: Checkin ${checkinId} does not belong to Facility ${facilityId}`,
                 "FacilityServices.assignsAssign()");
         }
-        console.info("FacilityServices.assignsAssign.checkin("
-            + JSON.stringify(checkin)
-            + ")");
 
         // For an assigned Checkin, must be assigned to the specified guestId
         // (allows for information updates)
@@ -252,46 +241,43 @@ export class FacilityServices extends AbstractServices<Facility> {
             const results = await Checkin.findAll(options);
             if (results.length > 0) {
                 throw new BadRequest(
-                    `guestId: Guest ${assign.guestId} is already assigned to mat ${results[0].matNumber}`,
+                    `guestId: Guest ${guest.firstName} ${guest.lastName}`
+                        + ` is already assigned to mat ${results[0].matNumber}`,
                     "FacilityServices.assignsAssign()");
             }
         }
 
-        // Perform the assignment and return the updated Checkin
+        // Perform the assignment changes
         checkin.comments = assign.comments ? assign.comments : undefined;
         checkin.guestId = assign.guestId;
         checkin.paymentAmount = assign.paymentAmount ? assign.paymentAmount : undefined;
         checkin.paymentType = assign.paymentType ? assign.paymentType : undefined;
         checkin.showerTime = assign.showerTime ? toDateObject(assign.showerTime) : undefined;
         checkin.wakeupTime = assign.wakeupTime ? toDateObject(assign.wakeupTime) : undefined;
-        console.info("FacilityServices.assignsAssign.attempting("
-            + JSON.stringify(checkin)
-            + ")");
-        const [count, results] = await Checkin.update(checkin, {
+
+        // Persist and return these changes
+        // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
+        // WARNING:  Use "fields" to choose which columns to update
+        // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
+        // WARNING:  Use "validating: false" to avoid validating things you didn't include
+        const [count, results] = await Checkin.update(assign, {
             fields: [
-                "comments",
-                "guestId",
-                "id",
-                "paymentAmount",
-                "paymentType",
-                "showerTime",
-                "wakeupTime"
+                "comments", "guestId", "paymentAmount", "paymentType",
+                "showerTime", "wakeupTime"
             ],
+//            logging: function(content) {
+//                console.info(`Checkin.update(${content})`);
+//            },
             returning: true,
             validate: false,
-            where: {
-                id: checkinId
-            }
+            where: { id: checkinId },
         });
-        if (count !== 1) {
-            throw new BadRequest(
-                `checkId: Cannot update Checkin ${checkinId}`
-            )
+        if ((count === 1) && results) {
+            return results[0];
+        } else {
+            throw new ServerError("Checkin.update returned no results",
+                "FacilityServices.assignsAssign");
         }
-        console.info("FacilityServices.assignsAssign.returning("
-            + JSON.stringify(results[0])
-            + ")");
-        return results[0];
 
     }
 
