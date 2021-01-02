@@ -17,6 +17,7 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
+import CheckinsAssignedSubview from "../subviews/CheckinsAssignedSubview";
 import CheckinsListSubview from "../subviews/CheckinsListSubview";
 import CheckinsUnassignedSubview from "../subviews/CheckinsUnassignedSubview";
 import { todayDate } from "../util/dates";
@@ -135,7 +136,11 @@ const CheckinView = () => {
 
                 {/* Selected Subview (by stage) */}
                 {(stage === Stage.Assigned) ? (
-                    <p>CheckinsAssignedSubview goes here</p>
+                    <CheckinsAssignedSubview
+                        checkin={selected ? selected : new Checkin()}
+                        facility={facility}
+                        onBack={onBack}
+                    />
                 ) : null}
                 {(stage === Stage.List) ? (
                     <CheckinsListSubview

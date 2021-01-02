@@ -134,8 +134,25 @@ const CheckinsUnassignedSubview = (props: Props) => {
 
         <Container fluid id="CheckinsUnassignedSubview">
 
-            {/* Back Link */}
-            <Row className="ml-1 mr-1 mb-3">
+            {/* Overall Header and Back Link */}
+            <Row className="mb-3">
+                <Col className="col-11">
+                    <Row className="justify-content-center">
+                        <span>Mat Number:&nbsp;</span>
+                        <span className="text-info">
+                            {props.checkin.matNumberAndFeatures}
+                        </span>
+                        {(props.checkin.guest) ? (
+                            <>
+                                <span>&nbsp;&nbsp;&nbsp;Guest:&nbsp;</span>
+                                <span className="text-info">
+                                    {props.checkin.guest.firstName}&nbsp;
+                                    {props.checkin.guest.lastName}
+                                </span>
+                            </>
+                        ) : null }
+                    </Row>
+                </Col>
                 <Col className="text-right">
                     <Button
                         onClick={onBack}
@@ -151,35 +168,22 @@ const CheckinsUnassignedSubview = (props: Props) => {
             <Row className="ml-1 mr-1 mb-3">
 
                 {/* Step 1 ----------------------------------------------- */}
-                <Col className="col-7 bg-light mt-1 mb-1">
+                <Col className="col-7 bg-light mb-1">
 
-                    <h6 className={"text-center"}>
+                    <h6 className="text-center">
                         Step 1: Select or Add A Guest To Assign
                     </h6>
                     <hr/>
 
                     {(adding) ? (
-
                         <>
-
                             <Row className="ml-1 mr-1 mb-3">
                                 <Col className="text-left">
                                     <strong>
                                         Adding New Guest
                                     </strong>
                                 </Col>
-                                <Col className="text-right">
-                                    <Button
-                                        onClick={onBack}
-                                        size="sm"
-                                        type="button"
-                                        variant="secondary"
-                                    >
-                                        Back
-                                    </Button>
-                                </Col>
                             </Row>
-
                             <Row className="ml-1 mr-1">
                                 <GuestForm
                                     autoFocus
@@ -187,17 +191,12 @@ const CheckinsUnassignedSubview = (props: Props) => {
                                     handleInsert={handleAddedGuest}
                                 />
                             </Row>
-
                         </>
-
                     ) : (
-
                         <>
-
                             <GuestsSubview
                                 handleSelect={handleSelectedGuest}
                             />
-
                             <Row className="ml-4 mb-3">
                                 <Button
                                     onClick={onAdd}
@@ -207,42 +206,47 @@ const CheckinsUnassignedSubview = (props: Props) => {
                                     Add
                                 </Button>
                             </Row>
-
                         </>
-
                     )}
 
                 </Col>
 
                 {/* Step 2 ----------------------------------------------- */}
-                <Col className="col-5 mt-1 mb-1">
-
+                <Col className="col-5 mb-1">
                     <h6 className={"text-center"}>
                         Step 2: Complete Assignment Details
                     </h6>
+                    <hr/>
                     {(guest) ? (
                         <h6 className={"text-center"}>
-                            {/* TODO - flattened checkins */}
-                            Mat: {props.checkin.matNumber}
-                            {props.checkin.features ? props.checkin.features : null}
-                            &nbsp;&nbsp;&nbsp;
-                            Guest:  {guest.firstName} {guest.lastName}
+                            Guest:&nbsp;&nbsp;
+                            <span className="text-info">
+                                {guest.firstName} {guest.lastName}
+                            </span>
                         </h6>
                     ) : null }
-                    <hr/>
-
                     {(assigned) ? (
                         <AssignForm
                             assign={assigned}
                             handleAssign={handleAssignedGuest}
                         />
                     ) : null }
-
                 </Col>
-
 
             </Row>
 
+            {/* Common Footer -------------------------------------------- */}
+            <Row>
+                <Col className="col-11">
+                    <Row className="justify-content-center">
+                        Click&nbsp;
+                        <span className="text-secondary">
+                            <strong>Back</strong></span>&nbsp;
+                        to return to the the list with no changes.
+                    </Row>
+                </Col>
+                <Col className="col-1"/>
+            </Row>
 
         </Container>
 

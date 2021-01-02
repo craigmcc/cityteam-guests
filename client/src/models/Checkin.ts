@@ -4,6 +4,14 @@
 // checkin for a particular mat, on a particular checkin date, at a particular
 // Facility, by a particular Guest.
 
+// If this Checkin includes (guestId != null), the guest property will be
+// filled out if withGuest was specified on the client call to retrieve
+// this Checkin.
+
+// Internal Objects ----------------------------------------------------------
+
+import Guest from "./Guest";
+
 // Public Objects ------------------------------------------------------------
 
 class Checkin {
@@ -13,6 +21,7 @@ class Checkin {
         this.comments = data.comments || null;
         this.facilityId = data.facilityId || -1;
         this.features = data.features || null;
+        this.guest = data.guest || null;
         this.guestId = data.guestId || null;
         this.id = data.id || -1;
         this.matNumber = data.matNumber || -1;
@@ -26,6 +35,7 @@ class Checkin {
     comments?: string;
     facilityId!: number;
     features?: string;
+    guest?: Guest;
     guestId?: number;
     id!: number;
     matNumber!: number;
@@ -33,6 +43,14 @@ class Checkin {
     paymentType?: string;
     showerTime?: Date;
     wakeupTime?: Date;
+
+    get matNumberAndFeatures() {
+        let result = "" + this.matNumber;
+        if (this.features) {
+            result += this.features;
+        }
+        return result;
+    }
 
 }
 

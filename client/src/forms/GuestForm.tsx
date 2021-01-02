@@ -238,17 +238,19 @@ const GuestForm = (props: Props) => {
                                         Save
                                     </Button>
                                 </Col>
-                                <Col className="col-2 float-right">
-                                    <Button
-                                        disabled={adding || !canRemove}
-                                        onClick={onConfirm}
-                                        size="sm"
-                                        type="button"
-                                        variant="danger"
-                                    >
-                                        Remove
-                                    </Button>
-                                </Col>
+                                {(!adding && canRemove) ? (
+                                    <Col className="col-2 float-right">
+                                        <Button
+                                            disabled={adding || !canRemove}
+                                            onClick={onConfirm}
+                                            size="sm"
+                                            type="button"
+                                            variant="danger"
+                                        >
+                                            Remove
+                                        </Button>
+                                    </Col>
+                                ) : null }
                             </Row>
 
                         </Form>
