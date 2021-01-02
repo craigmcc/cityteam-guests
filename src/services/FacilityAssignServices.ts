@@ -97,20 +97,22 @@ class FacilityAssignServices {
             }
         }
 
-        // Perform the assignment changes
-        checkin.comments = assign.comments ? assign.comments : undefined;
-        checkin.guestId = assign.guestId;
-        checkin.paymentAmount = assign.paymentAmount ? assign.paymentAmount : undefined;
-        checkin.paymentType = assign.paymentType ? assign.paymentType : undefined;
-        checkin.showerTime = assign.showerTime ? toDateObject(assign.showerTime) : undefined;
-        checkin.wakeupTime = assign.wakeupTime ? toDateObject(assign.wakeupTime) : undefined;
+        // Prepare the deassignment changes
+        const updates = {
+            comments: assign.comments,
+            guestId: assign.guestId,
+            paymentAmount: assign.paymentAmount,
+            paymentType: assign.paymentType,
+            showerTime: assign.showerTime,
+            wakeupTime: assign.wakeupTime,
+        }
 
         // Persist and return these changes
         // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
         // WARNING:  Use "fields" to choose which columns to update
         // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
         // WARNING:  Use "validating: false" to avoid validating things you didn't include
-        const [count, results] = await Checkin.update(assign, {
+        const [count, results] = await Checkin.update(updates, {
             fields: [
                 "comments", "guestId", "paymentAmount", "paymentType",
                 "showerTime", "wakeupTime"
