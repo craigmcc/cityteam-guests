@@ -9,13 +9,18 @@ import { Request, Response, Router } from "express";
 // Internal Modules ----------------------------------------------------------
 
 import {
-    dumpRequestDetails,
+//    dumpRequestDetails,
     requireAdmin,
     requireNone,
     requireRegular,
     requireSuperuser
 } from "../oauth/OAuthMiddleware";
+import FacilityAssignServices from "../services/FacilityAssignServices";
+import FacilityCheckinServices from "../services/FacilityCheckinServices";
+import FacilityGuestServices from "../services/FacilityGuestServices";
 import FacilityServices from "../services/FacilityServices";
+import FacilityTemplateServices from "../services/FacilityTemplateServices";
+import FacilityUserServices from "../services/FacilityUserServices";
 
 // Public Objects ------------------------------------------------------------
 
@@ -27,7 +32,8 @@ export const FacilityRouter = Router({
 
 // Find active Facilities
 FacilityRouter.get("/active",
-    requireSuperuser,
+    requireNone,
+//    requireSuperuser, // Avoid catch-22 on initial population of FacilityContext
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.active(req.query));
     });
@@ -55,9 +61,9 @@ FacilityRouter.get("/scope/:scope",
 
 // Model-Specific Routes -----------------------------------------------------
 
+/*
 // Find all active Facilities
 FacilityRouter.get("/active",
-    dumpRequestDetails,
     requireNone,
 //    requireSuperuser, // Avoid catch-22 on initial population of FacilityContext
     async (req: Request, res: Response) => {
@@ -77,6 +83,7 @@ FacilityRouter.get("/name/:name",
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.name(req.params.name, req.query));
     });
+*/
 
 // Standard CRUD Endpoints ---------------------------------------------------
 
@@ -124,7 +131,7 @@ FacilityRouter.put("/:facilityId",
 FacilityRouter.post("/:facilityId/assigns/:checkinId/assign",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.assignsAssign(
+        res.send(await FacilityAssignServices.assignsAssign(
             parseInt(req.params.facilityId),
             parseInt(req.params.checkinId),
             req.body
@@ -135,7 +142,7 @@ FacilityRouter.post("/:facilityId/assigns/:checkinId/assign",
 FacilityRouter.post("/:facilityId/assigns/:checkinId/deassign",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.assignsDeassign(
+        res.send(await FacilityAssignServices.assignsDeassign(
             parseInt(req.params.facilityId),
             parseInt(req.params.checkinId)
         ));
@@ -145,7 +152,7 @@ FacilityRouter.post("/:facilityId/assigns/:checkinId/deassign",
 FacilityRouter.post("/:facilityId/assigns/:oldCheckinId/reassign/:newCheckinId",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.assignsReassign(
+        res.send(await FacilityAssignServices.assignsReassign(
             parseInt(req.params.facilityId),
             parseInt(req.params.oldCheckinId),
             parseInt(req.params.newCheckinId)
@@ -158,7 +165,7 @@ FacilityRouter.post("/:facilityId/assigns/:oldCheckinId/reassign/:newCheckinId",
 FacilityRouter.get("/:facilityId/checkins/:checkinDate/all",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.checkinsAll
+        res.send(await FacilityCheckinServices.checkinsAll
             (parseInt(req.params.facilityId), req.params.checkinDate, req.query));
     });
 
@@ -166,7 +173,7 @@ FacilityRouter.get("/:facilityId/checkins/:checkinDate/all",
 FacilityRouter.get("/:facilityId/checkins/:checkinDate/available",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.checkinsAvailable
+        res.send(await FacilityCheckinServices.checkinsAvailable
            (parseInt(req.params.facilityId), req.params.checkinDate, req.query));
     });
 
@@ -174,7 +181,7 @@ FacilityRouter.get("/:facilityId/checkins/:checkinDate/available",
 FacilityRouter.post("/:facilityId/checkins/:checkinDate/generate/:templateId",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.checkinsGenerate(
+        res.send(await FacilityCheckinServices.checkinsGenerate(
                 parseInt(req.params.facilityId),
                  req.params.checkinDate,
                 parseInt(req.params.templateId)));
@@ -186,7 +193,7 @@ FacilityRouter.post("/:facilityId/checkins/:checkinDate/generate/:templateId",
 FacilityRouter.get("/:facilityId/guests",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsAll
+        res.send(await FacilityGuestServices.guestsAll
             (parseInt(req.params.facilityId), req.query));
     });
 
@@ -194,7 +201,7 @@ FacilityRouter.get("/:facilityId/guests",
 FacilityRouter.post("/:facilityId/guests",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsInsert
+        res.send(await FacilityGuestServices.guestsInsert
             (parseInt(req.params.facilityId), req.body));
     });
 
@@ -202,7 +209,7 @@ FacilityRouter.post("/:facilityId/guests",
 FacilityRouter.get("/:facilityId/guests/active",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsActive
+        res.send(await FacilityGuestServices.guestsActive
             (parseInt(req.params.facilityId), req.query));
     });
 
@@ -210,7 +217,7 @@ FacilityRouter.get("/:facilityId/guests/active",
 FacilityRouter.get("/:facilityId/guests/exact/:firstName/:lastName",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsExact
+        res.send(await FacilityGuestServices.guestsExact
             (parseInt(req.params.facilityId), req.params.firstName, req.params.lastName, req.query));
     });
 
@@ -218,7 +225,7 @@ FacilityRouter.get("/:facilityId/guests/exact/:firstName/:lastName",
 FacilityRouter.get("/:facilityId/guests/name/:name",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsName
+        res.send(await FacilityGuestServices.guestsName
             (parseInt(req.params.facilityId), req.params.name, req.query));
     });
 
@@ -226,7 +233,7 @@ FacilityRouter.get("/:facilityId/guests/name/:name",
 FacilityRouter.delete("/:facilityId/guests/:guestId",
     requireSuperuser,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsRemove
+        res.send(await FacilityGuestServices.guestsRemove
             (parseInt(req.params.facilityId), parseInt(req.params.guestId)));
     });
 
@@ -234,7 +241,7 @@ FacilityRouter.delete("/:facilityId/guests/:guestId",
 FacilityRouter.put("/:facilityId/guests/:guestId",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.guestsUpdate
+        res.send(await FacilityGuestServices.guestsUpdate
             (parseInt(req.params.facilityId), parseInt(req.params.guestId), req.body));
     });
 
@@ -257,7 +264,7 @@ FacilityRouter.get("/:facilityId/summaries/:checkinDateFrom/:checkinDateTo",
 FacilityRouter.get("/:facilityId/templates",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesAll
+        res.send(await FacilityTemplateServices.templatesAll
             (parseInt(req.params.facilityId), req.query));
     });
 
@@ -265,7 +272,7 @@ FacilityRouter.get("/:facilityId/templates",
 FacilityRouter.post("/:facilityId/templates",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesInsert
+        res.send(await FacilityTemplateServices.templatesInsert
         (parseInt(req.params.facilityId), req.body));
     });
 
@@ -273,7 +280,7 @@ FacilityRouter.post("/:facilityId/templates",
 FacilityRouter.get("/:facilityId/templates/active",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesActive
+        res.send(await FacilityTemplateServices.templatesActive
             (parseInt(req.params.facilityId), req.query));
     });
 
@@ -281,7 +288,7 @@ FacilityRouter.get("/:facilityId/templates/active",
 FacilityRouter.get("/:facilityId/templates/exact/:name",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesExact
+        res.send(await FacilityTemplateServices.templatesExact
             (parseInt(req.params.facilityId), req.params.name, req.query));
     });
 
@@ -289,7 +296,7 @@ FacilityRouter.get("/:facilityId/templates/exact/:name",
 FacilityRouter.get("/:facilityId/templates/name/:name",
     requireRegular,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesName
+        res.send(await FacilityTemplateServices.templatesName
             (parseInt(req.params.facilityId), req.params.name, req.query));
     });
 
@@ -297,7 +304,7 @@ FacilityRouter.get("/:facilityId/templates/name/:name",
 FacilityRouter.delete("/:facilityId/templates/:templateId",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesRemove
+        res.send(await FacilityTemplateServices.templatesRemove
             (parseInt(req.params.facilityId), parseInt(req.params.templateId)));
     });
 
@@ -305,7 +312,7 @@ FacilityRouter.delete("/:facilityId/templates/:templateId",
 FacilityRouter.put("/:facilityId/templates/:templateId",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.templatesUpdate
+        res.send(await FacilityTemplateServices.templatesUpdate
         (parseInt(req.params.facilityId), parseInt(req.params.templateId), req.body));
     });
 
@@ -315,7 +322,7 @@ FacilityRouter.put("/:facilityId/templates/:templateId",
 FacilityRouter.get("/:facilityId/users",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersAll
+        res.send(await FacilityUserServices.usersAll
             (parseInt(req.params.facilityId), req.query));
     });
 
@@ -323,7 +330,7 @@ FacilityRouter.get("/:facilityId/users",
 FacilityRouter.post("/:facilityId/users",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersInsert
+        res.send(await FacilityUserServices.usersInsert
             (parseInt(req.params.facilityId), req.body));
     });
 
@@ -331,7 +338,7 @@ FacilityRouter.post("/:facilityId/users",
 FacilityRouter.get("/:facilityId/users/active",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersActive
+        res.send(await FacilityUserServices.usersActive
             (parseInt(req.params.facilityId), req.query));
     });
 
@@ -339,7 +346,7 @@ FacilityRouter.get("/:facilityId/users/active",
 FacilityRouter.get("/:facilityId/users/exact/:username",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersExact
+        res.send(await FacilityUserServices.usersExact
             (parseInt(req.params.facilityId), req.params.username, req.query));
     });
 
@@ -347,7 +354,7 @@ FacilityRouter.get("/:facilityId/users/exact/:username",
 FacilityRouter.get("/:facilityId/users/name/:name",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersName
+        res.send(await FacilityUserServices.usersName
             (parseInt(req.params.facilityId), req.params.name, req.query));
     });
 
@@ -355,7 +362,7 @@ FacilityRouter.get("/:facilityId/users/name/:name",
 FacilityRouter.get("/:facilityId/users/unique/:username",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersUnique
+        res.send(await FacilityUserServices.usersUnique
             (parseInt(req.params.facilityId), req.params.username, req.query));
     });
 
@@ -363,7 +370,7 @@ FacilityRouter.get("/:facilityId/users/unique/:username",
 FacilityRouter.delete("/:facilityId/users/:userId",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersRemove
+        res.send(await FacilityUserServices.usersRemove
             (parseInt(req.params.facilityId), parseInt(req.params.userId)));
     });
 
@@ -371,7 +378,7 @@ FacilityRouter.delete("/:facilityId/users/:userId",
 FacilityRouter.put("/:facilityId/users/:userId",
     requireAdmin,
     async (req: Request, res: Response) => {
-        res.send(await FacilityServices.usersUpdate
+        res.send(await FacilityUserServices.usersUpdate
             (parseInt(req.params.facilityId), parseInt(req.params.userId), req.body));
     });
 
