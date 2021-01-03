@@ -7,7 +7,7 @@
 import React from 'react';
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-//import NavDropdown from "react-bootstrap/cjs/NavDropdown";
+import NavDropdown from "react-bootstrap/cjs/NavDropdown";
 import NavItem from "react-bootstrap/NavItem";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
@@ -19,6 +19,7 @@ import FacilitySelector from "./components/FacilitySelector";
 import LoggedInUser from "./components/LoggedInUser";
 import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
+import GuestHistoryReport from "./reports/GuestHistoryReport";
 import CheckinsView from "./views/CheckinsView";
 import FacilitiesView from "./views/FacilitiesView";
 import GuestsView from "./views/GuestsView";
@@ -75,13 +76,20 @@ function App() {
                   <LinkContainer to="/users">
                     <NavItem className="nav-link">Users</NavItem>
                   </LinkContainer>
+                  <NavDropdown id="reports" title="Reports">
+                    <LinkContainer to="/guestHistoryReport">
+                      <NavDropdown.Item>Guest History</NavDropdown.Item>
+                    </LinkContainer>
+                    <LinkContainer to="/monthlySummaryReport">
+                      <NavDropdown.Item>Monthly Summary</NavDropdown.Item>
+                    </LinkContainer>
+                  </NavDropdown>
                 </Nav>
               </Navbar.Collapse>
-              {/* NavDropdown things can go here */}
-              {/* Right-justified non-nav stuff can go here */}
-                <LoggedInUser/>
-                <span className="mr-4"/>
-                <FacilitySelector/>
+
+              <LoggedInUser/>
+              <span className="mr-4"/>
+              <FacilitySelector/>
 
             </Navbar>
 
@@ -92,9 +100,13 @@ function App() {
               <Route exact path="/facilities">
                 <FacilitiesView/>
               </Route>
+              <Route exact path="/guestHistoryReport">
+                <GuestHistoryReport/>
+              </Route>
               <Route exact path="/guests">
                 <GuestsView/>
               </Route>
+              {/*TODO - entry for Monthly Summary Report*/}
               <Route exact path="/templates">
                 <TemplatesView/>
               </Route>

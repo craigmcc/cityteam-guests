@@ -133,6 +133,22 @@ class FacilityCheckinServices {
 
     }
 
+    public async checkinsGuest(facilityId: number, guestId: number, query?: any): Promise<Checkin[]> {
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.checkinsGuest()");
+        }
+        const options: FindOptions = appendQuery({
+            order: CHECKIN_ORDER,
+            where: {
+                guestId: guestId
+            }
+        }, query);
+        return await facility.$get("checkins", options);
+    }
+
 }
 
 export default new FacilityCheckinServices();

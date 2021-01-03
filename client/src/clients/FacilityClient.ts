@@ -123,6 +123,15 @@ class FacilityClient {
         + `/${facilityId}/checkins/${checkinDate}/generate/${templateId}`)).data;
     }
 
+    async checkinsGuest<Checkin>(
+        facilityId: number,
+        guestId: number,
+        params?: object
+    ): Promise<Checkin[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+            + `/${facilityId}/checkins/${guestId}/guest${queryParameters(params)}`)).data;
+    }
+
     // ***** Facility -> Guest Methods *****
 
     async guestsActive<Guest>

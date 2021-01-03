@@ -187,6 +187,16 @@ FacilityRouter.post("/:facilityId/checkins/:checkinDate/generate/:templateId",
                 parseInt(req.params.templateId)));
     });
 
+// Find all Checkins for this Facility and Guest
+FacilityRouter.get("/:facilityId/checkins/:guestId/guest",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityCheckinServices.checkinsGuest(
+            parseInt(req.params.facilityId),
+            parseInt(req.params.guestId),
+            req.query));
+    });
+
 // Facility -> Guest Routes -----------------------------------------------
 
 // Find all Guests for this Facility
