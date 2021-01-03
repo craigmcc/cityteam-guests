@@ -21,8 +21,8 @@ import { Column, CreatedAt, DataType, Model, Table, UpdatedAt }
  */
 @Table({
     comment: "Abstract base class for all concrete models.",
-    timestamps: true,
-    version: true
+    timestamps: false,
+    version: false
 })
 export abstract class AbstractModel<Model> extends Model {
 
@@ -38,22 +38,26 @@ export abstract class AbstractModel<Model> extends Model {
     /**
      * <p>Timestamp when this instance was created.</p>
      */
+/*
     @Column({
         allowNull: false,
         type: DataType.DATE,
     })
     @CreatedAt
     readonly published?: Date;
+*/
 
     /**
      * <p>Timestamp when this instance was most recently updated.</p>
      */
+/*
     @Column({
         allowNull: false,
         type: DataType.DATE,
     })
     @UpdatedAt
     readonly updated?: Date;
+*/
 
 }
 
