@@ -11,13 +11,14 @@
 // Internal Objects ----------------------------------------------------------
 
 import Guest from "./Guest";
+import { todayDate } from "../util/dates";
 
 // Public Objects ------------------------------------------------------------
 
 class Checkin {
 
     constructor(data: any = {}) {
-        this.checkinDate = data.checkinDate || new Date();
+        this.checkinDate = data.checkinDate || todayDate();
         this.comments = data.comments || null;
         this.facilityId = data.facilityId || -1;
         this.features = data.features || null;
@@ -27,11 +28,11 @@ class Checkin {
         this.matNumber = data.matNumber || -1;
         this.paymentAmount = data.paymentAmount || null;
         this.paymentType = data.paymentType || null;
-        this.showerTime = data.showerTime || null;
-        this.wakeupTime = data.wakeupTime || null;
+        this.showerTime = data.showerTime;
+        this.wakeupTime = data.wakeupTime;
     }
 
-    checkinDate!: Date;
+    checkinDate!: string;
     comments?: string;
     facilityId!: number;
     features?: string;
@@ -41,8 +42,8 @@ class Checkin {
     matNumber!: number;
     paymentAmount?: number;
     paymentType?: string;
-    showerTime?: Date;
-    wakeupTime?: Date;
+    showerTime?: string;
+    wakeupTime?: string;
 
     get matNumberAndFeatures() {
         let result = "" + this.matNumber;

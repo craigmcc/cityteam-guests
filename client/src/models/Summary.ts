@@ -2,11 +2,15 @@
 
 // Summary of Checkins to a particular Facility, on a particular Date.
 
+// Internal Modules ----------------------------------------------------------
+
+import {todayDate} from "../util/dates";
+
 // Public Objects ------------------------------------------------------------
 
 class Summary {
 
-    constructor(facilityId?: number, checkinDate?: Date) {
+    constructor(facilityId?: number, checkinDate?: string) {
         if (facilityId) {
             this.facilityId = facilityId;
         }
@@ -16,7 +20,7 @@ class Summary {
     }
 
     // Primary key values
-    checkinDate: Date = new Date("2019-12-31");
+    checkinDate: string = todayDate();
     facilityId: number = 0;
 
     // Total mat counts by payment type

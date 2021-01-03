@@ -4,7 +4,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 
 // Internal Modules ----------------------------------------------------------
@@ -12,7 +12,6 @@ import Form from "react-bootstrap/Form";
 import { HandleCheckin, OnChangeSelect } from "./types";
 import Checkin from "../models/Checkin";
 import * as Replacers from "../util/replacers";
-import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
 

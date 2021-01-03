@@ -18,7 +18,9 @@ import Row from "react-bootstrap/Row";
 // Import Modules ------------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
-import { HandleCheckin, OnAction, OnClick } from "../components/types";
+import {
+    HandleAssign, HandleCheckin, OnAction, OnClick
+} from "../components/types";
 import AssignForm from "../forms/AssignForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
@@ -30,7 +32,6 @@ import CheckinSelector from "../components/CheckinSelector";
 // Incoming Properties -------------------------------------------------------
 
 export interface Props {
-    // TODO - deal with flattened checkin
     checkin: Checkin;               // The (assigned) Checkin we are processing
     checkinDate: string;            // The checkin date we are processing
     facility: Facility;             // Facility for which we are processing
@@ -73,6 +74,36 @@ const CheckinsAssignedSubview = (props: Props) => {
     }
 
     // For Option 1 ----------------------------------------------------------
+
+    const configureAssign = (checkin: Checkin): Assign => {
+        const assign: Assign = new Assign({
+            comments: checkin.comments,
+            facilityId: checkin.facilityId,
+            guestId: checkin.guestId,
+            id: checkin.id,
+            paymentAmount: checkin.paymentAmount,
+            paymentType: checkin.paymentType,
+            showerTime: checkin.showerTime,
+            wakeupTime: checkin.wakeupTime,
+        });
+        return assign;
+    }
+
+    const handleAssign: HandleAssign = async (assign) => {
+        console.info("CheckinsAssignedSubview.handleAssign.sending("
+            + JSON.stringify(assign)
+            + ")");
+        const assigned = await FacilityClient.assignsAssign
+            (assign.facilityId, assign.id, assign);
+        console.info("CheckinsAssignedSubview.handleAssign.receiving("
+            + JSON.stringify(assigned)
+            + ")");
+        props.onBack();
+        try {
+        } catch (error) {
+            ReportError("CheckinsAssignedSubview.handleAssign", error);
+        }
+    }
 
     // For Option 2 ----------------------------------------------------------
 
@@ -167,23 +198,29 @@ const CheckinsAssignedSubview = (props: Props) => {
             <Row className="mb-3">
 
                 {/* Option 1 --------------------------------------------- */}
-                <Col className="col-6 mb-1">
+                <Col className="col-5 mb-1">
                     <>
                         <h6 className="text-center">
                             Option 1: Edit Assignment Details
                         </h6>
                         <hr className="mb-3"/>
+                        <Row className="ml-2">
+                            <AssignForm
+                                assign={configureAssign(props.checkin)}
+                                handleAssign={handleAssign}
+                            />
+                        </Row>
                     </>
                 </Col>
 
                 {/* Option 2 --------------------------------------------- */}
-                <Col className="col-3  bg-light mb-1">
+                <Col className="col-4  bg-light mb-1">
                     <>
                         <h6 className="text-center">
                             Option 2: Move Guest To A Different Mat
                         </h6>
                         <hr className="mb-3"/>
-                        <Row className="justify-content-center ml-1 mb-3">
+                        <Row className="justify-content-center ml-1 mr-1 mb-3">
                             Move this Guest (and transfer the related
                             assignment details) to a different mat.
                         </Row>
@@ -213,7 +250,7 @@ const CheckinsAssignedSubview = (props: Props) => {
                             Option 3: Remove Assignment
                         </h6>
                         <hr className="mb-3"/>
-                        <Row className="justify-content-center ml-1 mb-3">
+                        <Row className="justify-content-center ml-1 mr-1 mb-3">
                             Remove the current assignment, erasing any
                             of the details that were specified.
                         </Row>

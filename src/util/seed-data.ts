@@ -155,6 +155,14 @@ export const TEST_TEMPLATE_DATA: Partial<Template>[] = [
         handicapMats: "1,9-10,21,30-31,34-35,43,54-55,58",
         name: "Test Standard Template",
         socketMats: "17-18,22-23,30-31,36-37,42,53-54,57-58",
+    },
+    {
+        active: true,
+        allMats: "1-4",
+        handicapMats: "1-2",
+        name: "Simple Template",
+        socketMats: "2-3",
+        workMats: "3-4",
     }
 ]
 
