@@ -18,19 +18,21 @@ import Row from "react-bootstrap/Row";
 // Import Modules ------------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
-import {OnAction, OnClick} from "../components/types";
+import { HandleCheckin, OnAction, OnClick } from "../components/types";
 import AssignForm from "../forms/AssignForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
+import CheckinSelector from "../components/CheckinSelector";
 
 // Incoming Properties -------------------------------------------------------
 
 export interface Props {
     // TODO - deal with flattened checkin
     checkin: Checkin;               // The (assigned) Checkin we are processing
+    checkinDate: string;            // The checkin date we are processing
     facility: Facility;             // Facility for which we are processing
                                     // (or (facility.id < 0) if no Facility is current
     onBack: OnAction;               // Handle back button click
@@ -42,9 +44,28 @@ const CheckinsAssignedSubview = (props: Props) => {
 
     // General Support -------------------------------------------------------
 
+    const [availables, setAvailables] = useState<Checkin[]>([]);
+
     useEffect(() => {
-        console.info("CheckinsAssignedView.useEffect()");
-    }, [props.checkin, props.facility]);
+
+        const fetchAvailables = async () => {
+            try {
+                const newAvailables: Checkin[] =
+                    await FacilityClient.checkinsAvailable
+                        (props.facility.id, props.checkinDate);
+                console.info("CheckinsAssignedSubview.fetchAvailables("
+                    + JSON.stringify(newAvailables, Replacers.CHECKIN)
+                    + ")");
+                setAvailables(newAvailables);
+            } catch (error) {
+                ReportError("CheckinsAssignedSubview.fetchAvailables", error);
+                setAvailables([]);
+            }
+        }
+
+        fetchAvailables();
+
+    }, [props.checkinDate, props.facility.id]);
 
     const onBack: OnClick = () => {
         console.info("CheckinsAssignedSubview.onBack()");
@@ -54,6 +75,31 @@ const CheckinsAssignedSubview = (props: Props) => {
     // For Option 1 ----------------------------------------------------------
 
     // For Option 2 ----------------------------------------------------------
+
+    const [destination, setDestination]
+        = useState<Checkin>(new Checkin({ id: -1 }));
+
+    const handleDestination: HandleCheckin = (newDestination) => {
+        console.info("CheckinsAssignedSubview.handleDestination("
+            + JSON.stringify(newDestination, Replacers.CHECKIN)
+            + ")");
+        setDestination(newDestination);
+    }
+
+    const onMove: OnAction = async () => {
+        console.info("CheckinsAssignedSubview.onMove("
+            + JSON.stringify(destination, Replacers.CHECKIN)
+            + ")");
+        if (destination.id >= 0) {
+            try {
+                await FacilityClient.assignsReassign
+                    (props.checkin.facilityId, props.checkin.id, destination.id);
+                props.onBack();
+            } catch (error) {
+                ReportError("CheckinsAssignedSubview.onMove", error);
+            }
+        }
+    }
 
     // For Option 3 ----------------------------------------------------------
 
@@ -137,6 +183,26 @@ const CheckinsAssignedSubview = (props: Props) => {
                             Option 2: Move Guest To A Different Mat
                         </h6>
                         <hr className="mb-3"/>
+                        <Row className="justify-content-center ml-1 mb-3">
+                            Move this Guest (and transfer the related
+                            assignment details) to a different mat.
+                        </Row>
+                        <Row className="justify-content-center mb-3">
+                            <CheckinSelector
+                                checkins={availables}
+                                handleCheckin={handleDestination}
+                                label="To Mat:"
+                            />
+                            <Button
+                                className="ml-2"
+                                disabled={destination.id < 0}
+                                onClick={onMove}
+                                size="sm"
+                                variant="primary"
+                            >
+                                Move
+                            </Button>
+                        </Row>
                     </>
                 </Col>
 
@@ -147,7 +213,7 @@ const CheckinsAssignedSubview = (props: Props) => {
                             Option 3: Remove Assignment
                         </h6>
                         <hr className="mb-3"/>
-                        <Row className="ml-1 mb-3">
+                        <Row className="justify-content-center ml-1 mb-3">
                             Remove the current assignment, erasing any
                             of the details that were specified.
                         </Row>

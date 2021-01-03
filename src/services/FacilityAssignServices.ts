@@ -109,14 +109,9 @@ class FacilityAssignServices {
 
         // Persist and return these changes
         // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
-        // WARNING:  Use "fields" to choose which columns to update
         // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
         // WARNING:  Use "validating: false" to avoid validating things you didn't include
         const [count, results] = await Checkin.update(updates, {
-            fields: [
-                "comments", "guestId", "paymentAmount", "paymentType",
-                "showerTime", "wakeupTime"
-            ],
 //            logging: function(content) {
 //                console.info(`Checkin.update(${content})`);
 //            },
@@ -176,14 +171,9 @@ class FacilityAssignServices {
 
         // Persist and return these changes
         // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
-        // WARNING:  Use "fields" to choose which columns to update
         // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
         // WARNING:  Use "validating: false" to avoid validating things you didn't include
         const [count, results] = await Checkin.update(updates, {
-            fields: [
-                "comments", "guestId", "paymentAmount", "paymentType",
-                "showerTime", "wakeupTime"
-            ],
 //            logging: function(content) {
 //                console.info(`Checkin.update(${content})`);
 //            },
@@ -251,51 +241,55 @@ class FacilityAssignServices {
                 "FacilityServices.assignsReassign()");
         }
 
-        // Update and save the new Checkin
-        const newUpdate: Partial<Checkin> = {
-            comments: oldCheckin.comments ? oldCheckin.comments : undefined,
-            guestId: oldCheckin.guestId,
-            paymentAmount: oldCheckin.paymentAmount ? oldCheckin.paymentAmount : undefined,
-            paymentType: oldCheckin.paymentType ? oldCheckin.paymentType : undefined,
-            showerTime: oldCheckin.showerTime ? oldCheckin.showerTime : undefined,
-            wakeupTime: oldCheckin.wakeupTime ? oldCheckin.wakeupTime : undefined,
-        }
-        const [newCount, newResults] = await Checkin.update(newCheckin, {
-            where: {
-                id: newCheckinId
-            }
-        });
-        if (newCount !== 1) {
-            throw new BadRequest(
-                `newCheckinId: Cannot update Checkin ${newCheckinId}`,
-                "FacilityServices.assignsReassign()"
-            )
-        }
+        // Prepare the updates for the old Checkin
+        const oldUpdates = {
+            comments: null,
+            guestId: null,
+            paymentAmount: null,
+            paymentType: null,
+            showerTime: null,
+            wakeupTime: null,
+        };
 
-        // Update and save the old Checkin
-        const oldCheckinUpdate: Partial<Checkin> = {
-            comments: undefined,
-            guestId: undefined,
-            paymentAmount: undefined,
-            paymentType: undefined,
-            showerTime: undefined,
-            wakeupTime: undefined,
-        }
-        const [oldCount, oldResults] = await Checkin.update(oldCheckinUpdate, {
-            where: {
-                id: oldCheckinId
-            }
+        // Prepare the updates for the new Checkin
+        const newUpdates = {
+            comments: oldCheckin.comments,
+            guestId: oldCheckin.guestId,
+            paymentAmount: oldCheckin.paymentAmount,
+            paymentType: oldCheckin.paymentType,
+            showerTime: oldCheckin.showerTime,
+            wakeupTime: oldCheckin.wakeupTime,
+        };
+
+        // Save the updates to the old Checkin
+        const [oldCount, oldResults] = await Checkin.update(oldUpdates, {
+//            logging: function(content) {
+//                console.info(`Checkin.update(${content})`);
+//            },
+            returning: true,
+            validate: false,
+            where: {id: oldCheckinId},
         });
         if (oldCount !== 1) {
-            throw new BadRequest(
-                `oldCheckinId: Cannot update Checkin ${oldCheckinId}`,
-                "FacilityServices.assignsReassign()"
-
-            )
+            throw new ServerError("Checkin.update (old) returned no results",
+                "FacilityServices.assignsReassign");
         }
 
-        // Return the updated new Checkin
-        return newResults[0];
+        // Save the updates to the new Checkin and return the final result
+        const [newCount, newResults] = await Checkin.update(newUpdates, {
+//            logging: function(content) {
+//                console.info(`Checkin.update(${content})`);
+//            },
+            returning: true,
+            validate: false,
+            where: {id: newCheckinId},
+        });
+        if ((newCount === 1) && newResults) {
+            return newResults[0];
+        } else {
+            throw new ServerError("Checkin.update (new) returned no results",
+                "FacilityServices.assignsDeassign");
+        }
 
     }
 

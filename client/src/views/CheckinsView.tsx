@@ -138,6 +138,7 @@ const CheckinView = () => {
                 {(stage === Stage.Assigned) ? (
                     <CheckinsAssignedSubview
                         checkin={selected ? selected : new Checkin()}
+                        checkinDate={checkinDate}
                         facility={facility}
                         onBack={onBack}
                     />
