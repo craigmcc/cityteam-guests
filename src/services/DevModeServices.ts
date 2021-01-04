@@ -5,6 +5,7 @@
 // External Modules ----------------------------------------------------------
 
 import neatCsv from "neat-csv";
+import { FindOptions } from "sequelize";
 
 // Internal Modules ----------------------------------------------------------
 
@@ -14,8 +15,8 @@ import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import Template from "../models/Template";
 import User from "../models/User";
-import { toDateObject } from "../util/dates";
 import { hashPassword } from "../oauth/OAuthUtils";
+import { toDateObject } from "../util/dates";
 import {
     ALL_FACILITY_DATA,
     ALL_PORTLAND_TEMPLATE_DATA,
@@ -24,16 +25,19 @@ import {
     TEST_USER_DATA,
 } from "../util/seed-data";
 import {BadRequest} from "../util/http-errors";
+import {validateFeatures, validatePaymentType} from "../util/application-validators";
 
 // A potentially recoverable problem that should be reported back to the caller
 class Problem extends Error {
-    constructor(message: string, resolution: string, row: neatCsv.Row) {
-        super(message);
-        this.message = message;
+    constructor(issue: string, resolution: string, row: neatCsv.Row, fatal: boolean = false) {
+        super(issue);
+        this.issue = issue;
         this.resolution = resolution;
         this.row = row;
+        this.fatal = fatal ? fatal : false;
     }
-    message: string;
+    fatal: boolean;
+    issue: string;
     resolution: string;
     row: neatCsv.Row;
 }
@@ -67,62 +71,93 @@ export class DevModeServices {
 
         // Global variables for managing the parsing process
         // and collecting our results
+        let avoiding = false;
         let ignoring = false;
         let previousCheckinDate = "12/31/19";
         let skipping = false;
 
         // Accumulators for our results
+        let avoided: number = 0;
+        let failed: number = 0;
+        let ignored: number = 0;
         let processed: number = 0;
         let skipped: number = 0;
-        const checkins: Checkin[] = [];
-        const problems: Problem[] = [];
+
+        // Primary results to be returned
+        const allCheckins: Checkin[] = [];
+        const allProblems: Problem[] = [];
 
         // Process each row and create the appropriate database content
         rows.forEach(row => {
 
-            try {
+            // Ignore cruft at the end of the CSV file
+            ignoring = !row.checkinDate || (row.checkinDate.length === 0);
 
-                // Ignore cruft at the end of the CSV file
-                ignoring = !row.checkinDate || (row.checkinDate.length === 0);
-
-                // Turn off skipping when checkinDate changes
-                if (skipping && (row.checkinDate !== previousCheckinDate)) {
-                    skipping = false;
-                }
-
-                // Turn on skipping when we see the end-of-data marker
-                if (row.firstName.startsWith("*****")
-                    || row.lastName.startsWith("*****")) {
-                    skipping = true;
-                }
-
-                // Process this row when it is relevant
-                if (!ignoring && !skipping) {
-                    // TODO
-                    processed++;
-                } else {
-                    skipped++;
-                }
-
-                // Track previous checkinDate so we can reset skipping
-                previousCheckinDate = row.checkinDate;
-
-            } catch (error) {
-                if (error instanceof Problem) {
-                    problems.push(error);
-                } else {
-                    throw error;
-                }
+            // Turn off skipping when checkinDate changes
+            if (skipping && (row.checkinDate !== previousCheckinDate)) {
+                skipping = false;
             }
+
+            // Turn on skipping when we see the end-of-data marker
+            if (row.firstName.startsWith("*****")
+                || row.lastName.startsWith("*****")) {
+                skipping = true;
+            }
+
+            // Process this row when it is relevant
+            if (avoiding) {
+                avoided++;
+            } else if (ignoring) {
+                ignored++;
+            } else if (skipping) {
+                skipped++;
+            } else {
+
+                const [rowCheckin, rowProblems] = populateCheckin(facility, row);
+                if (!anyFatal(rowProblems)) {
+                    const [guest, guestProblems] = createGuest(facility, row);
+                    console.info("GUEST:  " + JSON.stringify(guest));
+                    console.info("PROBS:  " + JSON.stringify(guestProblems));
+                    appendProblems(rowProblems, guestProblems);
+                    if (guest) {
+                        rowCheckin.guestId = guest.id;
+                    }
+                }
+                // TODO - if no fatal, find or create Guest, or add to rowProblems
+                // TODO - if no fatal, insert the completed Checkin, or add to rowProblems
+                appendProblems(allProblems, rowProblems);
+
+                if (anyFatal(rowProblems)) {
+                    failed++;
+                } else {
+                    allCheckins.push(rowCheckin);
+                    if (processed < 5) {
+                        console.info("CHECKIN: " + JSON.stringify(rowCheckin));
+                    } else {
+                        avoiding = true;
+                    }
+                    processed++;
+                }
+
+            }
+
+            // Track previous checkinDate so we can reset skipping
+            previousCheckinDate = row.checkinDate;
 
         });
 
         return {
-            processed: processed,
-            skipped: skipped,
-            problems: problems,
-            checkins: checkins,
-            rows: rows, // TODO - only for development
+            counts: {
+                avoided: avoided,
+                failed: failed,
+                ignored: ignored,
+                processed: processed,
+                skipped: skipped,
+                problemsLength: allProblems.length,
+                checkinsLength: allCheckins.length
+            },
+            problems: allProblems,
+            checkins: allCheckins,
         };
 
     }
@@ -184,6 +219,79 @@ export default new DevModeServices();
 
 // Private Objects -----------------------------------------------------------
 
+// Return true if any of the listed problems is marked as fatal
+const anyFatal = (problems: Problem[]): boolean => {
+    let result = false;
+    problems.forEach(problem => {
+        if (problem.fatal) {
+            result = true;
+        }
+    });
+    return result;
+}
+
+// Append any and all fromProblems items to toProblems
+const appendProblems = (toProblems: Problem[], fromProblems: Problem[]): void => {
+    fromProblems.forEach(fromProblem => {
+        toProblems.push(fromProblem);
+    });
+}
+
+// Return an existing or new Guest to be assigned to this checkin
+const createGuest = (facility: Facility, row: neatCsv.Row)
+                  : [outGuest: Guest | null, outProblems: Problem[]] =>
+{
+    let outGuest: Guest | null = null;
+    const outProblems: Problem[] = [];
+
+    const [outFirstName, outLastName, nameProblems] = parseNames(row);
+    appendProblems(outProblems, nameProblems);
+    if (anyFatal(nameProblems)) {
+        return [outGuest, outProblems];
+    }
+    if (!outFirstName || !outLastName) {
+        return [outGuest, outProblems];
+    }
+
+    const options: FindOptions = {
+        where: {
+            facilityId: facility.id ? facility.id : -1,
+            firstName: outFirstName,
+            lastName: outLastName
+        }
+    };
+
+    Guest.findOne(options)
+        .then((oldGuest) => {
+            console.info(`For ${outFirstName} ${outLastName} found ` + JSON.stringify(oldGuest));
+            if (!oldGuest) {
+                Guest.create({
+                    active: true,
+                    facilityId: facility.id,
+                    firstName: outFirstName,
+                    lastName: outLastName,
+                })
+                    .then((newGuest) => {
+                        console.info(`  So created ` + JSON.stringify(newGuest));
+                        outGuest = newGuest;
+                    })
+            }
+        })
+        .catch((error) => {
+            outGuest = null;
+            outProblems.push(new Problem(
+                error.message,
+                "Failing this import",
+                row,
+                true
+            ));
+        })
+        .finally(() => {
+            return [outGuest, outProblems];
+        });
+    return [outGuest, outProblems];
+}
+
 const findFacilityByName = async (name: string): Promise<Facility> => {
     const result: Facility | null = await Facility.findOne({
         where: { name: name }
@@ -216,39 +324,6 @@ const hashPasswords = async (users: Partial<User>[]): Promise<Partial<User>[]> =
         newUsers.push(newUser);
     });
     return newUsers;
-}
-
-const importRow = async (facility: Facility, row: neatCsv.Row) => {
-
-    const checkin: Partial<Checkin> = {
-        facilityId: facility.id,
-    }
-    let fatal = false;
-    const problems: Problem[] = [];
-
-    // Process checkinDate
-    if (!row.checkinDate || (row.checkinDate.length === 0)) {
-        problems.push(new Problem(
-            "Missing checkinDate",
-            "Skipping this import",
-            row));
-        fatal = true;
-    } else {
-        try {
-            checkin.checkinDate = new Date(row.checkinDate);
-        } catch (error) {
-            problems.push(new Problem(
-                "Cannot parse checkinDate",
-                "Skipping this import",
-                row));
-            fatal = true;
-        }
-    }
-
-    // TODO - continue here
-
-    // TODO - return accumulated errors if any?
-
 }
 
 const loadCheckins = async (checkins: Partial<Checkin>[]): Promise<Checkin[]> => {
@@ -287,4 +362,243 @@ const loadUsers = async (facility: Facility, users: Partial<User>[]): Promise<Us
         users[i].password = hashedPasswords[i];
     }
     return User.bulkCreate(users);
+}
+
+const parseCheckinDate
+    = (row: neatCsv.Row)
+    : [outCheckinDate: Date, outCheckinDateProblems: Problem[]] =>
+{
+    let outCheckinDate: Date = new Date("2019-12-31");
+    const outProblems: Problem[] = [];
+
+    if (!row.checkinDate || (row.checkinDate.length === 0)) {
+        outProblems.push(new Problem(
+            "Missing checkinDate",
+            "Failing this import",
+            row,
+            true));
+    } else {
+        try {
+            outCheckinDate = new Date(row.checkinDate);
+        } catch (error) {
+            outProblems.push(new Problem(
+                "Cannot parse checkinDate",
+                "Failing this import",
+                row,
+                true));
+        }
+    }
+
+    return [outCheckinDate, outProblems];
+}
+
+const parseComments
+    = (row: neatCsv.Row)
+    : [outComments: string | null, outProblems: Problem[]] =>
+{
+    let outComments: string | null = null;
+    const outProblems: Problem[] = [];
+
+    if (row.comments) {
+        outComments = row.comments;
+    }
+
+    return [outComments, outProblems];
+}
+
+const parseMatNumberAndFeatures
+    = (row: neatCsv.Row)
+    : [outMatNumber: number, outFeatures: string | null, outProblems: Problem[]] =>
+{
+    let outMatNumber: number = 0;
+    let outFeatures: string | null = null;
+    const outProblems: Problem[] = [];
+
+    if (!row.matNumber || (row.matNumber.length === 0)) {
+        outProblems.push(new Problem(
+            "Missing matNumber",
+            "Failing this import",
+            row,
+            true
+        ));
+        return [outMatNumber, outFeatures, outProblems];
+    }
+
+    let input = row.matNumber;
+    let featuring = false;
+    let features = "";
+    let matNumber = 0;
+    for (let i = 0; i < input.length; i++) {
+        let c = input.charAt(i);
+        if ((c >= '0') && (c <= '9')) {
+            if (featuring) {
+                outProblems.push(new Problem(
+                    `Cannot parse matNumber from '${input}'`,
+                    "Failing this import",
+                    row,
+                    true
+                ));
+            } else {
+                matNumber = (matNumber * 10) + parseInt(c);
+            }
+        } else {
+            featuring = true;
+            features += c;
+        }
+        if (matNumber > 0) {
+            outMatNumber = matNumber;
+        } else {
+            outProblems.push(new Problem(
+                `Missing matNumber in '${input}'`,
+                "Failing this import",
+                row,
+                true
+            ));
+        }
+        if (features.length > 0) {
+            if (validateFeatures(features)) {
+                outFeatures = features;
+            } else {
+                outProblems.push(new Problem(
+                    `Invalid features '${features}' in '${input}'`,
+                    "Ignoring invalid features",
+                    row
+                ));
+            }
+        }
+    }
+
+    return [outMatNumber, outFeatures, outProblems];
+}
+
+// No names means a mat is unassigned
+const parseNames
+    = (row: neatCsv.Row)
+    : [outFirstName: string | null, outLastName: string | null, outProblems: Problem[]] =>
+{
+    let outFirstName: string | null = null;
+    let outLastName: string | null = null;
+    const outProblems: Problem[] = [];
+
+    if (((!row.firstName) || (row.firstName.length === 0)) &&
+        ((!row.lastName) || (row.lastName.length === 0))) {
+        return [outFirstName, outLastName, outProblems];
+    }
+
+    if (!row.firstName || (row.firstName.length === 0)) {
+        outProblems.push(new Problem(
+            "Missing firstName",
+            "Failing this import",
+            row,
+            true
+        ));
+    } else if (row.firstName.startsWith("*")) {
+        outProblems.push(new Problem(
+            "Invalid firstName",
+            "Failing this import",
+            row,
+            true
+        ));
+    } else {
+        outFirstName = row.firstName;
+    }
+
+    if (!row.lastName || (row.lastName.length === 0)) {
+        outProblems.push(new Problem(
+            "Missing lastName",
+            "Failing this import",
+            row,
+            true
+        ));
+    } else if (row.lastName.startsWith("*")) {
+        outProblems.push(new Problem(
+            "Invalid lastName",
+            "Failing this import",
+            row,
+            true
+        ));
+    } else {
+        outLastName = row.lastName;
+    }
+
+    return [outFirstName, outLastName, outProblems];
+}
+
+const parsePaymentTypeAmount
+    = (row: neatCsv.Row)
+    : [paymentType: string | null, paymentAmount: number | null, problems: Problem[]] =>
+{
+    let outPaymentType: string | null = null;
+    let outPaymentAmount: number | null = null;
+    const outProblems: Problem[] = [];
+
+    if (row.paymentType && (row.paymentType.length > 0)) {
+        if (validatePaymentType(row.paymentType)) {
+            outPaymentType = row.paymentType;
+        } else {
+            outProblems.push(new Problem(
+                `Invalid paymentType '${row.paymentType}'`,
+                "Set to 'UK'",
+                row
+            ));
+            outPaymentType = "UK";
+        }
+    } else if (row.firstName && (row.firstName.length > 0) &&
+               row.lastName && (row.lastName.length > 0)) {
+        outProblems.push(new Problem(
+            "Missing payment type for assigned mat",
+            "Set to 'UK'",
+            row
+        ));
+        outPaymentType = "UK";
+    }
+    if (outPaymentType === "$$") {
+        outPaymentAmount = 5.00;
+    }
+
+    return [outPaymentType, outPaymentAmount, outProblems];
+}
+
+// Populate a new Checkin object EXCEPT for guestId, and return the
+// Checkin plus an array of any Problem objects generated by parsing
+// of the incoming row.
+const populateCheckin
+    = (facility: Facility, row: neatCsv.Row)
+    : [checkin: Checkin, problems: Problem[]] =>
+{
+
+    // Prepare our return values
+    const checkin: Checkin = new Checkin({
+        facilityId: facility.id,
+        guestId: -1,
+    });
+    const rowProblems: Problem[] = [];
+
+    // Process the incoming fields
+
+    const [outCheckinDate, outCheckinDateProblems] = parseCheckinDate(row);
+    checkin.checkinDate = outCheckinDate;
+    appendProblems(rowProblems, outCheckinDateProblems);
+
+    const [outMatNumber, outFeatures, outMatNumberProblems]
+        = parseMatNumberAndFeatures(row);
+    checkin.matNumber = outMatNumber;
+    checkin.features = outFeatures ? outFeatures : undefined;
+    appendProblems(rowProblems, outMatNumberProblems);
+
+    // Names will be checked when finding or inserting a Guest
+
+    const [outPaymentType, outPaymentAmount, outPaymentProblems] =
+        parsePaymentTypeAmount(row);
+    checkin.paymentType = outPaymentType ? outPaymentType : undefined;
+    checkin.paymentAmount = outPaymentAmount ? outPaymentAmount : undefined;
+    appendProblems(rowProblems, outPaymentProblems);
+
+    const [outComments, outCommentsProblems] = parseComments(row);
+    checkin.comments = outComments ? outComments : undefined;
+    appendProblems(rowProblems, outCommentsProblems);
+
+    // Return the results
+    return [checkin, rowProblems];
+
 }
