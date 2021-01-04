@@ -20,6 +20,7 @@ import LoggedInUser from "./components/LoggedInUser";
 import { FacilityContextProvider } from "./contexts/FacilityContext";
 import { LoginContextProvider } from "./contexts/LoginContext";
 import GuestHistoryReport from "./reports/GuestHistoryReport";
+import MonthlySummaryReport from "./reports/MonthlySummaryReport";
 import CheckinsView from "./views/CheckinsView";
 import FacilitiesView from "./views/FacilitiesView";
 import GuestsView from "./views/GuestsView";
@@ -106,7 +107,9 @@ function App() {
               <Route exact path="/guests">
                 <GuestsView/>
               </Route>
-              {/*TODO - entry for Monthly Summary Report*/}
+              <Route exact path="/monthlySummaryReport">
+                <MonthlySummaryReport/>
+              </Route>
               <Route exact path="/templates">
                 <TemplatesView/>
               </Route>

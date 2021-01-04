@@ -6,8 +6,9 @@
 
 import ApiBase from "./ApiBase";
 import { queryParameters } from "../util/query-parameters";
-import Checkin from "../models/Checkin";
 import Assign from "../models/Assign";
+import Checkin from "../models/Checkin";
+import Summary from "../models/Summary";
 //import Facility from "../models/Facility";
 //import Guest from "../models/Guest";
 //import Summary from "../models/Summary";
@@ -74,7 +75,7 @@ class FacilityClient {
         assign: Assign
     ): Promise<Checkin> {
         return (await ApiBase.post(FACILITIES_BASE
-            + `/${facilityId}/assigns/${checkinId}/assign`, assign)).data;
+            + `/${facilityId}/assigns/assign/${checkinId}`, assign)).data;
     }
 
     async assignsDeassign (
@@ -82,7 +83,7 @@ class FacilityClient {
         checkinId: number
     ): Promise<Checkin> {
         return (await ApiBase.post(FACILITIES_BASE
-            + `/${facilityId}/assigns/${checkinId}/deassign`)).data;
+            + `/${facilityId}/assigns/deassign/${checkinId}`)).data;
     }
 
     async assignsReassign (
@@ -91,7 +92,7 @@ class FacilityClient {
         newCheckinId: number
     ): Promise<Checkin> {
         return (await ApiBase.post(FACILITIES_BASE
-            + `/${facilityId}/assigns/${oldCheckinId}/reassign/${newCheckinId}`)).data;
+            + `/${facilityId}/assigns/reassign/${oldCheckinId}/${newCheckinId}`)).data;
     }
 
     // ***** Facility -> Checkin Methods *****
@@ -102,7 +103,7 @@ class FacilityClient {
         params?: object
     ): Promise<Checkin[]> {
         return (await ApiBase.get(FACILITIES_BASE
-        + `/${facilityId}/checkins/${checkinDate}/all${queryParameters(params)}`)).data;
+        + `/${facilityId}/checkins/all/${checkinDate}${queryParameters(params)}`)).data;
     }
 
     async checkinsAvailable<Checkin>(
@@ -111,7 +112,7 @@ class FacilityClient {
         params?: object
     ): Promise<Checkin[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/checkins/${checkinDate}/available${queryParameters(params)}`)).data;
+            + `/${facilityId}/checkins/available/${checkinDate}${queryParameters(params)}`)).data;
     }
 
     async checkinsGenerate<Checkin>(
@@ -120,7 +121,7 @@ class FacilityClient {
         templateId: number
     ): Promise<Checkin[]> {
         return (await ApiBase.post(FACILITIES_BASE
-        + `/${facilityId}/checkins/${checkinDate}/generate/${templateId}`)).data;
+        + `/${facilityId}/checkins/generate/${checkinDate}/${templateId}`)).data;
     }
 
     async checkinsGuest<Checkin>(
@@ -129,7 +130,16 @@ class FacilityClient {
         params?: object
     ): Promise<Checkin[]> {
         return (await ApiBase.get(FACILITIES_BASE
-            + `/${facilityId}/checkins/${guestId}/guest${queryParameters(params)}`)).data;
+            + `/${facilityId}/checkins/guest/${guestId}${queryParameters(params)}`)).data;
+    }
+
+    async checkinsSummaries<Checkin>(
+        facilityId: number,
+        checkinDateFrom: string,
+        checkinDateTo: string
+    ): Promise<Summary[]> {
+        return (await ApiBase.get(FACILITIES_BASE
+        + `/${facilityId}/checkins/summaries/${checkinDateFrom}/${checkinDateTo}`)).data;
     }
 
     // ***** Facility -> Guest Methods *****

@@ -19,10 +19,10 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
+import Guest from "../models/Guest";
 import GuestsSubview from "../subviews/GuestsSubview";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
-import Guest from "../models/Guest";
 
 // Component Details ---------------------------------------------------------
 
@@ -34,7 +34,6 @@ const GuestHistoryReport = () => {
     const [checkins, setCheckins] = useState<Checkin[]>([]);
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [guest, setGuest] = useState<Guest | null>(null);
-    const [refresh, setRefresh] = useState<boolean>(false);
 
     useEffect(() => {
 
@@ -70,16 +69,11 @@ const GuestHistoryReport = () => {
                 setCheckins([]);
             }
 
-            // Reset refresh flag if necessary
-            if (refresh) {
-                setRefresh(false);
-            }
-
         }
 
         fetchCheckins();
 
-    }, [facilityContext, loginContext, facility.id, guest, refresh]);
+    }, [facilityContext, loginContext, facility.id, guest]);
 
     const handleSelect: HandleGuestOptional = (newGuest) => {
         if (newGuest) {

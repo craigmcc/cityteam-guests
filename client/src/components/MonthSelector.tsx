@@ -25,6 +25,7 @@ export interface Props {
     label?: string;                 // Element label [Month:]
     max?: string;                   // Maximum accepted value [no limit]
     min?: string;                   // Minimum accepted value [no limit]
+    name?: string;                  // Input control name [monthSelector]
     required?: boolean;             // Entry is required? [false]
     value?: string                  // Initially displayed value [""]
 }
@@ -33,6 +34,7 @@ export interface Props {
 
 const MonthSelector = (props: Props) => {
 
+    const [name] = useState<string>(props.name ? props.name : "monthSelector");
     const [type, setType] = useState<string>("text");
     const [value, setValue] = useState<string>(props.value ? props.value : "");
 
@@ -41,23 +43,13 @@ const MonthSelector = (props: Props) => {
         let newType: string = "text";
         switch (browser && browser.name) {
             case "chrome":
-                newType = "month";
+//                newType = "month";
                 break;
             default:
-                newType = "text";
                 break;
         }
-//        console.info("MonthSelector.useEffect("
-//            + `browser=${browser ? browser.name : "unknown"}, type=${newType})`);
         setType(newType);
     }, []);
-
-/*
-    const onBlur: OnBlur = (event): void => {
-        console.info(`MonthSelector.onBlur(${value})`);
-        processValue(value);
-    }
-*/
 
     const onChange: OnChangeInput = (event): void => {
         const newValue: string = event.target.value;
@@ -66,7 +58,7 @@ const MonthSelector = (props: Props) => {
     }
 
     const onKeyDown: OnKeyDown = (event): void => {
-        console.info(`DateSelector.onKeyDown(${event.key}, ${value})`);
+        console.info(`MonthSelector.onKeyDown(${event.key}, ${value})`);
         if ((event.key === "Enter") || (event.key === "Tab")) {
             processValue(value);
         }
@@ -83,7 +75,6 @@ const MonthSelector = (props: Props) => {
         } else if (props.min && (newValue < props.min)) {
             newValid = false;
         }
-//        console.info(`MonthSelector.processMonth(${newValue}, ${newValid})`);
 
         // Forward response to parent if valid
         if (!newValid) {
@@ -108,17 +99,16 @@ const MonthSelector = (props: Props) => {
 
         <>
             <Form inline>
-                <Form.Label className="mr-2" htmlFor="monthSelector">
+                <Form.Label className="mr-2" htmlFor={name}>
                     {props.label ? props.label : "Month:"}
                 </Form.Label>
                 <Form.Control
                     autoFocus={props.autoFocus ? props.autoFocus : undefined}
                     disabled={props.disabled ? props.disabled : undefined}
                     htmlSize={7}
-                    id="monthSelector"
+                    id={name}
                     max={props.max ? props.max : undefined}
                     min={props.min ? props.min : undefined}
-//                    onBlur={onBlur}
                     onChange={onChange}
                     onKeyDown={onKeyDown}
                     size="sm"

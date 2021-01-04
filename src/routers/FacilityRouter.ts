@@ -128,7 +128,7 @@ FacilityRouter.put("/:facilityId",
 // Facility -> Assign Routes -------------------------------------------------
 
 // Assign the specified Guest to the specified Checkin
-FacilityRouter.post("/:facilityId/assigns/:checkinId/assign",
+FacilityRouter.post("/:facilityId/assigns/assign/:checkinId",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityAssignServices.assignsAssign(
@@ -139,7 +139,7 @@ FacilityRouter.post("/:facilityId/assigns/:checkinId/assign",
     });
 
 // Deassign the current Guest from the specified Checkin
-FacilityRouter.post("/:facilityId/assigns/:checkinId/deassign",
+FacilityRouter.post("/:facilityId/assigns/deassign/:checkinId",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityAssignServices.assignsDeassign(
@@ -149,7 +149,7 @@ FacilityRouter.post("/:facilityId/assigns/:checkinId/deassign",
     });
 
 // Reassign the current Guest at a specified Checkin to a new Checkin
-FacilityRouter.post("/:facilityId/assigns/:oldCheckinId/reassign/:newCheckinId",
+FacilityRouter.post("/:facilityId/assigns/reassigns/:oldCheckinId/:newCheckinId",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityAssignServices.assignsReassign(
@@ -162,7 +162,7 @@ FacilityRouter.post("/:facilityId/assigns/:oldCheckinId/reassign/:newCheckinId",
 // Facility -> Checkin Routes ------------------------------------------------
 
 // Find all Checkins for this Facility on this checkin date
-FacilityRouter.get("/:facilityId/checkins/:checkinDate/all",
+FacilityRouter.get("/:facilityId/checkins/all/:checkinDate",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityCheckinServices.checkinsAll
@@ -170,7 +170,7 @@ FacilityRouter.get("/:facilityId/checkins/:checkinDate/all",
     });
 
 // Find available Checkins for this Facility on this checkin date
-FacilityRouter.get("/:facilityId/checkins/:checkinDate/available",
+FacilityRouter.get("/:facilityId/checkins/available/:checkinDate",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityCheckinServices.checkinsAvailable
@@ -178,7 +178,7 @@ FacilityRouter.get("/:facilityId/checkins/:checkinDate/available",
     });
 
 // Generate Checkins for this Facility on this checkin date from this Template
-FacilityRouter.post("/:facilityId/checkins/:checkinDate/generate/:templateId",
+FacilityRouter.post("/:facilityId/checkins/generate/:checkinDate/:templateId",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityCheckinServices.checkinsGenerate(
@@ -188,13 +188,24 @@ FacilityRouter.post("/:facilityId/checkins/:checkinDate/generate/:templateId",
     });
 
 // Find all Checkins for this Facility and Guest
-FacilityRouter.get("/:facilityId/checkins/:guestId/guest",
+FacilityRouter.get("/:facilityId/checkins/guest/:guestId",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityCheckinServices.checkinsGuest(
             parseInt(req.params.facilityId),
             parseInt(req.params.guestId),
             req.query));
+    });
+
+// Find Checkin Summaries for this Facility for the specified date range
+FacilityRouter.get("/:facilityId/checkins/summaries/:checkinDateFrom/:checkinDateTo",
+    requireRegular,
+    async (req: Request, res: Response) => {
+        res.send(await FacilityCheckinServices.checkinsSummaries(
+            parseInt(req.params.facilityId),
+            req.params.checkinDateFrom,
+            req.params.checkinDateTo
+        ));
     });
 
 // Facility -> Guest Routes -----------------------------------------------
@@ -253,19 +264,6 @@ FacilityRouter.put("/:facilityId/guests/:guestId",
     async (req: Request, res: Response) => {
         res.send(await FacilityGuestServices.guestsUpdate
             (parseInt(req.params.facilityId), parseInt(req.params.guestId), req.body));
-    });
-
-// Facility -> Summary Routes ------------------------------------------------
-
-// Find summaries for this Facility for the specified checkin date range
-FacilityRouter.get("/:facilityId/summaries/:checkinDateFrom/:checkinDateTo",
-    requireRegular,
-    async (req: Request, res: Response) => {
-        res.send(await FacilityServices.summaries(
-            parseInt(req.params.facilityId),
-            req.params.checkinDateFrom,
-            req.params.checkinDateTo)
-        );
     });
 
 // Facility -> Template Routes -----------------------------------------------

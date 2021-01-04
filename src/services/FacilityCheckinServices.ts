@@ -10,14 +10,14 @@ import { FindOptions, Op } from "sequelize";
 
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
+import Guest from "../models/Guest";
+import Summary from "../models/Summary";
 import Template from "../models/Template";
 import {toDateObject} from "../util/dates";
 import { BadRequest, NotFound } from "../util/http-errors";
 import MatsList from "../util/MatsList";
-import { CHECKIN_ORDER } from "../util/sort-orders";
 import {appendPagination} from "../util/query-parameters";
-import Guest from "../models/Guest";
-import User from "../models/User";
+import { CHECKIN_ORDER } from "../util/sort-orders";
 
 // Public Objects ------------------------------------------------------------
 
@@ -147,6 +147,52 @@ class FacilityCheckinServices {
             }
         }, query);
         return await facility.$get("checkins", options);
+    }
+
+    public async checkinsSummaries(
+        facilityId: number,
+        checkinDateFrom: string,
+        checkinDateTo: string
+    ): Promise<Summary[]> {
+
+        // Select the relevant Checkins for this Facility and date range
+        const facility = await Facility.findByPk(facilityId);
+        if (!facility) {
+            throw new NotFound(
+                `facilityId: Missing Facility ${facilityId}`,
+                "FacilityServices.checkinsSummaries()");
+        }
+        const options: FindOptions = {
+            order: CHECKIN_ORDER,
+            where: {
+                checkinDate: {
+                    [Op.and]: {
+                        [Op.gte]: checkinDateFrom,
+                        [Op.lte]: checkinDateTo
+                    }
+                }
+            }
+        }
+        const checkins = await facility.$get("checkins", options);
+
+        // Accumulate and return the corresponding Summaries
+        const summaries: Summary[] = [];
+        let summary: Summary = new Summary(-1);
+        checkins.map(checkin => {
+            if (summary.facilityId < 0) {
+                summary = new Summary(checkin.facilityId, checkin.checkinDate);
+            }
+            if (checkin.checkinDate !== summary.checkinDate) {
+                summaries.push(summary);
+                summary = new Summary(checkin.facilityId, checkin.checkinDate);
+            }
+            summary.includeCheckin(checkin);
+        });
+        if (summary.facilityId >= 0) {
+            summaries.push(summary);
+        }
+        return summaries;
+
     }
 
 }

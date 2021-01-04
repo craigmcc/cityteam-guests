@@ -24,7 +24,6 @@ import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
-import CheckinsSummary from "../util/CheckinsSummary";
 import * as Replacers from "../util/replacers";
 import ReportError from "../util/ReportError";
 import { withFlattenedObjects } from "../util/transformations";
@@ -50,7 +49,7 @@ const CheckinsListSubview = (props: Props) => {
     const [checkins, setCheckins] = useState<Checkin[]>([]);
     const [index, setIndex] = useState<number>(-1);
     const [refresh, setRefresh] = useState<boolean>(false);
-    const [summary, setSummary] = useState<Summary | null>(null);
+    const [summary, setSummary] = useState<Summary>(new Summary());
     const [template, setTemplate] = useState<Template>(new Template({ id: -1 }));
 
     useEffect(() => {
@@ -69,18 +68,22 @@ const CheckinsListSubview = (props: Props) => {
                         + ")");
                     setCheckins(flattenedCheckins(newCheckins));
                     setRefresh(false);
-                    setSummary(CheckinsSummary(newCheckins));
+                    const newSummary = new Summary(props.facility.id, props.checkinDate);
+                    newCheckins.forEach(newCheckin => {
+                        newSummary.includeCheckin(newCheckin);
+                    });
+                    setSummary(newSummary);
                 } catch (error) {
                     ReportError("CheckinsListSubview.fetchCheckins", error);
                     setCheckins([]);
                     setRefresh(false);
-                    setSummary(null);
+                    setSummary(new Summary());
                 }
             } else {
                 console.info("CheckinsListSubview.fetchCheckins(SKIPPED)");
                 setCheckins([]);
                 setRefresh(false);
-                setSummary(null);
+                setSummary(new Summary());
             }
 
         }
@@ -248,17 +251,15 @@ const CheckinsListSubview = (props: Props) => {
                 />
             </Row>
 
-            {(summary) ? (
-                <Row>
-                    <SimpleList
-                        hover={false}
-                        items={[summary]}
-                        listFields={summaryFields}
-                        listHeaders={summaryHeaders}
-                        title={undefined}
-                    />
-                </Row>
-            ) : null }
+            <Row>
+                <SimpleList
+                    hover={false}
+                    items={[summary]}
+                    listFields={summaryFields}
+                    listHeaders={summaryHeaders}
+                    title={undefined}
+                />
+            </Row>
 
         </Container>
 

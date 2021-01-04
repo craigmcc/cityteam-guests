@@ -9,5 +9,6 @@ export const CHECKIN = [ "id", "facilityId", "checkinDate", "matNumber", "guestI
     "guest.firstName", "guest.lastName" ];
 export const FACILITY = [ "id", "name" ];
 export const GUEST = [ "id", "facilityId", "firstName", "lastName" ];
+export const SUMMARY = [ "facilityId", "checkinDate", "totalMats"];
 export const TEMPLATE = [ "id", "facilityId", "name" ];
 export const USER = [ "id", "facilityId", "username", "scope" ];

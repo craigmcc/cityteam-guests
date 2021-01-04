@@ -25,6 +25,7 @@ export interface Props {
     label?: string;                 // Element label [Date:]
     max?: string;                   // Maximum accepted value [no limit]
     min?: string;                   // Minimum accepted value [no limit]
+    name?: string;                  // Input control name [dateSelector]
     required?: boolean;             // Entry is required? [false]
     value?: string                  // Initially displayed value [""]
 }
@@ -33,6 +34,7 @@ export interface Props {
 
 const DateSelector = (props: Props) => {
 
+    const [name] = useState<string>(props.name ? props.name : "dateSelector");
     const [type, setType] = useState<string>("text");
     const [value, setValue] = useState<string>(props.value ? props.value : "");
 
@@ -44,20 +46,10 @@ const DateSelector = (props: Props) => {
                 newType = "date";
                 break;
             default:
-                newType = "text";
                 break;
         }
-//        console.info("DateSelector.useEffect("
-//            + `browser=${browser ? browser.name : "unknown"}, type=${newType})`);
         setType(newType);
     }, []);
-
-/*
-    const onBlur: OnBlur = (event): void => {
-        console.info(`DateSelector.onBlur(${value})`);
-        processValue(value);
-    }
-*/
 
     const onChange: OnChangeInput = (event): void => {
         const newValue: string = event.target.value;
@@ -83,7 +75,6 @@ const DateSelector = (props: Props) => {
         } else if (props.min && (newValue < props.min)) {
             newValid = false;
         }
-//        console.info(`DateSelector.processDate(${newValue}, ${newValid})`);
 
         // Forward response to parent if valid
         if (!newValid) {
@@ -108,17 +99,16 @@ const DateSelector = (props: Props) => {
 
         <>
             <Form inline>
-                <Form.Label className="mr-2" htmlFor="dateSelector">
+                <Form.Label className="mr-2" htmlFor={name}>
                     {props.label ? props.label : "Date:"}
                 </Form.Label>
                 <Form.Control
                     autoFocus={props.autoFocus ? props.autoFocus : undefined}
                     disabled={props.disabled ? props.disabled : undefined}
                     htmlSize={10}
-                    id="dateSelector"
+                    id={name}
                     max={props.max ? props.max : undefined}
                     min={props.min ? props.min : undefined}
-//                    onBlur={onBlur}
                     onChange={onChange}
                     onKeyDown={onKeyDown}
                     size="sm"
