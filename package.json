@@ -44,6 +44,7 @@
     "custom-env": "^2.0.1",
     "express": "^5.0.0-alpha.8",
     "morgan": "^1.10.0",
+    "neat-csv": "^6.0.0",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
     "reflect-metadata": "^0.1.13",

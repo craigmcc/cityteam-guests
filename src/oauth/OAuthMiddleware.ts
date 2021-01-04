@@ -36,13 +36,15 @@ console.info(`OAuthMiddleware: Access Protection Enabled: ${oauthEnabled}`);
 export const dumpRequestDetails: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         console.info(`Handling ${req.method} ${req.url} details:`);
-        console.info(`  authorization: ${req.get("authorization")}`);
-        console.info(`  baseUrl:       ${req.baseUrl}`);
-        console.info(`  originalUrl:   ${req.originalUrl}`);
-        console.info(`  params:        ${JSON.stringify(req.params)}`);
-        console.info(`  path:          ${req.path}`);
-        console.info(`  query:         ${JSON.stringify(req.query)}`);
-        console.info(`  token:         ${res.locals.token}`);
+        console.info(`  authorization:  ${req.get("authorization")}`);
+        console.info(`  baseUrl:        ${req.baseUrl}`);
+        console.info(`  content-length: ${req.get("Content-Length")}`)
+        console.info(`  content-type:   ${req.get("Content-Type")}`);
+        console.info(`  originalUrl:    ${req.originalUrl}`);
+        console.info(`  params:         ${JSON.stringify(req.params)}`);
+        console.info(`  path:           ${req.path}`);
+        console.info(`  query:          ${JSON.stringify(req.query)}`);
+        console.info(`  token:          ${res.locals.token}`);
         next();
     }
 
