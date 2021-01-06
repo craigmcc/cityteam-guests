@@ -14,8 +14,23 @@ import {
     requireSuperuser
 } from "../oauth/OAuthMiddleware";
 import DevModeServices from "../services/DevModeServices";
+import ImportServices from "../services/ImportServices";
 
 // Public Objects ------------------------------------------------------------
+
+export class Problem extends Error {
+    constructor(issue: string, resolution: string, row: Object, fatal: boolean = false) {
+        super(issue);
+        this.issue = issue;
+        this.resolution = resolution;
+        this.row = row;
+        this.fatal = fatal ? fatal : false;
+    }
+    fatal: boolean;
+    issue: string;
+    resolution: string;
+    row: Object;
+}
 
 export const DevModeRouter = Router({
     strict: true
@@ -26,15 +41,8 @@ DevModeRouter.post("/import",
     requireNotProduction,
     requireSuperuser,
     async (req: Request, res: Response) => {
-        res.send(await DevModeServices.import("Portland", req.body));
-    });
 
-// Import a CSV from the "shelter log" spreadsheet for the named Facility
-DevModeRouter.post("/import/:name",
-    requireNotProduction,
-    requireSuperuser,
-    async (req: Request, res: Response) => {
-        res.send(await DevModeServices.import(req.params.name, req.body));
+
     });
 
 // Resync database and reload data
