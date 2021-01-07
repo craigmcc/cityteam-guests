@@ -30,25 +30,35 @@ import {
 export class DevModeServices {
 
     // Resync database and reload data, returning all of it
-    public async reload(): Promise<any> {
+    public async reload(suppress: boolean = false): Promise<any> {
 
         // Resynchronize database metadata
-        console.log("reload: Resynchronize Database Metadata: Starting");
+        if (!suppress) {
+            console.log("reload: Resynchronize Database Metadata: Starting");
+        }
         await Database.sync({
             force: true,
         });
-        console.log("reload: Resynchronize Database Metadata: Complete");
+        if (!suppress) {
+            console.log("reload: Resynchronize Database Metadata: Complete");
+        }
 
         // Load standard data
-        console.log("reload: Loading Standard Data: Starting");
+        if (!suppress) {
+            console.log("reload: Loading Standard Data: Starting");
+        }
         const allFacilities: Facility[] = await loadFacilities(ALL_FACILITY_DATA);
         const portland: Facility = await findFacilityByScope("pdx");
         const allPortlandTemplates: Template[]
             = await loadTemplates(portland, ALL_PORTLAND_TEMPLATE_DATA);
-        console.log("reload: Loading Standard Data: Complete");
+        if (!suppress) {
+            console.log("reload: Loading Standard Data: Complete");
+        }
 
         // Load test data
-        console.log("reload: Loading Test Data: Starting");
+        if (!suppress) {
+            console.log("reload: Loading Test Data: Starting");
+        }
         const testFacility: Facility = await findFacilityByScope("test");
         const testGuests: Guest[] = await loadGuests(testFacility, TEST_GUEST_DATA);
         const testTemplates: Template[] = await loadTemplates(testFacility, TEST_TEMPLATE_DATA);
@@ -64,8 +74,18 @@ export class DevModeServices {
             }
             testCheckinsData.push(testCheckin);
         });
+        for (let index = 7; index <= 12; index++) {
+            testCheckinsData.push({
+                checkinDate: toDateObject("2020-07-04"),
+                comments: "Available Checkin",
+                facilityId: testFacility.id,
+                matNumber: index
+            });
+        }
         const testCheckins: Checkin[] = await loadCheckins(testCheckinsData);
-        console.log("reload: Loading Test Data: Complete");
+        if (!suppress) {
+            console.log("reload: Loading Test Data: Complete");
+        }
 
         // Return results
         return {
