@@ -14,6 +14,7 @@ import { Problem } from "../routers/DevModeRouter";
 import {
     validateFeatures, validatePaymentType
 } from "../util/application-validators";
+import {NotFound} from "../util/http-errors";
 
 // Public Objects -------------------------------------------------------------
 
@@ -21,10 +22,25 @@ export class ImportServices {
 
     // Public Methods --------------------------------------------------------
 
+    // Retrieve the Facility for which we are importing
+    public findFacility = async (name: string): Promise<Facility> => {
+        const facility = await Facility.findOne({
+            where: { name: name }
+        });
+        if (facility) {
+            return facility;
+        } else {
+            throw new NotFound(`name: Missing Facility '${name}'`);
+        }
+    }
+
+    // Import a single CSV row and persist a corresponding Checkin
     public importCheckin
-        = async (facility: Facility, row: Object, allProblems: Problem[])
+        = async (facility: Facility, row: any, allProblems: Problem[])
         : Promise<Checkin | null> =>
     {
+
+//        console.info("IMPORTED:   " + JSON.stringify(row));
 
         // Set up the data storage we will need
         const rowProblems: Problem[] = [];
@@ -55,8 +71,36 @@ export class ImportServices {
         }
 
         // Otherwise, persist the created Checkin and return it
-        const created = await Checkin.create(checkin);
-        return created;
+        try {
+//            console.info("PERSISTING: " + JSON.stringify(checkin));
+            // SIGH - cannot insert or update directly from a Sequelize model
+            const input: any = {
+                checkinDate: checkin.checkinDate,
+                comments: checkin.comments ? checkin.comments : undefined,
+                facilityId: checkin.facilityId,
+                features: checkin.features ? checkin.features : undefined,
+                guestId: checkin.guestId ? checkin.guestId : undefined,
+                matNumber: checkin.matNumber,
+                paymentAmount: checkin.paymentAmount ? checkin.paymentAmount : undefined,
+                paymentType: checkin.paymentType ? checkin.paymentType : undefined,
+            }
+//            console.info("IMPORTING:  " + JSON.stringify(input));
+            const created = await Checkin.create(input);
+//            console.info("CREATED:    " + JSON.stringify(created));
+            return created;
+        } catch (error) {
+            rowProblems.push(new Problem(
+                "Checkin.create() error: " + error.message,
+                "Failing this import",
+                row,
+                true
+            ));
+            console.error(
+                `Error from Checkin.create(${JSON.stringify(error)})`,
+                error
+            );
+            return null;
+        }
 
     }
 
@@ -271,7 +315,7 @@ export class ImportServices {
             if (validatePaymentType(row.paymentType)) {
                 checkin.paymentType = row.paymentType;
                 if (row.paymentType === "$$") {
-                    row.paymentAmount = 5.00;
+                    checkin.paymentAmount = 5.00;
                 }
             } else {
                 problems.push(new Problem(
