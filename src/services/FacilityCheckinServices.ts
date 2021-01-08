@@ -48,7 +48,7 @@ class FacilityCheckinServices {
             order: CHECKIN_ORDER,
             where: {
                 checkinDate: checkinDate,
-                guestId: { [ Op.eq]: null },
+                guestId: { [Op.eq]: null },
             }
         }, query);
         return await facility.$get("checkins", options);

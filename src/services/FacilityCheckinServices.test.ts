@@ -48,20 +48,6 @@ describe("FacilityCheckinServices Functional Tests", () => {
     describe("checkinsAll()", () => {
 
         it("should fail on invalid facilityId", async () => {
-            const facilityIdInvalid = -1;
-            try {
-                await FacilityCheckinServices.checkinsAll
-                    (facilityIdInvalid, CHECKIN_DATE_VALID);
-                expect.fail("Should have thrown NotFound");
-            } catch (error) {
-                if (error instanceof NotFound) {
-                    expect(error.message).includes
-                        (`Missing Facility ${facilityIdInvalid}`)
-                } else {
-                    expect.fail
-                        (`Should have thrown NotFound, but threw '${error.message}'`);
-                }
-            }
         })
 
         it("should return matches on valid checkinDate", async () => {

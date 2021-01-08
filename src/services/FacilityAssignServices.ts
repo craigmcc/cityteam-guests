@@ -97,7 +97,7 @@ class FacilityAssignServices {
             }
         }
 
-        // Prepare the deassignment changes
+        // Prepare the assignment updates
         const updates = {
             comments: assign.comments,
             guestId: assign.guestId,
@@ -109,21 +109,21 @@ class FacilityAssignServices {
 
         // Persist and return these changes
         // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
+        // WARNING:  Do *not* pass back in a Sequelize model
         // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
         // WARNING:  Use "validating: false" to avoid validating things you didn't include
-        const [count, results] = await Checkin.update(updates, {
-//            logging: function(content) {
-//                console.info(`Checkin.update(${content})`);
-//            },
-            returning: true,
+        const [count, dummy] = await Checkin.update(updates, {
             validate: false,
             where: { id: checkinId },
         });
-        if ((count === 1) && results) {
-            return results[0];
+        if (count !== 1) {
+            throw new ServerError(`Checkin.update returned ${count} results`);
+        }
+        const updated = await Checkin.findByPk(checkinId);
+        if (updated) {
+            return updated;
         } else {
-            throw new ServerError("Checkin.update returned no results",
-                "FacilityServices.assignsAssign");
+            throw new ServerError(`Checkin.update cannot find results`);
         }
 
     }
@@ -159,7 +159,7 @@ class FacilityAssignServices {
                 "FacilityServices.assignsDeassign()");
         }
 
-        // Prepare the deassignment changes
+        // Prepare the deassignment updates
         const updates = {
             comments: null,
             guestId: null,
@@ -171,21 +171,21 @@ class FacilityAssignServices {
 
         // Persist and return these changes
         // WARNING:  IN-PLACE UPDATES OF SEQUELIZE MODELS ARE REALLY FUNKY!!!
+        // WARNING:  Do *not* pass back in a Sequelize model
         // WARNING:  Use "returning: true" to return the updated row (Postgres specific!)
         // WARNING:  Use "validating: false" to avoid validating things you didn't include
-        const [count, results] = await Checkin.update(updates, {
-//            logging: function(content) {
-//                console.info(`Checkin.update(${content})`);
-//            },
-            returning: true,
+        const [count, dummy] = await Checkin.update(updates, {
             validate: false,
             where: { id: checkinId },
         });
-        if ((count === 1) && results) {
-            return results[0];
+        if (count !== 1) {
+            throw new ServerError(`Checkin.update returned ${count} results`);
+        }
+        const updated = await Checkin.findByPk(checkinId);
+        if (updated) {
+            return updated;
         } else {
-            throw new ServerError("Checkin.update returned no results",
-                "FacilityServices.assignsDeassign");
+            throw new ServerError(`Checkin.update cannot find results`);
         }
 
     }
@@ -222,7 +222,7 @@ class FacilityAssignServices {
         }
 
         // Look up the corresponding new Checkin
-        const newCheckin = await Checkin.findByPk(newCheckinId);
+        let newCheckin = await Checkin.findByPk(newCheckinId);
         if (!newCheckin) {
             throw new NotFound(
                 `checkinId: Missing new Checkin ${newCheckinId}`,
@@ -262,11 +262,7 @@ class FacilityAssignServices {
         };
 
         // Save the updates to the old Checkin
-        const [oldCount, oldResults] = await Checkin.update(oldUpdates, {
-//            logging: function(content) {
-//                console.info(`Checkin.update(${content})`);
-//            },
-            returning: true,
+        const [oldCount, oldDummy] = await Checkin.update(oldUpdates, {
             validate: false,
             where: {id: oldCheckinId},
         });
@@ -276,19 +272,20 @@ class FacilityAssignServices {
         }
 
         // Save the updates to the new Checkin and return the final result
-        const [newCount, newResults] = await Checkin.update(newUpdates, {
-//            logging: function(content) {
-//                console.info(`Checkin.update(${content})`);
-//            },
-            returning: true,
+        const [newCount, newDummy] = await Checkin.update(newUpdates, {
             validate: false,
             where: {id: newCheckinId},
         });
-        if ((newCount === 1) && newResults) {
-            return newResults[0];
-        } else {
+        if (newCount !== 1) {
             throw new ServerError("Checkin.update (new) returned no results",
-                "FacilityServices.assignsDeassign");
+                "FacilityServices.assignsReassign");
+        }
+        newCheckin = await Checkin.findByPk(newCheckinId);
+        if (newCheckin) {
+            return newCheckin;
+        } else {
+            throw new ServerError("Checkin.update (new) returned no update",
+                "FacilityServices.assignsReassign");
         }
 
     }
