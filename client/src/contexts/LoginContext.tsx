@@ -46,6 +46,7 @@ export default LoginContext;
 
 // For use by HTTP clients to include in their requests
 export let CURRENT_ACCESS_TOKEN: string | null = null;
+export let CURRENT_REFRESH_TOKEN: string | null = null;
 export let CURRENT_SCOPE: string | null = null;
 
 export const LoginContextProvider = (props: any) => {
@@ -72,6 +73,8 @@ export const LoginContextProvider = (props: any) => {
         setScope(tokenResponse.scope);
         setUsername(newUsername);
         CURRENT_ACCESS_TOKEN = tokenResponse.access_token;
+        CURRENT_REFRESH_TOKEN =
+            tokenResponse.refresh_token ? tokenResponse.refresh_token : null;
         CURRENT_SCOPE = tokenResponse.scope;
     }
 
@@ -84,6 +87,7 @@ export const LoginContextProvider = (props: any) => {
         setScope(null);
         setUsername(null);
         CURRENT_ACCESS_TOKEN = null;
+        CURRENT_REFRESH_TOKEN = null;
         CURRENT_SCOPE = null;
     }
 

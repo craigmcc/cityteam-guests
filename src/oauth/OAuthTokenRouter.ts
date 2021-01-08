@@ -17,7 +17,7 @@ const REFRESH_GRANT_TYPE = "refresh_token";
 
 // Internal Modules ----------------------------------------------------------
 
-import {dumpRequestDetails, requireAny} from "./OAuthMiddleware";
+import { requireAny } from "./OAuthMiddleware";
 import { OAuthOrchestrator } from "../server";
 import { BadRequest, ServerError } from "../util/http-errors";
 

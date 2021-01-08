@@ -133,7 +133,7 @@ class FacilityClient {
             + `/${facilityId}/checkins/guest/${guestId}${queryParameters(params)}`)).data;
     }
 
-    async checkinsSummaries<Checkin>(
+    async checkinsSummaries(
         facilityId: number,
         checkinDateFrom: string,
         checkinDateTo: string
