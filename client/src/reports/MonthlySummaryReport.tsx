@@ -12,14 +12,14 @@ import Row from "react-bootstrap/Row";
 // Internal Modules ----------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
+import MonthDropdown from "../components/MonthDropdown";
 import SimpleList from "../components/SimpleList";
-import { HandleMonth } from "../components/types";
+import {HandleMonth} from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
 import Facility from "../models/Facility";
 import Summary from "../models/Summary";
 import {endDate, startDate, todayMonth} from "../util/months";
 import * as Replacers from "../util/replacers";
-import MonthSelector from "../components/MonthSelector";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -50,15 +50,18 @@ const MonthlySummaryReport = () => {
             setFacility(currentFacility);
 
             // Select Summaries for the selected month (if any)
-            if ((currentFacility.id > 0) && selectedMonth) {
+            if (currentFacility.id > 0) {
                 try {
                     console.info("MonthlySummaryReport.fetchSummaries.get("
                         + currentFacility.id + ", "
                         + startDate(selectedMonth) + ", "
                         + endDate(selectedMonth)
                         + ")");
-                    const newSummaries = await FacilityClient.checkinsSummaries
-                        (currentFacility.id, startDate(selectedMonth), endDate(selectedMonth));
+                    const newSummaries = await FacilityClient.checkinsSummaries(
+                        currentFacility.id,
+                        startDate(selectedMonth),
+                        endDate(selectedMonth)
+                    );
                     console.info("MonthlySummaryReport.fetchSummaries("
                         + JSON.stringify(newSummaries, Replacers.SUMMARY)
                         + ")");
@@ -77,6 +80,7 @@ const MonthlySummaryReport = () => {
             } else {
                 console.info("MonthlySummaryReport.fetchSummaries(UNSET)");
                 setSummaries([]);
+                setTotals(new Summary());
             }
 
         }
@@ -179,10 +183,12 @@ const MonthlySummaryReport = () => {
                     </span>
                 </Col>
                 <Col className="mr-2 text-right">
-                    <MonthSelector
+                    <MonthDropdown
                         autoFocus={true}
                         handleMonth={handleSelectedMonth}
-                        label="Report For: "
+                        label="Report For:"
+                        max="2023-12"
+                        min="2020-01"
                         value={selectedMonth}
                     />
                 </Col>
@@ -212,4 +218,3 @@ const MonthlySummaryReport = () => {
 }
 
 export default MonthlySummaryReport;
-

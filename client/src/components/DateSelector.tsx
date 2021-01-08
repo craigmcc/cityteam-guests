@@ -1,6 +1,6 @@
 // DateSelector --------------------------------------------------------------
 
-// Selector drop-down to choose a date (YYYY-MM-DD string) for processing.
+// Selector text field to choose a date (YYYY-MM-DD string) for processing.
 // On up-to-date browsers like Chrome, this will utilize the browser's
 // extended input facilities.  For other browsers, it will fall back to
 // accepting and processing regular strings.
@@ -98,7 +98,7 @@ const DateSelector = (props: Props) => {
     return (
 
         <>
-            <Form inline>
+            <Form inline id="DateSelector">
                 <Form.Label className="mr-2" htmlFor={name}>
                     {props.label ? props.label : "Date:"}
                 </Form.Label>
