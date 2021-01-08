@@ -9,17 +9,21 @@ const expect = chai.expect;
 
 // Internal Modules ----------------------------------------------------------
 
-import Facility from "../models/Facility";
 import DevModeServices from "./DevModeServices";
 import FacilityAssignServices from "./FacilityAssignServices";
+import Assign from "../models/Assign";
+import Facility from "../models/Facility";
 import {
+    CHECKINS_DATE,
+    FACILITY_NAME,
+    findCheckinById,
+    findCheckinsAll,
+    findCheckinsAvailable,
     findFacilityByName,
     findGuestByName,
-    FACILITY_NAME, findCheckinsAll, CHECKINS_DATE, findCheckinsAvailable, insertGuest, findCheckinById
+    insertGuest,
 } from "../util/test-utils";
 import {BadRequest, NotFound} from "../util/http-errors";
-import Assign from "../models/Assign";
-import FacilityCheckinServices from "./FacilityCheckinServices";
 
 // FacilityAssignServices Tests ----------------------------------------------
 
