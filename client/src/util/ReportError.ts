@@ -16,12 +16,10 @@ export const ReportError = (prefix: string, error: any) => {
     console.error(`${prefix}: ReportError: ${message}`);
     if (error.response) {
         const errorResponse: any = error.response;
-//        console.error(`${prefix}: ErrorResponse: `, errorResponse);
         if (errorResponse["data"]) {
             const responseData: any = errorResponse["data"];
             console.error(`${prefix}: ResponseData: `, responseData);
             if (responseData["message"]) {
-//                console.error(`${prefix}: responseData.message: `, responseData["message"]);
                 message = responseData["message"];
             }
         }

@@ -18,8 +18,11 @@ const HomeView = () => {
         <>
             <Container fluid id="HomeView">
 
+                <p>Welcome to the CityTeam Guest Checkin App!</p>
+
                 <p>
-                    This is HomeView for NODE_ENV {process.env.NODE_ENV}.
+                    Please log in before proceeding to select
+                    the menu option you wish to use.
                 </p>
 
             </Container>

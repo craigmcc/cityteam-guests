@@ -12,6 +12,7 @@ import Form from "react-bootstrap/Form";
 import { OnChangeSelect } from "./types";
 import FacilityClient from "../clients/FacilityClient";
 import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
 import * as Replacers from "../util/replacers";
@@ -34,6 +35,7 @@ export interface Props {
 const TemplateSelector = (props: Props) => {
 
     const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     const [index, setIndex] = useState<number>(-1);
     const [templates, setTemplates] = useState<Template[]>([]);
@@ -50,7 +52,7 @@ const TemplateSelector = (props: Props) => {
                 + ")");
 
             try {
-                if (newFacility.id > 0) {
+                if ((newFacility.id > 0) && loginContext.loggedIn) {
                     const newTemplates: Template[] = props.all
                         ? await FacilityClient.templatesAll(newFacility.id)
                         : await FacilityClient.templatesActive(newFacility.id);
@@ -59,18 +61,23 @@ const TemplateSelector = (props: Props) => {
                         + ")");
                     setTemplates(newTemplates);
                 } else {
+                    console.info("TemplateSelector.fetchTemplates(SKIPPED)");
                     setTemplates([]);
                 }
             } catch (error) {
                 setTemplates([]);
-                ReportError("TemplateSelector.fetchTemplates", error);
+                if (error.response && (error.response.status === 403)) {
+                    console.info("TemplateSelector.fetchTemplates(FORBIDDEN)");
+                } else {
+                    ReportError("TemplateSelector.fetchTemplates", error);
+                }
             }
 
         }
 
         fetchTemplates();
 
-    }, [facilityContext, props.all]);
+    }, [facilityContext, props.all, loginContext.loggedIn]);
 
     const onChange: OnChangeSelect = (event) => {
         const newIndex: number = parseInt(event.target.value);

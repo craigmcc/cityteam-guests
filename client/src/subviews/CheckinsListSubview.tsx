@@ -57,7 +57,7 @@ const CheckinsListSubview = (props: Props) => {
         const fetchCheckins = async () => {
 
             // Fetch the Checkins (if any) for this Facility and checkinDate
-            if (props.facility.id >= 0) {
+            if ((props.facility.id >= 0) && loginContext.loggedIn) {
                 try {
                     const newCheckins: Checkin[] = await FacilityClient.checkinsAll
                         (props.facility.id, props.checkinDate, {
@@ -90,7 +90,7 @@ const CheckinsListSubview = (props: Props) => {
 
         fetchCheckins();
 
-    }, [props.checkinDate, props.facility, loginContext, refresh]);
+    }, [props.checkinDate, props.facility, loginContext.loggedIn, refresh]);
 
     const flattenedCheckins = (checkins: Checkin[]) => {
         const flattenedCheckins =

@@ -8,6 +8,7 @@ import React, {useContext, useEffect, useState} from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import { useHistory } from "react-router-dom";
 
 // Internal Modules ----------------------------------------------------------
 
@@ -24,6 +25,7 @@ import ReportError from "../util/ReportError";
 export const LoggedInUser = () => {
 
     const loginContext = useContext(LoginContext);
+    const history = useHistory();
 
     const [showCredentials, setShowCredentials] = useState<boolean>(false);
 
@@ -52,6 +54,7 @@ export const LoggedInUser = () => {
         try {
             await OAuthClient.revoke();
             loginContext.handleLogout();
+            history.push("/home");
         } catch (error) {
             ReportError("LoggedInUser.handleLogout", error);
         }

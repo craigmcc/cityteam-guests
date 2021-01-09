@@ -64,10 +64,12 @@ export const FacilityContextProvider = (props: any) => {
                             newFacilities.push(activeFacility);
                         }
                     });
+                    console.info("FacilityContext.fetchFacilities("
+                        + JSON.stringify(newFacilities, Replacers.FACILITY)
+                        + ")");
+                } else {
+                    console.info("FacilityContext.fetchFacilities(SKIPPED)");
                 }
-                console.info("FacilityContext.fetchFacilities("
-                    + JSON.stringify(newFacilities, Replacers.FACILITY)
-                    + ")");
                 setFacilities(newFacilities);
                 if (newFacilities.length > 0) {
                     setFacility(newFacilities[0]);

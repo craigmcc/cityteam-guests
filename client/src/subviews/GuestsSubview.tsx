@@ -19,6 +19,7 @@ import SearchBar from "../components/SearchBar";
 import SimpleList from "../components/SimpleList";
 import { HandleGuestOptional, HandleIndex } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import * as Replacers from "../util/replacers";
@@ -38,6 +39,7 @@ export interface Props {
 const GuestsSubview = (props: Props) => {
 
     const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [facility, setFacility] = useState<Facility>(new Facility());
@@ -63,7 +65,7 @@ const GuestsSubview = (props: Props) => {
             setFacility(currentFacility);
 
             // Fetch Guests matching search text (if any) for this Facility (if any)
-            if (facility.id >= 0) {
+            if ((facility.id >= 0) && loginContext.loggedIn) {
                 if (searchText.length > 0) {
                     try {
                         const newGuests: Guest[] =
@@ -78,18 +80,30 @@ const GuestsSubview = (props: Props) => {
                         setGuests(newGuests);
                         setIndex(-1);
                     } catch (error) {
-                        ReportError("GuestsSubview.fetchGuests", error);
                         setGuests([]);
                         setIndex(-1);
+                        if (error.response && (error.response.status === 403)) {
+                            console.info("GuestsSubview.fetchGuests(FORBIDDEN)");
+                        } else {
+                            ReportError("GuestsSubview.fetchGuests", error);
+                        }
                     }
                 }
+            } else {
+                console.info("GuestsSubview.fetchGuests(SKIPPED)");
+                setGuests([]);
+                setIndex(-1);
             }
 
         }
 
         fetchGuests();
 
-    }, [facilityContext, facility.id, currentPage, pageSize, searchText])
+    }, [
+        facilityContext, facility.id,
+        currentPage, pageSize, searchText,
+        loginContext.loggedIn
+    ])
 
     const handleChange = (newSearchText: string): void => {
         setSearchText(newSearchText);

@@ -8,7 +8,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -21,6 +21,7 @@ import FacilityClient from "../clients/FacilityClient";
 import {
     HandleAssign, HandleCheckin, OnAction, OnClick
 } from "../components/types";
+import LoginContext from "../contexts/LoginContext";
 import AssignForm from "../forms/AssignForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
@@ -45,28 +46,35 @@ const CheckinsAssignedSubview = (props: Props) => {
 
     // General Support -------------------------------------------------------
 
+    const loginContext = useContext(LoginContext);
+
     const [availables, setAvailables] = useState<Checkin[]>([]);
 
     useEffect(() => {
 
         const fetchAvailables = async () => {
-            try {
-                const newAvailables: Checkin[] =
-                    await FacilityClient.checkinsAvailable
+            if ((props.facility.id >= 0) && loginContext.loggedIn) {
+                try {
+                    const newAvailables: Checkin[] =
+                        await FacilityClient.checkinsAvailable
                         (props.facility.id, props.checkinDate);
-                console.info("CheckinsAssignedSubview.fetchAvailables("
-                    + JSON.stringify(newAvailables, Replacers.CHECKIN)
-                    + ")");
-                setAvailables(newAvailables);
-            } catch (error) {
-                ReportError("CheckinsAssignedSubview.fetchAvailables", error);
+                    console.info("CheckinsAssignedSubview.fetchAvailables("
+                        + JSON.stringify(newAvailables, Replacers.CHECKIN)
+                        + ")");
+                    setAvailables(newAvailables);
+                } catch (error) {
+                    ReportError("CheckinsAssignedSubview.fetchAvailables", error);
+                    setAvailables([]);
+                }
+            } else {
                 setAvailables([]);
+                console.info("CheckinsAssignedSubview.fetchAvailables(SKIPPED)");
             }
         }
 
         fetchAvailables();
 
-    }, [props.checkinDate, props.facility.id]);
+    }, [props.checkinDate, props.facility.id, loginContext.loggedIn]);
 
     const onBack: OnClick = () => {
         console.info("CheckinsAssignedSubview.onBack()");
