@@ -65,10 +65,10 @@ const TemplateSelector = (props: Props) => {
                     setTemplates([]);
                 }
             } catch (error) {
-                setTemplates([]);
                 if (error.response && (error.response.status === 403)) {
                     console.info("TemplateSelector.fetchTemplates(FORBIDDEN)");
                 } else {
+                    setTemplates([]);
                     ReportError("TemplateSelector.fetchTemplates", error);
                 }
             }

@@ -56,7 +56,8 @@ const FacilitiesSubview = (props : Props) => {
                     + ")");
                 setFacilities(newFacilities);
             } else {
-                console.info("FacilitiesSubview.fetchFacilities(NONE)");
+                console.info("FacilitiesSubview.fetchFacilities(SKIPPED)");
+                setFacilities([]);
             }
 
         }

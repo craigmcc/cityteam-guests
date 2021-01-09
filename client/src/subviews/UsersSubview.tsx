@@ -16,6 +16,7 @@ import FacilityClient from "../clients/FacilityClient";
 import SimpleList from "../components/SimpleList";
 import { HandleUserOptional, HandleIndex } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import User from "../models/User";
 import * as Replacers from "../util/replacers";
@@ -35,6 +36,7 @@ export interface Props {
 const UsersSubview = (props: Props) => {
 
     const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [index, setIndex] = useState<number>(-1);
@@ -57,7 +59,7 @@ const UsersSubview = (props: Props) => {
             setFacility(currentFacility);
 
             // Fetch Users for this Facility (if any)
-            if (currentFacility.id >= 0) {
+            if ((currentFacility.id >= 0) && loginContext.loggedIn) {
                 try {
                     const newUsers: User[] =
                         await FacilityClient.usersAll(currentFacility.id);
@@ -71,13 +73,17 @@ const UsersSubview = (props: Props) => {
                     setIndex(-1);
                     setUsers([]);
                 }
+            } else {
+                console.info("UsersSubview.fetchUsers(SKIPPED)");
+                setIndex(-1);
+                setUsers([]);
             }
 
         }
 
         fetchUsers();
 
-    }, [facilityContext]);
+    }, [facilityContext, loginContext.loggedIn]);
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {

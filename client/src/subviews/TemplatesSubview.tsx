@@ -16,6 +16,7 @@ import FacilityClient from "../clients/FacilityClient";
 import SimpleList from "../components/SimpleList";
 import { HandleIndex, HandleTemplateOptional } from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
 import * as Replacers from "../util/replacers";
@@ -35,6 +36,7 @@ export interface Props {
 const TemplatesSubview = (props: Props) => {
 
     const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [index, setIndex] = useState<number>(-1);
@@ -57,7 +59,7 @@ const TemplatesSubview = (props: Props) => {
             setFacility(currentFacility);
 
             // Fetch Templates for this Facility (if any)
-            if (currentFacility.id >= 0) {
+            if ((currentFacility.id >= 0) && loginContext.loggedIn) {
                 try {
                     const newTemplates: Template[] =
                         await FacilityClient.templatesAll(currentFacility.id);
@@ -71,13 +73,17 @@ const TemplatesSubview = (props: Props) => {
                     setIndex(-1);
                     setTemplates([]);
                 }
+            } else {
+                console.info("TemplatesSubview.fetchTemplates(SKIPPED)");
+                setIndex(-1);
+                setTemplates([]);
             }
 
         }
 
         fetchTemplates();
 
-    }, [facilityContext]);
+    }, [facilityContext, loginContext.loggedIn]);
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {

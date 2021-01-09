@@ -16,6 +16,7 @@ import MonthDropdown from "../components/MonthDropdown";
 import SimpleList from "../components/SimpleList";
 import {HandleMonth} from "../components/types";
 import FacilityContext from "../contexts/FacilityContext";
+import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Summary from "../models/Summary";
 import {endDate, startDate, todayMonth} from "../util/months";
@@ -27,6 +28,7 @@ import ReportError from "../util/ReportError";
 const MonthlySummaryReport = () => {
 
     const facilityContext = useContext(FacilityContext);
+    const loginContext = useContext(LoginContext);
 
     const [facility, setFacility] = useState<Facility>(new Facility());
     const [selectedMonth, setSelectedMonth] = useState<string>(todayMonth());
@@ -50,7 +52,7 @@ const MonthlySummaryReport = () => {
             setFacility(currentFacility);
 
             // Select Summaries for the selected month (if any)
-            if (currentFacility.id > 0) {
+            if ((currentFacility.id > 0) && loginContext.loggedIn) {
                 try {
                     console.info("MonthlySummaryReport.fetchSummaries.get("
                         + currentFacility.id + ", "
@@ -75,10 +77,16 @@ const MonthlySummaryReport = () => {
                         + ")");
                     setTotals(newTotals);
                 } catch (error) {
-                    ReportError("MonthlySummaryReport.fetchSummaries", error);
+                    if (error.response && (error.response.status === 403)) {
+                        console.info("MonthlySummaryReport.fetchCheckins(FORBIDDEN)");
+                    } else {
+                        setSummaries([]);
+                        setTotals(new Summary());
+                        ReportError("MonthlySummaryReport.fetchCheckins", error);
+                    }
                 }
             } else {
-                console.info("MonthlySummaryReport.fetchSummaries(UNSET)");
+                console.info("MonthlySummaryReport.fetchSummaries(SKIPPED)");
                 setSummaries([]);
                 setTotals(new Summary());
             }
@@ -87,7 +95,7 @@ const MonthlySummaryReport = () => {
 
         fetchSummaries();
 
-    }, [facilityContext, selectedMonth]);
+    }, [facilityContext, selectedMonth, loginContext.loggedIn]);
 
     const handleSelectedMonth: HandleMonth = (newSelectedMonth) => {
         console.info("MonthlySummaryReports.handleSelectedMonth("

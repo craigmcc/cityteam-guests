@@ -52,7 +52,7 @@ const GuestHistoryReport = () => {
             setFacility(currentFacility);
 
             // Select Checkins for the specified Guest (if any)
-            if (guest) {
+            if (guest && loginContext.loggedIn) {
                 try {
                     const newCheckins: Checkin[] =
                         await FacilityClient.checkinsGuest(facility.id, guest.id);
@@ -61,11 +61,15 @@ const GuestHistoryReport = () => {
                         + ")");
                     setCheckins(newCheckins);
                 } catch (error) {
-                    ReportError("GuestHistoryReport.fetchCheckins", error);
-                    setCheckins([]);
+                    if (error.response && (error.response.status === 403)) {
+                        console.info("GuestHistoryReport.fetchCheckins(FORBIDDEN)");
+                    } else {
+                        setCheckins([]);
+                        ReportError("GuestHistoryReport.fetchCheckins", error);
+                    }
                 }
             } else {
-                console.info("GuestHistoryReport.fetchCheckins(UNSET)");
+                console.info("GuestHistoryReport.fetchCheckins(SKIPPED)");
                 setCheckins([]);
             }
 
@@ -73,7 +77,7 @@ const GuestHistoryReport = () => {
 
         fetchCheckins();
 
-    }, [facilityContext, loginContext, facility.id, guest]);
+    }, [facilityContext, loginContext.loggedIn, facility.id, guest]);
 
     const handleSelect: HandleGuestOptional = (newGuest) => {
         if (newGuest) {
