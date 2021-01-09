@@ -321,7 +321,7 @@ FacilityRouter.put("/:facilityId/templates/:templateId",
     requireAdmin,
     async (req: Request, res: Response) => {
         res.send(await FacilityTemplateServices.templatesUpdate
-        (parseInt(req.params.facilityId), parseInt(req.params.templateId), req.body));
+            (parseInt(req.params.facilityId), parseInt(req.params.templateId), req.body));
     });
 
 // Facility -> User Routes ---------------------------------------------------

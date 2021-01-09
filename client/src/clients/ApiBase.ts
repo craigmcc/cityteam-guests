@@ -13,11 +13,23 @@ import { CURRENT_ACCESS_TOKEN } from "../contexts/LoginContext";
 
 // Private Objects -----------------------------------------------------------
 
-const requestTransform = async (data: any, headers: any): Promise<void> => {
+// WARNING: This seems to scramble data even though nothing is done to it
+/*
+const transformRequest = (data: any, headers: any): any => {
+    console.info("ApiBase.requestTransform.in("
+        + "DATA=" + JSON.stringify(data, null, 2) + ", "
+        + "HEAD=" + JSON.stringify(headers, null, 2)
+        + ")");
     if (CURRENT_ACCESS_TOKEN) {
         headers["Authorization"] = `Bearer ${CURRENT_ACCESS_TOKEN}`;
     }
+    console.info("ApiBase.requestTransform.out("
+        + "DATA=" + JSON.stringify(data, null, 2) + ", "
+        + "HEAD=" + JSON.stringify(headers, null, 2)
+        + ")");
+    return data;
 }
+*/
 
 // Public Objects ------------------------------------------------------------
 
@@ -26,7 +38,14 @@ const ApiBase: AxiosInstance = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-    transformRequest: requestTransform,
+//    transformRequest: transformRequest,
 });
+
+ApiBase.interceptors.request.use(function (config) {
+    if (CURRENT_ACCESS_TOKEN) {
+        config.headers["Authorization"] = `Bearer ${CURRENT_ACCESS_TOKEN}`;
+    }
+    return config;
+})
 
 export default ApiBase;
