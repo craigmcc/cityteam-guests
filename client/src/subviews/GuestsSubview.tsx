@@ -80,11 +80,11 @@ const GuestsSubview = (props: Props) => {
                         setGuests(newGuests);
                         setIndex(-1);
                     } catch (error) {
-                        setGuests([]);
-                        setIndex(-1);
                         if (error.response && (error.response.status === 403)) {
                             console.info("GuestsSubview.fetchGuests(FORBIDDEN)");
                         } else {
+                            setGuests([]);
+                            setIndex(-1);
                             ReportError("GuestsSubview.fetchGuests", error);
                         }
                     }

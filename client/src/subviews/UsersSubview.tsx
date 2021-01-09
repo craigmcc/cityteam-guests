@@ -69,9 +69,13 @@ const UsersSubview = (props: Props) => {
                     setIndex(-1);
                     setUsers(newUsers);
                 } catch (error) {
-                    ReportError("UsersSubview.fetchUsers", error);
-                    setIndex(-1);
-                    setUsers([]);
+                    if (error.response && (error.response.status === 403)) {
+                        console.info("UsersSubview.fetchUsers(FORBIDDEN)");
+                    } else {
+                        setIndex(-1);
+                        setUsers([]);
+                        ReportError("UsersSubview.fetchUsers", error);
+                    }
                 }
             } else {
                 console.info("UsersSubview.fetchUsers(SKIPPED)");
