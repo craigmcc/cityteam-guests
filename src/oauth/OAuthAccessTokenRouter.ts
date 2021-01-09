@@ -67,12 +67,10 @@ OAuthAccessTokenRouter.delete("/:accessTokenId",
 // Find OAuthAccessToken by ID
 OAuthAccessTokenRouter.get("/:accessTokenId",
     async (req: Request, res: Response) => {
-        console.info("Begin OAuthAccessTokenServices.find(" + req.params.accessTokenId + ")");
         res.send(await OAuthAccessTokenServices.find(
             parseInt(req.params.accessTokenId, 10),
             req.query
         ));
-        console.info("End OAuthAccessTokenServices.find()");
     });
 
 // Update OAuthAccessToken by ID

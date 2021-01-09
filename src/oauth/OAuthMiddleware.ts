@@ -120,7 +120,6 @@ export const requireAny: RequestHandler =
  */
 export const requireNone: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-        console.info("OAuthMiddleware.requireNone(): Passing request on");
         next();
     }
 
@@ -163,8 +162,6 @@ export const requireRegular: RequestHandler =
  */
 export const requireSuperuser: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-//        console.info(`OAuthMiddleware.requireSuperuser: req.url: ${req.url}`);
-//        console.info(`OAuthMiddleware.requireSuperuser: auth:    ${req.get(AUTHORIZATION_HEADER)}`);
         if (oauthEnabled) {
             const token = extractToken(req);
             if (!token) {
@@ -215,16 +212,13 @@ const authorizeToken = async (token: string, required: string): Promise<void> =>
 const extractToken = (req: Request) : string | null => {
     const header: string | undefined = req.header(AUTHORIZATION_HEADER);
     if (!header) {
-        console.error("extractToken: No Authorization header included");
         return null;
     }
     const fields: string[] = header.split(" ");
     if (fields.length != 2) {
-        console.error(`extractToken: header '${header}' is malformed`);
         return null;
     }
     if (fields[0] !== "Bearer") {
-        console.error(`extractToken: header '${header}' is not type Bearer`);
         return null;
     }
     return fields[1];
@@ -233,8 +227,12 @@ const extractToken = (req: Request) : string | null => {
 // TODO - need to dynamically load the facilityId->scope information
 // TODO - and keep it up to date
 const mapping = new Map<number, string>();
-mapping.set(1, "pdx");
-mapping.set(2, "test");
+mapping.set(1, "phl");
+mapping.set(2, "oak");
+mapping.set(3, "pdx");
+mapping.set(4, "sfo");
+mapping.set(5, "sjc");
+mapping.set(6, "test");
 
 /**
  * Map the facilityId parameter on this request to a corresponding scope value

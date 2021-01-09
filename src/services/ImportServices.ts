@@ -40,8 +40,6 @@ export class ImportServices {
         : Promise<Checkin | null> =>
     {
 
-//        console.info("IMPORTED:   " + JSON.stringify(row));
-
         // Set up the data storage we will need
         const rowProblems: Problem[] = [];
         const checkin: Checkin = new Checkin({
@@ -72,7 +70,6 @@ export class ImportServices {
 
         // Otherwise, persist the created Checkin and return it
         try {
-//            console.info("PERSISTING: " + JSON.stringify(checkin));
             // SIGH - cannot insert or update directly from a Sequelize model
             const input: any = {
                 checkinDate: checkin.checkinDate,
@@ -84,9 +81,7 @@ export class ImportServices {
                 paymentAmount: checkin.paymentAmount ? checkin.paymentAmount : undefined,
                 paymentType: checkin.paymentType ? checkin.paymentType : undefined,
             }
-//            console.info("IMPORTING:  " + JSON.stringify(input));
             const created = await Checkin.create(input);
-//            console.info("CREATED:    " + JSON.stringify(created));
             return created;
         } catch (error) {
             rowProblems.push(new Problem(

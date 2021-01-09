@@ -61,12 +61,10 @@ OAuthRefreshTokenRouter.delete("/:refreshTokenId",
 // Find OAuthRefreshToken by ID
 OAuthRefreshTokenRouter.get("/:refreshTokenId",
     async (req: Request, res: Response) => {
-        console.info("Begin OAuthRefreshTokenServices.find(" + req.params.refreshTokenId + ")");
         res.send(await OAuthRefreshTokenServices.find(
             parseInt(req.params.refreshTokenId, 10),
             req.query
         ));
-        console.info("End OAuthRefreshTokenServices.find()");
     });
 
 // Update OAuthRefreshToken by ID
