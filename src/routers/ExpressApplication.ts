@@ -14,16 +14,24 @@ import cors from "cors";
 import express from "express";
 import morgan from "morgan";
 import path from "path";
+const rfs = require("rotating-file-stream");
+
+// Internal Modules ----------------------------------------------------------
+
+import ApiRouters from "./ApiRouters";
+import OAuthRouters from "../oauth/OAuthRouters";
+import { handleOAuthError } from "../oauth/OAuthMiddleware";
 import {
     handleHttpError,
     handleServerError,
     handleValidationError
 } from "../util/middleware";
-import ApiRouters from "./ApiRouters";
-import OAuthRouters from "../oauth/OAuthRouters";
-import { handleOAuthError } from "../oauth/OAuthMiddleware";
+import { toLocalISO } from "../util/timestamps";
 
-// Internal Modules ----------------------------------------------------------
+const MORGAN_FORMAT_PROD = ":remote-addr [:timestamp]"
+    + "\":method :url\""
+    + " :status :res[content-length]";
+const MORGAN_FORMAT_DEV = MORGAN_FORMAT_PROD + " \":req[Authorization]\"";
 
 // Public Objects ------------------------------------------------------------
 
@@ -33,7 +41,24 @@ const app = express();
 app.use(cors({
     origin: "*"
 }));
-app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "combined"));
+
+// Configure access log management
+morgan.token("timestamp",
+    (req, res): string =>
+{
+    return toLocalISO(new Date());
+});
+if (process.env.NODE_ENV === "development") {
+    app.use(morgan(MORGAN_FORMAT_DEV));
+} else {
+    const accessLogStream = rfs.createStream("access.log", {
+        interval: "1d",
+        path: path.join(path.resolve("./"), "log"),
+    });
+    app.use(morgan(MORGAN_FORMAT_PROD, {
+        stream: accessLogStream
+    }));
+}
 
 // Configure body handling middleware
 app.use(bodyParser.json({
