@@ -69,9 +69,13 @@ const TemplatesSubview = (props: Props) => {
                     setIndex(-1);
                     setTemplates(newTemplates);
                 } catch (error) {
-                    ReportError("TemplatesSubview.fetchTemplates", error);
-                    setIndex(-1);
-                    setTemplates([]);
+                    if (error.response && (error.response.status === 403)) {
+                        console.info("TemplatesSubview.fetchUsers(FORBIDDEN)");
+                    } else {
+                        setIndex(-1);
+                        setTemplates([]);
+                        ReportError("TemplatesSubview.fetchTemplates", error);
+                    }
                 }
             } else {
                 console.info("TemplatesSubview.fetchTemplates(SKIPPED)");
