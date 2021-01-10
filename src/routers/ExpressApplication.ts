@@ -29,7 +29,7 @@ import {
 import { toLocalISO } from "../util/timestamps";
 
 const MORGAN_FORMAT_PROD = ":remote-addr [:timestamp]"
-    + "\":method :url\""
+    + " \":method :url\""
     + " :status :res[content-length]";
 const MORGAN_FORMAT_DEV = MORGAN_FORMAT_PROD + " \":req[Authorization]\"";
 

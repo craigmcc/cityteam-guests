@@ -14,7 +14,7 @@ export const toLocalISO = (date: Date): string => {
         + "-" + leftPad((date.getMonth() + 1), 2)
         + "-" + leftPad(date.getDate(), 2)
         + "T" + leftPad(date.getHours(), 2)
-        + "-" + leftPad(date.getMinutes(), 2)
+        + ":" + leftPad(date.getMinutes(), 2)
         + ":" + leftPad(date.getSeconds(), 2)
         + localOffset(date);
 }
