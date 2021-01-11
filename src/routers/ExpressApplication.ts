@@ -53,9 +53,11 @@ morgan.token("timestamp",
 if (process.env.NODE_ENV === "development") {
     app.use(morgan(MORGAN_FORMAT_DEV));
 } else {
+    const LOG_DIRECTORY =
+        process.env.LOG_DIRECTORY ? process.env.LOG_DIRECTORY : "./log";
     const accessLogStream = rfs.createStream("access.log", {
         interval: "1d",
-        path: path.join(path.resolve("./"), "log"),
+        path: path.resolve(LOG_DIRECTORY),
     });
     app.use(morgan(MORGAN_FORMAT_PROD, {
         stream: accessLogStream

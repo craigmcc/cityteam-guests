@@ -13,11 +13,13 @@ import { nowLocalISO } from "./timestamps";
 
 // Private Objects -----------------------------------------------------------
 
+const LOG_DIRECTORY =
+    process.env.LOG_DIRECTORY ? process.env.LOG_DIRECTORY : "./log";
 const serverLogStream: WritableStream =
     (process.env.NODE_ENV === "production")
     ? rfs.createStream("server.log", {
             interval: "1d",
-            path: path.join(path.resolve("./"), "log"),
+            path: path.resolve(LOG_DIRECTORY),
         })
     : process.stdout;
 
