@@ -12,6 +12,7 @@ import CheckinRouter from "./CheckinRouter";
 import DevModeRouter from "./DevModeRouter";
 import FacilityRouter from "./FacilityRouter";
 import GuestRouter from "./GuestRouter";
+import LogRouter from "./LogRouter";
 import TemplateRouter from "./TemplateRouter";
 
 // Public Objects ------------------------------------------------------------
@@ -32,6 +33,7 @@ ApiRouters.use("/checkins", CheckinRouter);
 ApiRouters.use("/devmode", DevModeRouter);
 ApiRouters.use("/facilities", FacilityRouter);
 ApiRouters.use("/guests", GuestRouter);
+ApiRouters.use("/logs", LogRouter);
 ApiRouters.use("/templates", TemplateRouter);
 
 export default ApiRouters;
