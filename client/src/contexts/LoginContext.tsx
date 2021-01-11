@@ -48,6 +48,7 @@ export default LoginContext;
 export let CURRENT_ACCESS_TOKEN: string | null = null;
 export let CURRENT_REFRESH_TOKEN: string | null = null;
 export let CURRENT_SCOPE: string | null = null;
+export let CURRENT_USERNAME: string | null = null;
 
 export const LoginContextProvider = (props: any) => {
 
@@ -76,6 +77,7 @@ export const LoginContextProvider = (props: any) => {
         CURRENT_REFRESH_TOKEN =
             tokenResponse.refresh_token ? tokenResponse.refresh_token : null;
         CURRENT_SCOPE = tokenResponse.scope;
+        CURRENT_USERNAME = newUsername;
     }
 
     const handleLogout = (): void => {
@@ -89,6 +91,7 @@ export const LoginContextProvider = (props: any) => {
         CURRENT_ACCESS_TOKEN = null;
         CURRENT_REFRESH_TOKEN = null;
         CURRENT_SCOPE = null;
+        CURRENT_USERNAME = null;
     }
 
     // Return true if there is a logged in user that has the required

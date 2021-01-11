@@ -38,13 +38,49 @@ export class LogServices {
         });
         let results: string = "";
         // TODO - need to resort to Promises.all() to gather all of them?
-        results += await this.upload(matches[0]);
+        if (matches.length > 0) {
+            results += await this.upload(matches[0]);
+        }
+        if (matches.length > 1) {
+            results += await this.upload(matches[1]);
+        }
+        if (matches.length > 2) {
+            results += await this.upload(matches[2]);
+        }
+        if (matches.length > 3) {
+            results += await this.upload(matches[3]);
+        }
         return results;
     }
 
     // Return today's server log file (only current through now).
     public async serverLog(): Promise<string> {
         return "[" + (await this.upload("server.log")) + "]";
+    }
+
+    // Return the concatenated server log(s) for the specified date.
+    public async serverLogs(date: string): Promise<string> {
+        const matches: string[] = await this.filenames(date, "server.log");
+        logger.info({
+            context: "LogServices.serverLogs",
+            matches: matches
+        });
+        let results: string = "[";
+        // TODO - need to resort to Promises.all() to gather all of them?
+        if (matches.length > 0) {
+            results += await this.upload(matches[0]);
+        }
+        if (matches.length > 1) {
+            results += await this.upload(matches[1]);
+        }
+        if (matches.length > 2) {
+            results += await this.upload(matches[2]);
+        }
+        if (matches.length > 3) {
+            results += await this.upload(matches[3]);
+        }
+        results += "]";
+        return results;
     }
 
     // Private Methods -------------------------------------------------------

@@ -67,6 +67,20 @@ LogRouter.get("/serverLog",
         }
     });
 
-
+LogRouter.get("/serverLogs/:date",
+//    requireSuperuser,
+    async (req: Request, res: Response) => {
+        try {
+            res.header("Content-Type", "application/json")
+                .send(await LogServices.serverLogs(req.params.date));
+        } catch (error) {
+            logger.error({
+                context: "LogRouter.serverLogs",
+                msg: error.message,
+                error: error
+            });
+            res.status(500).send(error);
+        }
+    });
 
 export default LogRouter;

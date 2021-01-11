@@ -9,7 +9,7 @@ import axios, { AxiosInstance } from "axios";
 
 // Internal Modules ----------------------------------------------------------
 
-import { CURRENT_ACCESS_TOKEN } from "../contexts/LoginContext";
+import {CURRENT_ACCESS_TOKEN, CURRENT_USERNAME} from "../contexts/LoginContext";
 
 // Private Objects -----------------------------------------------------------
 
@@ -44,6 +44,9 @@ const ApiBase: AxiosInstance = axios.create({
 ApiBase.interceptors.request.use(function (config) {
     if (CURRENT_ACCESS_TOKEN) {
         config.headers["Authorization"] = `Bearer ${CURRENT_ACCESS_TOKEN}`;
+    }
+    if (CURRENT_USERNAME) {
+        config.headers["X-CTG-Username"] = CURRENT_USERNAME;
     }
     return config;
 })
