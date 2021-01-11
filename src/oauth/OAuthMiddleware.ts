@@ -29,7 +29,8 @@ if (process.env.OAUTH_ENABLED !== undefined) {
 }
 logger.info({
     context: "Startup",
-    msg: `Initialize OAuth Access Protection, enabled=${oauthEnabled}`
+    msg: "Initialize OAuth Access Protection",
+    enabled: `${oauthEnabled}`
 })
 
 // Public Functions ----------------------------------------------------------

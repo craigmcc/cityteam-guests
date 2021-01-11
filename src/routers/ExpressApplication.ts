@@ -81,7 +81,8 @@ app.use(bodyParser.urlencoded({
 const CLIENT_BASE: string = path.resolve("./") + "/client/build";
 logger.info({
     context: "Startup",
-    msg: `Setup Static File Handling, path=${CLIENT_BASE}`
+    msg: "Setup Static File Handling",
+    path: `${CLIENT_BASE}`
 });
 app.use(express.static(CLIENT_BASE));
 

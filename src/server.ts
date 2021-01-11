@@ -24,7 +24,8 @@ export const OAuthOrchestrator: Orchestrator
 
 logger.info({
     context: "Startup",
-    msg: `Initialize Sequelize Models, dialect=${Database.getDialect()}`
+    msg: "Initialize Sequelize Models",
+    dialect: `${Database.getDialect()}`
 });
 
 let force: boolean = false;
@@ -33,7 +34,8 @@ if (process.env.SYNC_FORCE) {
 }
 logger.info({
     context: "Startup",
-    msg: `Synchronize Database Models, force=${force}`
+    msg: "Synchronize Database Models",
+    force: `${force}`
 });
 Database.sync({
     force: force
@@ -45,7 +47,8 @@ const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 ExpressApplication.listen(port, () => {
     logger.info({
         context: "Startup",
-        msg: `Start Server, mode=${process.env.NODE_ENV}, port=${port}`
-        }
-    )
+        msg: "Start Server",
+        mode: `${process.env.NODE_ENV}`,
+        port: `${port}`
+    });
 });
