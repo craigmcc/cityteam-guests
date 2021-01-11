@@ -18,6 +18,8 @@ const rfs = require("rotating-file-stream");
 
 // Internal Modules ----------------------------------------------------------
 
+import { logger } from "../util/logger";
+
 import ApiRouters from "./ApiRouters";
 import OAuthRouters from "../oauth/OAuthRouters";
 import { handleOAuthError } from "../oauth/OAuthMiddleware";
@@ -73,7 +75,10 @@ app.use(bodyParser.urlencoded({
 
 // Configure static file routing
 const CLIENT_BASE: string = path.resolve("./") + "/client/build";
-console.info("Static File Path: " + CLIENT_BASE);
+logger.info({
+    context: "Startup",
+    msg: `Setup Static File Handling, path=${CLIENT_BASE}`
+});
 app.use(express.static(CLIENT_BASE));
 
 // Configure application-specific and OAuth-specific routing

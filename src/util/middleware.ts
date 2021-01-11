@@ -12,6 +12,7 @@ const SequelizeValidationError = require("sequelize");
 // Internal Modules ----------------------------------------------------------
 
 import { HttpError } from "./http-errors";
+import logger from "./logger";
 
 // Public Functions -----------------------------------------------------------
 
@@ -40,7 +41,11 @@ export const handleHttpError: ErrorRequestHandler =
  */
 export const handleServerError: ErrorRequestHandler =
     (error: Error, req: Request, res: Response, next: NextFunction) => {
-        console.info("handleServerError: ", error);
+        logger.error({
+            context: "middleware.handleServerError",
+            msg: error.message,
+            error: error
+        });
         res.status(500).send({
             // Do *not* include "inner" if present!
             message: error.message,

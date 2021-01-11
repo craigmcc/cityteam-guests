@@ -4,14 +4,12 @@
 
 // External Modules ----------------------------------------------------------
 
-import Checkin from "./Checkin";
-
-require("custom-env").env(true);
 import { Sequelize } from "sequelize-typescript";
 
 // Internal Modules ----------------------------------------------------------
 
 import AccessToken from "./AccessToken";
+import Checkin from "./Checkin";
 import Facility from "./Facility";
 import Guest from "./Guest";
 import RefreshToken from "./RefreshToken";
@@ -28,14 +26,12 @@ const DB_POOL_IDLE: string = process.env.DB_POOL_ACQUIRE || "10000";
 const DB_POOL_MAX: string = process.env.DB_POOL_ACQUIRE || "5";
 const DB_POOL_MIN: string = process.env.DB_POOL_ACQUIRE || "0";
 const DB_USER: string = process.env.DB_USER || "";
-const NODE_ENV: string = process.env.NODE_ENV || "production";
 
-export const Database = ((NODE_ENV !== "test")
+export const Database = ((process.env.NODE_ENV !== "test")
         ? new Sequelize(DB_DB, DB_USER, DB_PASSWORD, {
             dialect: "postgres",
             host: DB_HOST,
-            //logging: console.info,
-            logging: false,
+            logging: false, // or a Pino logger
             pool: {
                 acquire: parseInt(DB_POOL_ACQUIRE),
                 idle: parseInt(DB_POOL_IDLE),
@@ -44,12 +40,10 @@ export const Database = ((NODE_ENV !== "test")
             }
         })
         : new Sequelize("database", "username", "password", {
-                dialect: "sqlite",
-                // logging: console.info,
-                logging: false,
-                storage: "./test/database.sqlite",
-            }
-        )
+            dialect: "sqlite",
+            logging: false, // or a Pino logger
+            storage: "./test/database.sqlite",
+        })
 );
 
 Database.addModels([

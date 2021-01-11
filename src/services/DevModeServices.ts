@@ -4,10 +4,9 @@
 
 // External Modules ----------------------------------------------------------
 
-import neatCsv from "neat-csv";
-import { FindOptions } from "sequelize";
-
 // Internal Modules ----------------------------------------------------------
+
+import logger from "../util/logger";
 
 import Checkin from "../models/Checkin";
 import Database from "../models/Database";
@@ -34,30 +33,33 @@ export class DevModeServices {
 
         // Resynchronize database metadata
         if (!suppress) {
-            console.log("reload: Resynchronize Database Metadata: Starting");
+            logger.info({
+                context: "DevModeServices.reload",
+                msg: "Resynchronize Database Metadata, force=true"
+            })
         }
         await Database.sync({
             force: true,
         });
-        if (!suppress) {
-            console.log("reload: Resynchronize Database Metadata: Complete");
-        }
 
-        // Load standard data
+        // Reload standard data
         if (!suppress) {
-            console.log("reload: Loading Standard Data: Starting");
+            logger.info({
+                context: "DevModeServices.reload",
+                msg: "Loading Standard Data"
+            });
         }
         const allFacilities: Facility[] = await loadFacilities(ALL_FACILITY_DATA);
         const portland: Facility = await findFacilityByScope("pdx");
         const allPortlandTemplates: Template[]
             = await loadTemplates(portland, ALL_PORTLAND_TEMPLATE_DATA);
-        if (!suppress) {
-            console.log("reload: Loading Standard Data: Complete");
-        }
 
         // Load test data
         if (!suppress) {
-            console.log("reload: Loading Test Data: Starting");
+            logger.info({
+                context: "DevModeServices.reload",
+                msg: "Loading Test Data"
+            })
         }
         const testFacility: Facility = await findFacilityByScope("test");
         const testGuests: Guest[] = await loadGuests(testFacility, TEST_GUEST_DATA);
@@ -84,7 +86,10 @@ export class DevModeServices {
         }
         const testCheckins: Checkin[] = await loadCheckins(testCheckinsData);
         if (!suppress) {
-            console.log("reload: Loading Test Data: Complete");
+            logger.info({
+                context: "DevModeServices.reload",
+                msg: "Reload Complete"
+            })
         }
 
         // Return results

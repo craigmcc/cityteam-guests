@@ -5,9 +5,12 @@
 // External Modules ----------------------------------------------------------
 
 require("custom-env").env(true);
+export const NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 import { Orchestrator } from "@craigmcc/oauth-orchestrator";
 
 // Internal Modules ----------------------------------------------------------
+
+import logger from "./util/logger";
 
 import Database from "./models/Database";
 import ExpressApplication from "./routers/ExpressApplication";
@@ -17,30 +20,32 @@ export const OAuthOrchestrator: Orchestrator
 
 // Configuration Processing --------------------------------------------------
 
-// Configure Models and Associations
+// Configure Database and Synchronization
 
-console.info("Configure Sequelize Models: Starting");
-console.info(`  Dialect: ${Database.getDialect()}`);
-console.info("Configure Sequelize Models: Complete");
+logger.info({
+    context: "Startup",
+    msg: `Initialize Sequelize Models, dialect=${Database.getDialect()}`
+});
 
-// Synchronize Database Metadata
-
-console.info("Configure Database Metadata: Starting");
 let force: boolean = false;
 if (process.env.SYNC_FORCE) {
     force = (process.env.SYNC_FORCE === "true");
 }
-console.info(`  Sync force: ${force}`);
+logger.info({
+    context: "Startup",
+    msg: `Synchronize Database Models, force=${force}`
+});
 Database.sync({
     force: force
 });
-console.info("Configure Database Metadata: Complete");
 
 // Configure and Start Server ------------------------------------------------
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 ExpressApplication.listen(port, () => {
-    console.log(
-        `CityTeam Guests Server in ${process.env.NODE_ENV} mode running on port ${port}`
+    logger.info({
+        context: "Startup",
+        msg: `Start Server, mode=${process.env.NODE_ENV}, port=${port}`
+        }
     )
 });

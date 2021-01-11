@@ -18,6 +18,7 @@ import {
 
 import { OAuthOrchestrator } from "../server";
 import { Forbidden } from "../util/http-errors";
+import logger from "../util/logger";
 
 const AUTHORIZATION_HEADER = "Authorization";
 const NODE_ENV: string | undefined = process.env.NODE_ENV;
@@ -26,7 +27,10 @@ let oauthEnabled: boolean = true;
 if (process.env.OAUTH_ENABLED !== undefined) {
     oauthEnabled = (process.env.OAUTH_ENABLED === "true");
 }
-console.info(`OAuthMiddleware: Access Protection Enabled: ${oauthEnabled}`);
+logger.info({
+    context: "Startup",
+    msg: `Initialize OAuth Access Protection, enabled=${oauthEnabled}`
+})
 
 // Public Functions ----------------------------------------------------------
 
@@ -35,16 +39,19 @@ console.info(`OAuthMiddleware: Access Protection Enabled: ${oauthEnabled}`);
  */
 export const dumpRequestDetails: RequestHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-        console.info(`Handling ${req.method} ${req.url} details:`);
-        console.info(`  authorization:  ${req.get("authorization")}`);
-        console.info(`  baseUrl:        ${req.baseUrl}`);
-        console.info(`  content-length: ${req.get("Content-Length")}`)
-        console.info(`  content-type:   ${req.get("Content-Type")}`);
-        console.info(`  originalUrl:    ${req.originalUrl}`);
-        console.info(`  params:         ${JSON.stringify(req.params)}`);
-        console.info(`  path:           ${req.path}`);
-        console.info(`  query:          ${JSON.stringify(req.query)}`);
-        console.info(`  token:          ${res.locals.token}`);
+        logger.info({
+            context: "OAuthMiddleware.dumpRequestDetails",
+            msg: `${req.method} ${req.url}`,
+            authorization: `${req.get("authorization")}`,
+            baseUrl: `${req.baseUrl}`,
+            contentLength: `${req.get("Content-Length")}`,
+            contentType: `${req.get("Content-Type")}`,
+            originalUrl: `${req.originalUrl}`,
+            params: `${JSON.stringify(req.params)}`,
+            path: `${req.path}`,
+            query: `${JSON.stringify(req.query)}`,
+            token: `${res.locals.token}`
+        });
         next();
     }
 

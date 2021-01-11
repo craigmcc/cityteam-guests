@@ -9,6 +9,8 @@ import { Request, Response, Router } from "express";
 
 // Internal Modules ----------------------------------------------------------
 
+import logger from "../util/logger";
+
 import CSVError from "csvtojson/v2/CSVError";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
@@ -135,8 +137,11 @@ DevModeRouter.post("/import",
 
                 // Handle a CSV parsing error
                 (error: CSVError) => {
-                    console.info("ONERROR HANDLING: "
-                        + JSON.stringify(error));
+                    logger.error({
+                        context: "DevModeRouter.import",
+                        msg: error.message,
+                        error: error
+                    });
                     res.status(400).send({
                             problem: "CSV parsing error has occurred",
                             error: error,
@@ -162,25 +167,25 @@ DevModeRouter.post("/import",
             )
 /*
             .on("close", () => {
-                console.info("ONCLOSE: ");
+                logger.info("ONCLOSE: ");
             })
             .on("data", (data: any) => {
                 "ONDATA: " + JSON.stringify(data);
             })
             .on("end", () => {
-                console.info("ONEND: ");
+                logger.info("ONEND: ");
             })
             .on("error", (error) => {
-                console.info("ONERROR (CSV): ", error);
+                logger.info("ONERROR (CSV): ", error);
             })
             .on("pause", () => {
-                console.info("ONPAUSE: ");
+                logger.info("ONPAUSE: ");
             })
             .on("readable", () => {
-                console.info("ONREADABLE: ");
+                logger.info("ONREADABLE: ");
             })
             .on("resume", () => {
-                console.info("ONRESUME: ");
+                logger.info("ONRESUME: ");
             })
 */
 

@@ -5,6 +5,12 @@
 
 // Public Objects ------------------------------------------------------------
 
+// Convenience function to return the current date and time (via toLocalISO())
+// as an ISO 8601 representation with local time and appropriate offset.
+export const nowLocalISO = (): string => {
+    return toLocalISO(new Date());
+}
+
 // Return an ISO 8601 representation of the specified date (to seconds
 // resolution), expressed as local time with the appropriate offset from UTC.
 // This implementation (except that it doesn't pollute prototypes) is based on
@@ -14,7 +20,7 @@ export const toLocalISO = (date: Date): string => {
         + "-" + leftPad((date.getMonth() + 1), 2)
         + "-" + leftPad(date.getDate(), 2)
         + "T" + leftPad(date.getHours(), 2)
-        + "-" + leftPad(date.getMinutes(), 2)
+        + ":" + leftPad(date.getMinutes(), 2)
         + ":" + leftPad(date.getSeconds(), 2)
         + localOffset(date);
 }
@@ -33,7 +39,6 @@ const leftPad = (input: string | number, size: number): string => {
 // Return a local timezone offset string in the format required by ISO 8601.
 const localOffset = (date: Date): string => {
     const offset = date.getTimezoneOffset();
-    const calculated = Math.floor(Math.abs(offset / 60));
     return (offset < 0 ? "+" : "-")
         + leftPad(Math.floor(Math.abs(offset / 60)), 2)
         + ":" + leftPad(Math.abs(offset % 60), 2);

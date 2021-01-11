@@ -7,6 +7,8 @@
 
 // Internal Modules -----------------------------------------------------------
 
+import logger from "../util/logger";
+
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
@@ -90,10 +92,11 @@ export class ImportServices {
                 row,
                 true
             ));
-            console.error(
-                `Error from Checkin.create(${JSON.stringify(error)})`,
-                error
-            );
+            logger.error({
+                context: "ImportServices.importCheckin",
+                msg: error.message,
+                error: error
+            })
             return null;
         }
 
@@ -232,10 +235,11 @@ export class ImportServices {
                 row,
                 true
             ));
-            console.error(
-                `Error from Guest.findOrCreate(${inFirstName} ${inLastName})`,
-                error
-            );
+            logger.error({
+                context: "ImportServices.parseGuestNames",
+                msg: error.message,
+                error: error
+            })
         }
 
     }
