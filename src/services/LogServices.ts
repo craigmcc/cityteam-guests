@@ -86,7 +86,8 @@ export class LogServices {
 
     // Record a log message from a client
     public async logClientRecord(object: any): Promise<void> {
-        clientLogger.info(object); // TODO - who wins on "level"?
+        // TODO: client should win if "level" and "time" are included.
+        clientLogger.info(object);
     }
 
     // Return today's server log file (only current through now).

@@ -28,14 +28,6 @@ LOG_LEVEL_MAP.set("warn", 40);
 const write = (object: any, level: number): void => {
     if (level >= LOG_LEVEL) {
         console.info(`CLIENT LOG(${level}): `, JSON.stringify(object));
-/*
-        const loggedObject = {
-            level: level,
-            // TODO: timestamp?
-            ...object,
-        }
-        LogClient.log(loggedObject);
-*/
         LogClient.log(object);
     }
 }

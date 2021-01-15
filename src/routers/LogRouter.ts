@@ -68,7 +68,7 @@ LogRouter.get("/clientLog",
     });
 
 LogRouter.post("/clientLog",
-//    requireSuperuser, // TODO - rate limiting or something?
+//    requireSuperuser, // TODO - rate limiting, validation, and/or something?
     async (req: Request, res: Response) => {
         try {
             await LogServices.logClientRecord(req.body);
