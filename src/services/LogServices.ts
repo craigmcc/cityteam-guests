@@ -12,6 +12,7 @@ import * as path from "path";
 
 // Internal Modules ----------------------------------------------------------
 
+import clientLogger from "../util/client-logger";
 import logger from "../util/logger";
 
 const LOG_DIRECTORY
@@ -51,6 +52,41 @@ export class LogServices {
             results += await this.upload(matches[3]);
         }
         return results;
+    }
+
+    // Return today's client log file (only current through now).
+    public async clientLog(): Promise<string> {
+        return "[" + (await this.upload("client.log")) + "]";
+    }
+
+    // Return the concatenated client log(s) for the specified date.
+    public async clientLogs(date: string): Promise<string> {
+        const matches: string[] = await this.filenames(date, "client.log");
+        logger.info({
+            context: "LogServices.clientLogs",
+            matches: matches
+        });
+        let results: string = "[";
+        // TODO - need to resort to Promises.all() to gather all of them?
+        if (matches.length > 0) {
+            results += await this.upload(matches[0]);
+        }
+        if (matches.length > 1) {
+            results += await this.upload(matches[1]);
+        }
+        if (matches.length > 2) {
+            results += await this.upload(matches[2]);
+        }
+        if (matches.length > 3) {
+            results += await this.upload(matches[3]);
+        }
+        results += "]";
+        return results;
+    }
+
+    // Record a log message from a client
+    public async logClientRecord(object: any): Promise<void> {
+        clientLogger.info(object); // TODO - who wins on "level"?
     }
 
     // Return today's server log file (only current through now).
