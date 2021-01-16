@@ -12,7 +12,7 @@ const argv = require("yargs/yargs")(process.argv.slice(2))
     .describe("DB_DB", "Database name to be backed up from")
     .describe("DB_HOST", "Database server host name")
     .argv;
-
+const { execSync } = require("child_process");
 
 // Private Functions ---------------------------------------------------------
 
@@ -42,11 +42,11 @@ const options = {
     "DB_DB": argv["DB_DB"],
     "DB_HOST": argv["DB_HOST"],
 };
-console.info("Options: " + JSON.stringify(options, null, 2));
 const filename = options["DB_DB"] + "-" + timestamp() + ".sql";
 console.info(`Backing up database ${options["DB_DB"]} to ${filename}`);
 
-// TODO - the backup process
+const command
+    = `pg_dump --host=${options["DB_HOST"]} ${options["DB_DB"]} > ${filename}`;
+console.info(execSync(command).toString());
 
-// TODO:  pg_dump --host=DB_HOST DB_DB > filename
-
+console.info("Database backup is complete");

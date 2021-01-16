@@ -52,8 +52,9 @@ const generate = (mode, options) => {
     fs.writeFileSync(filename, output, {
         mode: 0o644
     });
-//    console.info(output);
 }
+
+console.info("Generating environment files");
 generate("development", options);
 generate("production", options);
-
+console.info("Environment file generation is complete");

@@ -18,7 +18,7 @@ const argv = require("yargs/yargs")(process.argv.slice(2))
     .describe("DB_HOST", "Database server host name")
     .describe("FILENAME", "Filename from which to restore this database")
     .argv;
-
+const { execSync } = require("child_process");
 
 // Public Script -------------------------------------------------------------
 
@@ -27,8 +27,10 @@ const options = {
     "DB_HOST": argv["DB_HOST"],
     "FILENAME": argv["FILENAME"],
 };
-console.info("Options: " + JSON.stringify(options, null, 2));
+console.info(`Restoring database ${options["DB_DB"]} from ${options["FILENAME"]}`);
 
-// TODO - the restore process
+const command
+    = `psql --host=${options["DB_HOST"]} ${options["DB_DB"]} < ${options["FILENAME"]}`;
+console.info(execSync(command).toString());
 
-// TODO: psql --host=DB_HOST DB_DB < whatever-YYYYMMDD-HHMMSS.sql
+console.info("Restore is complete");
