@@ -5,10 +5,28 @@
 
 // Public Objects ------------------------------------------------------------
 
+// Convenience function to return the current date and time (via toDateTime())
+// as a YYYYMMDD-HHMMSS representation of local time.
+export const nowDateTime = (): string => {
+    return toDateTime(new Date());
+}
+
 // Convenience function to return the current date and time (via toLocalISO())
 // as an ISO 8601 representation with local time and appropriate offset.
 export const nowLocalISO = (): string => {
     return toLocalISO(new Date());
+}
+
+// Return a string in the format YYYYMMDD-HHMMSS for the specified date
+// (in local time).
+export const toDateTime = (date: Date): string => {
+    return date.getFullYear()
+        + leftPad(date.getMonth() + 1, 2)
+        + leftPad(date.getDate(), 2)
+        + "-"
+        + leftPad(date.getHours(), 2)
+        + leftPad(date.getMinutes(), 2)
+        + leftPad(date.getSeconds(), 2);
 }
 
 // Return an ISO 8601 representation of the specified date (to seconds
