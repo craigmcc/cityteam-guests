@@ -55,6 +55,7 @@ const generate = (mode, options) => {
 }
 
 console.info("Generating environment files");
-generate("development", options);
 generate("production", options);
+options["OAUTH_ENABLED"] = false;
+generate("development", options);
 console.info("Environment file generation is complete");

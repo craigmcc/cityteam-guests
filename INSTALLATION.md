@@ -309,6 +309,11 @@ be accomplished by starting the application in development mode and performing
 a set of tasks, as described here:
 
 - To start the server in development mode, type the following command:
-  > 
+  > npm run run:dev
+  >
+- You may need to provide permission for this application to access the local network.
+- Click the Start Menu, and select *Postman* to start the Postman application.
+- Where you see **GET** with a dropdown, change that value to **POST**
+- Where you see "Enter request URL", type *http://localhost:8080/api/devmode/reload*
+- Click *Send* to send this request to the application server.
 
-[comment]: <> ( end::[]
