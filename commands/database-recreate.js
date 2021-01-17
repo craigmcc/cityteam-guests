@@ -56,7 +56,7 @@ const stream = Readable.from(script);
 
 console.info(`Recreating database '${options["DB_DB"]}'`
     + ` and associated roles for user '${options["DB_USER"]}'`);
-const command = `psql --host=${options["DB_HOST"]}`
+const command = `psql -U postgres --host=${options["DB_HOST"]}`
 try {
     console.info(execSync(command, {
         input: script
