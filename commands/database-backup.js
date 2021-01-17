@@ -5,6 +5,9 @@
 
 // External Modules ----------------------------------------------------------
 
+const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 const argv = require("yargs/yargs")(process.argv.slice(2))
     .usage("$0 [--DB_DB databaseName] [--DB_HOST hostname]")
     .default("DB_DB", "guests")
@@ -14,7 +17,6 @@ const argv = require("yargs/yargs")(process.argv.slice(2))
     .describe("DB_HOST", "Database server host name")
     .describe("DB_USER", "Database username")
     .argv;
-const { execSync } = require("child_process");
 
 // Private Functions ---------------------------------------------------------
 
@@ -45,11 +47,16 @@ const options = {
     "DB_HOST": argv["DB_HOST"],
     "DB_USER": argv["DB_USER"],
 };
-const filename = options["DB_DB"] + "-" + timestamp() + ".sql";
-console.info(`Backing up database ${options["DB_DB"]} to ${filename}`);
+const directoryName = "backup";
+if (!fs.existsSync(directoryName)) {
+    fs.mkdirSync(directoryName);
+}
+const fileName = options["DB_DB"] + "-" + timestamp() + ".sql";
+const pathName = path.resolve(directoryName, fileName);
+console.info(`Backing up database ${options["DB_DB"]} to ${pathName}`);
 
 const command
-    = `pg_dump --host=${options["DB_HOST"]} -U ${options["DB_USER"]} ${options["DB_DB"]} > ${filename}`;
+    = `pg_dump --host=${options["DB_HOST"]} -U ${options["DB_USER"]} ${options["DB_DB"]} > ${pathName}`;
 console.info(execSync(command).toString());
 
 console.info("Database backup is complete");
