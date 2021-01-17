@@ -39,7 +39,7 @@ const script = "-- Drop Roles (may fail the first time\n"
     + `DROP ROLE IF EXISTS ${options["DB_DB"]};\n`
     + "-- Recreate Database\n"
     + `DROP DATABASE IF EXISTS ${options["DB_DB"]};\n`
-    + `CREATE DATABASE ${options["DB_DB"]}\n`
+    + `CREATE DATABASE ${options["DB_DB"]} TEMPLATE template0\n`
     + "  CONNECTION LIMIT = -1 ENCODING = 'UTF-8'\n"
     + "  LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8'\n"
     + "  OWNER = postgres TABLESPACE = pg_default;\n"
