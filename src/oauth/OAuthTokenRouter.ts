@@ -20,6 +20,7 @@ const REFRESH_GRANT_TYPE = "refresh_token";
 import { requireAny } from "./OAuthMiddleware";
 import { OAuthOrchestrator } from "../server";
 import { BadRequest, ServerError } from "../util/http-errors";
+import logger from "../util/server-logger";
 
 // Public Objects ------------------------------------------------------------
 
@@ -38,6 +39,10 @@ export const OAuthTokenRouter = Router({
 OAuthTokenRouter.delete("/",
     requireAny,
     async (req: Request, res: Response) => {
+        logger.info({
+            context: "OAuthTokenRouter.revoke",
+            token: res.locals.token
+        });
         // Successful authorization stored our token in res.locals.token
         const token: string = res.locals.token;
         if (token) {
@@ -79,10 +84,33 @@ OAuthTokenRouter.post("/",
                    "acquireToken()"
                );
         }
-        // Any thrown error will get handled by middleware
-        const tokenResponse: TokenResponse
-            = await OAuthOrchestrator.token(tokenRequest);
-        res.send(tokenResponse);
+        const input: any = {
+            ...tokenRequest
+        };
+        if (input.password) {
+            input.password = "*REDACTED*";
+        }
+        try {
+            const tokenResponse: TokenResponse
+                = await OAuthOrchestrator.token(tokenRequest);
+            const output: any = {
+                ...tokenResponse
+            }
+            logger.info({
+                context: "OAuthTokenRouter.token",
+                input: input,
+                output: output
+            });
+            res.send(tokenResponse);
+        } catch (error) {
+            logger.info({
+                context: "OAuthTokenRouter.token",
+                input: input,
+                error: error,
+            });
+            // Handle errors with standard middleware
+            throw error;
+        }
 
     });
 

@@ -6,7 +6,7 @@
 
 // Internal Modules ----------------------------------------------------------
 
-import logger from "../util/logger";
+import logger from "../util/server-logger";
 
 import Checkin from "../models/Checkin";
 import Database from "../models/Database";

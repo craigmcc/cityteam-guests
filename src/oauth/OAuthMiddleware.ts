@@ -18,7 +18,7 @@ import {
 
 import { OAuthOrchestrator } from "../server";
 import { Forbidden } from "../util/http-errors";
-import logger from "../util/logger";
+import logger from "../util/server-logger";
 
 const AUTHORIZATION_HEADER = "Authorization";
 const NODE_ENV: string | undefined = process.env.NODE_ENV;

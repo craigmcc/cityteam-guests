@@ -10,13 +10,12 @@ import { Orchestrator } from "@craigmcc/oauth-orchestrator";
 
 // Internal Modules ----------------------------------------------------------
 
-import logger from "./util/logger";
-
 import Database from "./models/Database";
 import ExpressApplication from "./routers/ExpressApplication";
 import OAuthOrchestratorHandlers from "./oauth/OAuthOrchestratorHandlers";
 export const OAuthOrchestrator: Orchestrator
     = new Orchestrator(OAuthOrchestratorHandlers);
+import logger from "./util/server-logger";
 
 // Configuration Processing --------------------------------------------------
 

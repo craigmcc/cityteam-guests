@@ -13,7 +13,7 @@ import * as path from "path";
 // Internal Modules ----------------------------------------------------------
 
 import clientLogger from "../util/client-logger";
-import logger from "../util/logger";
+import logger from "../util/server-logger";
 
 const LOG_DIRECTORY
     = process.env.LOG_DIRECTORY ? process.env.LOG_DIRECTORY : "./log";

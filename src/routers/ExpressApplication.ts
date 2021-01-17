@@ -18,7 +18,7 @@ const rfs = require("rotating-file-stream");
 
 // Internal Modules ----------------------------------------------------------
 
-import { logger } from "../util/logger";
+import { logger } from "../util/server-logger";
 
 import ApiRouters from "./ApiRouters";
 import OAuthRouters from "../oauth/OAuthRouters";

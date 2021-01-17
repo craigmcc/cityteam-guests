@@ -8,7 +8,7 @@ import { Request, Response, Router } from "express";
 
 // Internal Modules ----------------------------------------------------------
 
-import logger from "../util/logger";
+import logger from "../util/server-logger";
 
 //import { requireSuperuser } from "../oauth/OAuthMiddleware";
 import LogServices from "../services/LogServices";
