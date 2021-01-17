@@ -9,6 +9,7 @@ const path = require("path");
 
 // Internal Modules ----------------------------------------------------------
 
+const SCRIPT = path.resolve(".", "dist", "server.js");
 const SERVICE_NAME = "CityTeam-Guests";
 
 // Public Script -------------------------------------------------------------
@@ -17,18 +18,20 @@ const SERVICE_NAME = "CityTeam-Guests";
 const SERVICE = new Service({
     abortOnError: true,
     name: SERVICE_NAME,
-    script: path.resolve(".", "dist", "server.js"),
+    script: SCRIPT,
 });
+
+console.log(`Uninstalling service ${SERVICE_NAME} for script ${SCRIPT}`);
 
 // Listen for relevant events
 SERVICE.on("alreadyuninstalled", () => {
-    console.log(`Service '${SERVICE.name}' was already uninstalled.`);
+    console.log(`Service '${SERVICE_NAME}' was already uninstalled.`);
 })
 SERVICE.on("stop", () => {
-    console.log(`Service '${SERVICE.name}' has been stopped.`);
+    console.log(`Service '${SERVICE_NAME}' has been stopped.`);
 })
 SERVICE.on("uninstall", () => {
-    console.log(`Service '${SERVICE.name}' uninstall complete.`);
+    console.log(`Service '${SERVICE_NAME}' uninstall complete.`);
 });
 
 // Uninstall the service

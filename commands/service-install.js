@@ -11,12 +11,15 @@ const path = require("path");
 
 // Internal Modules ---------------------------------------------------------
 
+const SCRIPT = path.resolve(".", "dist", "server.js");
 const SERVICE_NAME = "CityTeam-Guests";
+const WORKING_DIRECTORY = path.resolve(".");
 
 // Public Script ------------------------------------------------------------
 
 // Configure environment variables we will pass to the service
 const ENVIRONMENT = [
+    { name: "NODE_ENV", value: "production" },
     { name: "DB_DB", value: process.env.DB_DB },
     { name: "DB_DIALECT", value: process.env.DB_DIALECT },
     { name: "DB_HOST", value: process.env.DB_HOST },
@@ -37,24 +40,25 @@ const SERVICE = new Service({
     description: "Supports checking in overnight Guests at a CityTeam Facility",
     env: ENVIRONMENT,
     name: SERVICE_NAME,
-    script: path.resolve(".", "dist", "server.js"),
-    workingDirectory: path.resolve("."),
+    script: SCRIPT,
+    workingDirectory: WORKING_DIRECTORY,
 });
-console.info("SERVICE: ", SERVICE);
+console.log(`Installing service ${SERVICE_NAME} for script ${SCRIPT} from current directory ${WORKING_DIRECTORY}`);
+console.log("SERVICE: "  + JSON.stringify(SERVICE));
 
 // Listen for relevant events
 SERVICE.on("alreadyinstalled", () => {
-    console.log(`Service '${SERVICE.name}' was already installed.`);
+    console.log(`Service '${SERVICE_NAME}' was already installed.`);
 });
 SERVICE.on("install", () => {
-    console.log(`Service '${SERVICE.name}' installed in working directory '${SERVICE.workingDirectory}`);
+    console.log(`Service '${SERVICE_NAME}' installed in working directory '${WORKING_DIRECTORY}`);
     SERVICE.start();
 });
 SERVICE.on("invalidinstallation", () => {
-    console.log(`Service '${SERVICE.name}' installation aborted, invalid service data detected.`);
+    console.log(`Service '${SERVICE_NAME}' installation aborted, invalid service data detected.`);
 });
 SERVICE.on("start", () => {
-    console.log(`Service '${SERVICE.name}' started in working directory '${SERVICE.workingDirectory}`);
+    console.log(`Service '${SERVICE_NAME}' started in working directory '${WORKING_DIRECTORY}`);
     SERVICE.start();
 });
 
