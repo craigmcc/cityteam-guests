@@ -57,7 +57,12 @@ const stream = Readable.from(script);
 console.info(`Recreating database '${options["DB_DB"]}'`
     + ` and associated roles for user '${options["DB_USER"]}'`);
 const command = `psql --host=${options["DB_HOST"]}`
-console.info(execSync(command, {
-    input: script
-}).toString());
-console.info("Recreating database is complete");
+try {
+    console.info(execSync(command, {
+        input: script
+    }).toString());
+    console.info("Recreating database is complete");
+} catch (error) {
+    console.info("Error Message: " + error.message);
+    console.info("Error Content: " + error.stderr.toString());
+}
