@@ -12,7 +12,7 @@ const argv = require("yargs/yargs")(process.argv.slice(2))
     .demandOption("DB_PASSWORD")
     .default("DB_USER", "guests")
     .default("OAUTH_ENABLED", "true")
-    .default("PORT", 8080)
+    .default("PORT", "8080")
     .default("SUPERUSER_SCOPE", "superuser")
     .describe("DB_DB", "Database name")
     .describe("DB_HOST", "Database server host name")
@@ -37,7 +37,7 @@ const options = {
     "DB_POOL_MIN": 0,
     "DB_USER": argv["DB_USER"],
     "OAUTH_ENABLED": argv["OAUTH_ENABLED"],
-    "PORT": argv["OAUTH_PORT"],
+    "PORT": argv["PORT"],
     "SUPERUSER_SCOPE": argv["SUPERUSER_SCOPE"],
     "SYNC_FORCE": false,
 };

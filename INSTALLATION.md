@@ -259,10 +259,56 @@ later (if needed), so it will emit some errors this time that can be ignored.
   followed by any non-default options, and press *Enter*.
 - You will be challenged for the master database password entered above.
   (You did write it down, didn't you???).
-
-==================
-  
 - After this operation completes, you will have a new empty database,
   named whatever you specified for the *--DB_DB* parameter (typically
   it will be "guests" but can be whatever you want).
 
+### (3.4) GENERATE APPLICATION CONFIGURATION FILES
+
+The CityTeam Guests application must be told what values you have selected
+for the configuration values you have selected above.  This is done by creating
+two files (".env.production" and ".env.development") for production and development
+modes, respectively.  (The application will normally run in production mode;
+development mode is strictly for development and one-time setup activities).
+
+Make a note of any configuration variables (from above) for which you are using
+non-default values.  You **must** specify the --DB_PASSWORD parameter, because there
+is no default, and you must **also** specify any other parameters for which you
+chose something other than the default values.
+
+- In the Command Prompt window, type the following command:
+  > node commands\environment-recreate.js --DB_PASSWORD {the password} ...{non-defaults}
+  >
+- This will create the two files mentioned above, complete with default values
+  and a bunch of other settings that we didn't need to change.
+
+### (3.5) RESTORE PREVIOUS BACKUP (IF ANY)
+
+As mentioned earlier, the database we just created is empty.  If you **do**
+have a previous backup file of the database content, you can reload it by
+following the instructions in this step.  Otherwise, skip this step.
+
+To restore a previous backup, you will need that backup file to be available,
+and pass its name (or full path, if not in the current directory) on the command
+line like this (adding the DB_HOST and/or DB_DB parameters if you chose non-default
+values):
+
+```shell
+node commands\database-restore.js --FILENAME {filename}
+```
+
+This will load the previous content of the database (as of the date and time that
+the backup was made), and we are good to go -- skip the next step, which is only
+for the case where we do not have a backup file.
+
+### (3.6) SEED DATABASE WITH INITIAL DATA (IF NO BACKUP AVAILABLE)
+
+On an initial install of the application, of if there is no backup to start from,
+we still need to add some initial data to make the application functional.  This can
+be accomplished by starting the application in development mode and performing
+a set of tasks, as described here:
+
+- To start the server in development mode, type the following command:
+  > 
+
+[comment]: <> ( end::[]
