@@ -316,4 +316,56 @@ a set of tasks, as described here:
 - Where you see **GET** with a dropdown, change that value to **POST**
 - Where you see "Enter request URL", type *http://localhost:8080/api/devmode/reload*
 - Click *Send* to send this request to the application server.
+- This will cause tables in the database to get created, with the following contents:
+  - **facilities** - Facility definitions for all current CityTeam facilities.
+  - **templates** - Templates to generate mat configurations for Portland.
+  - **users** - A "superuser" user that can do anything, plus users for testing
+    that will not be used in normal operation.
+
+We need to immediately change the "superuser" password from its original value (embedded
+in the source code of the application) to something memorable and unique.  Write this one
+down as well!  To do so:
+- Open *Google Chrome* from the Start Menu.
+- Enter **localhost:8080** as the URL (this is what users will also use, if they
+  will be operating on the same computer that hosts the *Application Server*) and
+  press *Enter*.
+- Click the "Log In" button.
+- For credentials, enter the username *superuser* and the password from the seed data
+  in the application source code.
+- Click the *Users* option from the Navigation Bar.
+- In the *Facility* drop down, select *Test Facility* and observe the list of
+  defined users belonging to this Facility (including the Superuser).
+- Click anywhere on the row for the Superuser, and observe that the details
+  for this user are displayed.
+- Note that the "Password" field is blank.  In the database, the passwords are stored
+  in a hashed format that CANNOT be transformed back to plain text.  The only thing
+  you can do is change the value.  Enter the new value (write it down!) in the Password
+  field, and click *Save*.
+- Now, click *Log Out* and then *Log In* again.
+- Use *superuser* and the new password, to make sure it is correct.
+- If this fails, you will need to go back to seeding the database again.
+- Finally, go back to the Command Prompt window and press *Ctrl+C* to terminate
+  the application.  When asked to confirm ("Terminate batch job"), type *Y* and
+  *Enter*.
+- You should end up at the command line prompt.
+
+### (3.7) Install Application As A Windows Service
+
+Our final setup step is to tell Windows to run the CityTeam Guests Application as a
+Windows Service, so that it starts automatically whenever the computer is restarted.
+
+- If needed, click *Windows+R* and type *cmd* to get back to a Command Prompt window.
+- Type the following command to install the application as a service:
+  > node commands\service-install.js
+  >
+- You will be asked to confirm that the app can make changes to your device.
+  (TODO - this step has problems but it did install the service).
+- To verify that this worked:
+  - Click *Windows+R* and type *services* to call up the Service list.
+  - Scroll down to *CityTeam-Guests* and observe that it is running.
+  
+As a finishing touch, open Google Chrome and set up a bookmark for the home page
+of this application.  It will either be **http://localhost:8080** if the user will
+be using the same computer as the *Application Server* -- otherwise, replace
+"localhost" with the network name of the *Application Server* computer.
 

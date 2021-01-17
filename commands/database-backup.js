@@ -9,8 +9,10 @@ const argv = require("yargs/yargs")(process.argv.slice(2))
     .usage("$0 [--DB_DB databaseName] [--DB_HOST hostname]")
     .default("DB_DB", "guests")
     .default("DB_HOST", "localhost")
+    .default("DB_USER", "guests")
     .describe("DB_DB", "Database name to be backed up from")
     .describe("DB_HOST", "Database server host name")
+    .describe("DB_USER", "Database username")
     .argv;
 const { execSync } = require("child_process");
 
@@ -41,12 +43,13 @@ const timestamp = () => {
 const options = {
     "DB_DB": argv["DB_DB"],
     "DB_HOST": argv["DB_HOST"],
+    "DB_USER": argv["DB_USER"],
 };
 const filename = options["DB_DB"] + "-" + timestamp() + ".sql";
 console.info(`Backing up database ${options["DB_DB"]} to ${filename}`);
 
 const command
-    = `pg_dump --host=${options["DB_HOST"]} ${options["DB_DB"]} > ${filename}`;
+    = `pg_dump --host=${options["DB_HOST"]} -U options["DB_USER"] ${options["DB_DB"]} > ${filename}`;
 console.info(execSync(command).toString());
 
 console.info("Database backup is complete");
