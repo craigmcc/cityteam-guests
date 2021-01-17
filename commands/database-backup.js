@@ -49,7 +49,7 @@ const filename = options["DB_DB"] + "-" + timestamp() + ".sql";
 console.info(`Backing up database ${options["DB_DB"]} to ${filename}`);
 
 const command
-    = `pg_dump --host=${options["DB_HOST"]} -U options["DB_USER"] ${options["DB_DB"]} > ${filename}`;
+    = `pg_dump --host=${options["DB_HOST"]} -U ${options["DB_USER"]} ${options["DB_DB"]} > ${filename}`;
 console.info(execSync(command).toString());
 
 console.info("Database backup is complete");
