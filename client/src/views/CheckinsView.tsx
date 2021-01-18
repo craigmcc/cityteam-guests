@@ -20,8 +20,8 @@ import Facility from "../models/Facility";
 import CheckinsAssignedSubview from "../subviews/CheckinsAssignedSubview";
 import CheckinsListSubview from "../subviews/CheckinsListSubview";
 import CheckinsUnassignedSubview from "../subviews/CheckinsUnassignedSubview";
+import logger from "../util/client-logger";
 import { todayDate } from "../util/dates";
-import * as Replacers from "../util/replacers";
 
 enum Stage {
     None = "None",
@@ -53,9 +53,13 @@ const CheckinView = () => {
         } else {
             currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
         }
-        console.info("CheckinsView.setFacility("
-            + JSON.stringify(currentFacility, Replacers.FACILITY)
-            + ")");
+        logger.info({
+            context: "CheckinsView.setFacility",
+            facility: {
+                id: currentFacility.id,
+                name: currentFacility.name,
+            },
+        });
         setFacility(currentFacility);
 
         // Record current permissions
@@ -68,17 +72,30 @@ const CheckinView = () => {
     // (null means some error prevented the assignment)
     const handleAssigned: HandleCheckinOptional = (newAssigned) => {
         if (newAssigned) {
-            console.info("CheckinsView.handleAssigned("
-                + JSON.stringify(newAssigned, Replacers.CHECKIN)
-                + ")");
+            logger.info({
+                context: "CheckinsView.handleAssigned",
+                assigned: {
+                    id: newAssigned.id,
+                    checkinDate: newAssigned.checkinDate,
+                    facilityId: newAssigned.facilityId,
+                    guestId: newAssigned.guestId,
+                    matNumber: newAssigned.matNumber,
+                },
+            });
         } else {
-            console.info("CheckinsView.handleAssigned(SKIPPED)");
+            logger.debug({
+                context: "CheckinsView.handleAssigned",
+                msg: "UNASSIGNED",
+            })
         }
         handleStage(Stage.List);
     }
 
     const handleCheckinDate: HandleDate = (newCheckinDate) => {
-        console.info(`CheckinsView.handleCheckinDate(${newCheckinDate})`);
+        logger.debug({
+            context: "CheckinsView.handleCheckinDate",
+            checkinDate: newCheckinDate,
+        });
         setCheckinDate(newCheckinDate);
         handleStage(Stage.List);
     }
@@ -87,26 +104,41 @@ const CheckinView = () => {
     // or null if a previously selected Checkin is unselected
     const handleSelected: HandleCheckinOptional = (newSelected) => {
         if (newSelected) {
-            console.info("CheckinsView.handleSelected("
-                + JSON.stringify(newSelected, Replacers.CHECKIN)
-                + ")");
+            logger.info({
+                context: "CheckinsView.handleSelected",
+                selected: {
+                    id: newSelected.id,
+                    checkinDate: newSelected.checkinDate,
+                    facilityId: newSelected.facilityId,
+                    guestId: newSelected.guestId,
+                    matNumber: newSelected.matNumber,
+                },
+            });
             if (canProcess) {
                 setSelected(newSelected);
                 handleStage
                     (newSelected.guestId ? Stage.Assigned : Stage.Unassigned);
             }
         } else {
-            console.info("CheckinsView.handleSelected(UNSELECTED)");
+            logger.debug({
+                context: "CheckinsView.handleSelected",
+                msg: "UNSELECTED",
+            });
         }
     }
 
     const handleStage = (newStage : Stage): void => {
-        console.info(`CheckinsView.handleStage(${newStage})`);
+        logger.debug({
+            context: "CheckinsView.handleStage",
+            stage: newStage
+        });
         setStage(newStage);
     }
 
     const onBack = () => {
-        console.info("CheckinsView.onBack()");
+        logger.debug({
+            context: "CheckinsView.onBack",
+        });
         setStage(Stage.List);
     }
 

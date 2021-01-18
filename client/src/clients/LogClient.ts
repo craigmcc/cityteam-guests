@@ -14,7 +14,7 @@ class LogClient {
 
 // Post a log message to the server
     async log(object: any): Promise<void> {
-        await ApiBase.post(LOG_BASE + "/browserLog", object);
+        await ApiBase.post(LOG_BASE + "/clientLog", object);
     }
 
 }

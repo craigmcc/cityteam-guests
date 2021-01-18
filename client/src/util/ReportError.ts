@@ -9,22 +9,30 @@
 // In that case, dump the server response to the log, and extract the server's
 // "message" field to display to the user.
 
+// Internal Modules ----------------------------------------------------------
+
+import logger from "./client-logger";
+
 // Public Objects ------------------------------------------------------------
 
 export const ReportError = (prefix: string, error: any) => {
-    let message: string = error.message;
-    console.error(`${prefix}: ReportError: ${message}`);
+    let outMessage: string = error.message;
+    let outData: any | undefined = undefined;
     if (error.response) {
         const errorResponse: any = error.response;
         if (errorResponse["data"]) {
-            const responseData: any = errorResponse["data"];
-            console.error(`${prefix}: ResponseData: `, responseData);
-            if (responseData["message"]) {
-                message = responseData["message"];
+            outData = errorResponse["data"];
+            if (outData["message"]) {
+                outMessage = outData["message"];
             }
         }
     }
-    alert(`Error: '${message}'`);
+    logger.error({
+        context: prefix,
+        msg: outMessage,
+        error: outData ? outData : null,
+    });
+    alert(`Error: '${outMessage}'`);
 }
 
 export default ReportError;

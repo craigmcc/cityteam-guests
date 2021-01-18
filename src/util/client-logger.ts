@@ -26,7 +26,12 @@ const clientLogStream: WritableStream =
 // Public Objects ------------------------------------------------------------
 
 export const clientLogger = require("pino")({
-    base: { }, // Remove "pid" and "hostname" since we do not need them
+    base: null, // Remove "name", "pid", and "hostname" since we do not need them
+    formatters: {
+        level: (label: string, number: number) => {
+            return { serverLevel: number };
+}
+    },
     level: (process.env.NODE_ENV !== "production") ? "debug" : "info",
     timestamp: function (): string {
         return ',"time":"' + nowLocalISO() + '"';

@@ -24,7 +24,7 @@ import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
-import * as Replacers from "../util/replacers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 import { withFlattenedObjects } from "../util/transformations";
 
@@ -63,9 +63,10 @@ const CheckinsListSubview = (props: Props) => {
                         (props.facility.id, props.checkinDate, {
                             withGuest: ""
                         });
-                    console.info("CheckinsListSubview.fetchCheckins("
-                        + JSON.stringify(newCheckins, Replacers.CHECKIN)
-                        + ")");
+                    logger.info({
+                        context: "CheckinsListSubview.fetchCheckins",
+                        count: newCheckins.length
+                    });
                     setCheckins(flattenedCheckins(newCheckins));
                     setRefresh(false);
                     const newSummary = new Summary(props.facility.id, props.checkinDate);
@@ -80,7 +81,10 @@ const CheckinsListSubview = (props: Props) => {
                     setSummary(new Summary());
                 }
             } else {
-                console.info("CheckinsListSubview.fetchCheckins(SKIPPED)");
+                logger.info({
+                    context: "CheckinsListSubview.fetchCheckins",
+                    msg: "SKIPPED",
+                });
                 setCheckins([]);
                 setRefresh(false);
                 setSummary(new Summary());
@@ -105,18 +109,23 @@ const CheckinsListSubview = (props: Props) => {
     }
 
     const handleGenerate = (): void => {
-        console.info("CheckinsListSubview.handleGenerate.template("
-            + JSON.stringify(template, Replacers.TEMPLATE)
-            + ")");
+        logger.debug({
+            context: "CheckinsListSubview.handleGenerate",
+            template: {
+                id: template.id,
+                name: template.name,
+            },
+        });
         FacilityClient.checkinsGenerate(
             props.facility.id,
             props.checkinDate,
             template.id
         )
             .then(newCheckins => {
-                console.info("CheckinsListSubview.handleGenerate.results("
-                    + JSON.stringify(newCheckins, Replacers.CHECKIN)
-                    + ")");
+                logger.info({
+                    context: "CheckinsListSubview.handleGenerate",
+                    count: newCheckins.length,
+                });
                 setRefresh(true);
             })
             .catch(error => {
@@ -126,17 +135,27 @@ const CheckinsListSubview = (props: Props) => {
 
     const handleIndex = (newIndex: number): void => {
         if (newIndex === index) {
-            console.info("CheckinsListSubview.handleIndex(UNSELECTED)");
+            logger.debug({
+                context: "CheckinsListSubview.handleIndex",
+                msg: "UNSELECTED",
+            });
             if (props.handleSelected) {
                 props.handleSelected(null);
             }
             setIndex(-1);
         } else {
             const newCheckin: Checkin = checkins[newIndex];
-            console.info("CheckinsListSubview.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(newCheckin, Replacers.CHECKIN)
-                + ")");
+            logger.info({
+                context: "CheckinsListSubview.handleIndex",
+                index: newIndex,
+                checkin: {
+                    id: newCheckin.id,
+                    checkinDate: newCheckin.checkinDate,
+                    facilityId: newCheckin.facilityId,
+                    guestId: newCheckin.guestId,
+                    matNumber: newCheckin.matNumber,
+                },
+            });
             if (props.handleSelected) {
                 props.handleSelected(newCheckin);
             }
@@ -145,9 +164,13 @@ const CheckinsListSubview = (props: Props) => {
     }
 
     const handleTemplate: HandleTemplate = (newTemplate) => {
-        console.info("CheckinsListSubview.handleTemplate("
-            + JSON.stringify(newTemplate)
-            + ")");
+        logger.debug({
+            context: "CheckinsListSubview.handleTemplate",
+            template: {
+                id: newTemplate.id,
+                name: newTemplate.name,
+            },
+        });
         setTemplate(newTemplate);
     }
 

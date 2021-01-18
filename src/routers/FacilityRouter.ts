@@ -149,7 +149,7 @@ FacilityRouter.post("/:facilityId/assigns/deassign/:checkinId",
     });
 
 // Reassign the current Guest at a specified Checkin to a new Checkin
-FacilityRouter.post("/:facilityId/assigns/reassigns/:oldCheckinId/:newCheckinId",
+FacilityRouter.post("/:facilityId/assigns/reassign/:oldCheckinId/:newCheckinId",
     requireRegular,
     async (req: Request, res: Response) => {
         res.send(await FacilityAssignServices.assignsReassign(

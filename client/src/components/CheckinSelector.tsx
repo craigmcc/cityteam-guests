@@ -11,7 +11,6 @@ import Form from "react-bootstrap/Form";
 
 import { HandleCheckin, OnChangeSelect } from "./types";
 import Checkin from "../models/Checkin";
-import * as Replacers from "../util/replacers";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -35,10 +34,6 @@ const CheckinSelector = (props: Props) => {
         const newCheckin: Checkin = (newIndex >= 0)
             ? props.checkins[newIndex]
             : new Checkin({ active: false, id: -1, name: "Unselected" });
-        console.info("CheckinSelector.onChange("
-            + newIndex + ", "
-            + JSON.stringify(newCheckin, Replacers.TEMPLATE)
-            + ")");
         setIndex(newIndex);
         if ((newIndex >= 0) && props.handleCheckin) {
             props.handleCheckin(newCheckin);

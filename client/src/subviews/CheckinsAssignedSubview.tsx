@@ -26,7 +26,7 @@ import AssignForm from "../forms/AssignForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/replacers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 import CheckinSelector from "../components/CheckinSelector";
 
@@ -58,17 +58,21 @@ const CheckinsAssignedSubview = (props: Props) => {
                     const newAvailables: Checkin[] =
                         await FacilityClient.checkinsAvailable
                         (props.facility.id, props.checkinDate);
-                    console.info("CheckinsAssignedSubview.fetchAvailables("
-                        + JSON.stringify(newAvailables, Replacers.CHECKIN)
-                        + ")");
+                    logger.info({
+                        context: "CheckinsAssignedSubview.fetchAvailables",
+                        count: newAvailables.length,
+                    });
                     setAvailables(newAvailables);
                 } catch (error) {
                     ReportError("CheckinsAssignedSubview.fetchAvailables", error);
                     setAvailables([]);
                 }
             } else {
+                logger.debug({
+                    context: "CheckinsAssignedSubview.fetchAvailables",
+                    msg: "SKIPPED",
+                });
                 setAvailables([]);
-                console.info("CheckinsAssignedSubview.fetchAvailables(SKIPPED)");
             }
         }
 
@@ -77,7 +81,6 @@ const CheckinsAssignedSubview = (props: Props) => {
     }, [props.checkinDate, props.facility.id, loginContext.loggedIn]);
 
     const onBack: OnClick = () => {
-        console.info("CheckinsAssignedSubview.onBack()");
         props.onBack();
     }
 
@@ -94,18 +97,20 @@ const CheckinsAssignedSubview = (props: Props) => {
             showerTime: checkin.showerTime,
             wakeupTime: checkin.wakeupTime,
         });
+        logger.debug({
+            context: "CheckinsAssignedSubview.configureAssign",
+            assign: assign,
+        });
         return assign;
     }
 
     const handleAssign: HandleAssign = async (assign) => {
-        console.info("CheckinsAssignedSubview.handleAssign.sending("
-            + JSON.stringify(assign)
-            + ")");
         const assigned = await FacilityClient.assignsAssign
             (assign.facilityId, assign.id, assign);
-        console.info("CheckinsAssignedSubview.handleAssign.receiving("
-            + JSON.stringify(assigned)
-            + ")");
+        logger.info({
+            context: "CheckinsAssignedSubview.handleAssign",
+            assign: assigned
+        });
         props.onBack();
         try {
         } catch (error) {
@@ -119,20 +124,23 @@ const CheckinsAssignedSubview = (props: Props) => {
         = useState<Checkin>(new Checkin({ id: -1 }));
 
     const handleDestination: HandleCheckin = (newDestination) => {
-        console.info("CheckinsAssignedSubview.handleDestination("
-            + JSON.stringify(newDestination, Replacers.CHECKIN)
-            + ")");
+        logger.info({
+            context: "CheckinsAssignedSubview.handleDestination",
+            destination: newDestination,
+        });
         setDestination(newDestination);
     }
 
     const onMove: OnAction = async () => {
-        console.info("CheckinsAssignedSubview.onMove("
-            + JSON.stringify(destination, Replacers.CHECKIN)
-            + ")");
         if (destination.id >= 0) {
             try {
                 await FacilityClient.assignsReassign
                     (props.checkin.facilityId, props.checkin.id, destination.id);
+                logger.debug({
+                    context: "CheckinsAssignedSubview.onMove",
+                    origin: props.checkin,
+                    destination: destination,
+                });
                 props.onBack();
             } catch (error) {
                 ReportError("CheckinsAssignedSubview.onMove", error);
@@ -145,22 +153,21 @@ const CheckinsAssignedSubview = (props: Props) => {
     const [showDeassignConfirm, setShowDeassignConfirm] = useState<boolean>(false);
 
     const onDeassignConfirm: OnClick = () => {
-        console.info("CheckinsAssignedSubview.onDeassignConfirm()");
         setShowDeassignConfirm(true);
     }
 
     const onDeassignConfirmNegative: OnClick = () => {
-        console.info("CheckinsAssignedSubview.onDeassignConfirmNegative()");
         setShowDeassignConfirm(false);
     }
 
     const onDeassignConfirmPositive: OnClick = async () => {
-        console.info("CheckinsAssignedSubview.onDeassignConfirmPositive("
-            + JSON.stringify(props.checkin, Replacers.CHECKIN)
-            + ")");
         try {
             await FacilityClient.assignsDeassign
                 (props.checkin.facilityId, props.checkin.id);
+            logger.info({
+                context: "CheckinsAssignedSubview.onDeassignConfirmPositive",
+                checkin: props.checkin,
+            });
             setShowDeassignConfirm(false);
             props.onBack();
         } catch (error) {

@@ -15,7 +15,7 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
-import * as Replacers from "../util/replacers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
@@ -47,26 +47,37 @@ const TemplateSelector = (props: Props) => {
             const newFacility = facilityContext.index >= 0
                 ? facilityContext.facilities[facilityContext.index]
                 : new Facility({ name: "(Select)" });
-            console.info("TemplateSelector.setFacility("
-                + JSON.stringify(newFacility, Replacers.FACILITY)
-                + ")");
+            logger.info({
+                context: "TemplateSelector.fetchTemplates",
+                facility: {
+                    id: newFacility.id,
+                    name: newFacility.name,
+                },
+            });
 
             try {
                 if ((newFacility.id > 0) && loginContext.loggedIn) {
                     const newTemplates: Template[] = props.all
                         ? await FacilityClient.templatesAll(newFacility.id)
                         : await FacilityClient.templatesActive(newFacility.id);
-                    console.info("TemplateSelector.fetchTemplates("
-                        + JSON.stringify(newTemplates, Replacers.TEMPLATE)
-                        + ")");
+                    logger.info({
+                        context: "TemplateSelector.fetchTemplates",
+                        count: newTemplates.length,
+                    });
                     setTemplates(newTemplates);
                 } else {
-                    console.info("TemplateSelector.fetchTemplates(SKIPPED)");
+                    logger.debug({
+                        context: "TemplateSelector.fetchTemplates",
+                        msg: "SKIPPED",
+                    });
                     setTemplates([]);
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 403)) {
-                    console.info("TemplateSelector.fetchTemplates(FORBIDDEN)");
+                    logger.debug({
+                        context: "TemplateSelector.fetchTemplates",
+                        msg: "FORBIDDEN",
+                    });
                 } else {
                     setTemplates([]);
                     ReportError("TemplateSelector.fetchTemplates", error);
@@ -84,10 +95,14 @@ const TemplateSelector = (props: Props) => {
         const newTemplate: Template = (newIndex >= 0)
             ? templates[newIndex]
             : new Template({ active: false, id: -1, name: "Unselected" });
-        console.info("TemplateSelector.onChange("
-            + newIndex + ", "
-            + JSON.stringify(newTemplate, Replacers.TEMPLATE)
-            + ")");
+        logger.debug({
+            context: "TemplateSelector.onChange",
+            index: newIndex,
+            template: {
+                id: newTemplate.id,
+                name: newTemplate.name,
+            },
+        });
         setIndex(newIndex);
         if ((newIndex >= 0) && props.handleTemplate) {
             props.handleTemplate(newTemplate);

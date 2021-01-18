@@ -27,7 +27,7 @@ import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import GuestsSubview from "../subviews/GuestsSubview";
-import * as Replacers from "../util/replacers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
@@ -51,11 +51,10 @@ const CheckinsUnassignedSubview = (props: Props) => {
     const [guest, setGuest] = useState<Guest | null>(null);
 
     useEffect(() => {
-        console.info("CheckinsUnassignedSubview.useEffect()");
     }, [adding, guest]);
 
     const configureAssign = (newGuest : Guest): Assign => {
-        const newAssign: Assign = new Assign({
+        const assign: Assign = new Assign({
             comments: null,
             facilityId: props.facility.id,
             guestId: newGuest.id,
@@ -65,19 +64,26 @@ const CheckinsUnassignedSubview = (props: Props) => {
             showerTime: null,
             wakeupTime: null
         });
-        console.info("CheckinsUnassignedSubview.configureAssign("
-            + JSON.stringify(newAssign, Replacers.ASSIGN)
-            + ")");
-        return newAssign;
+        logger.debug({
+            context: "CheckinsUnassignedSubview.configureAssign",
+            assign: assign,
+        });
+        return assign;
     }
 
     const handleAddedGuest: HandleGuest = async (newGuest) => {
         try {
             const inserted: Guest
                 = await FacilityClient.guestsInsert(props.facility.id, newGuest);
-            console.info("CheckinsUnassignedSubview.handleAddedGuest("
-                + JSON.stringify(inserted, Replacers.GUEST)
-                + ")");
+            logger.info({
+                context: "CheckinsUnassignedSubview.handleAddedGuest",
+                guest: {
+                    id: inserted.id,
+                    facilityId: inserted.facilityId,
+                    firstName: inserted.firstName,
+                    lastName: inserted.lastName,
+                },
+            });
             setAssigned(configureAssign(inserted));
             setGuest(inserted);
         } catch (error) {
@@ -89,14 +95,12 @@ const CheckinsUnassignedSubview = (props: Props) => {
 
     const handleAssignedGuest: HandleAssign = async (newAssign) => {
         try {
-            console.info("CheckinsUnassignedSubview.handleAssignedGuest.sending("
-                + JSON.stringify(newAssign)
-                + ")");
             const assigned = await FacilityClient.assignsAssign
                 (newAssign.facilityId, newAssign.id, newAssign);
-            console.info("CheckinsUnassignedSubview.handleAssignedGuest("
-                + JSON.stringify(assigned, Replacers.CHECKIN)
-                + ")");
+            logger.info({
+                context: "CheckinsUnassignedSubview.handleAssignedGuest",
+                assign: assigned,
+            });
             if (props.handleAssigned) {
                 props.handleAssigned(assigned);
             }
@@ -110,23 +114,30 @@ const CheckinsUnassignedSubview = (props: Props) => {
 
     const handleSelectedGuest: HandleGuestOptional = (newGuest) => {
         if (newGuest) {
-            console.info("CheckinsUnassignedSubview.handleSelectedGuest("
-                + JSON.stringify(newGuest, Replacers.GUEST)
-                + ")");
+            logger.info({
+                context: "CheckinsUnassignedSubview.handleSelectedGuest",
+                guest: {
+                    id: newGuest.id,
+                    facilityId: newGuest.facilityId,
+                    firstName: newGuest.firstName,
+                    lastName: newGuest.lastName,
+                },
+            });
             setGuest(newGuest);
             setAssigned(configureAssign(newGuest));
         } else {
-            console.info("CheckinViewUnassigned.handleSelectedGuest(UNSELECTED)");
+            logger.debug({
+                context: "CheckinsUnassignedView.handleSelectedGuest",
+                msg: "UNSELECTED",
+            });
         }
     }
 
     const onAdd: OnClick = () => {
-        console.info("CheckinsUnassignedSubview.onAdd()");
         setAdding(true);
     }
 
     const onBack: OnClick = () => {
-        console.info("CheckinsUnassignedSubview.onBack()");
         props.onBack();
     }
 

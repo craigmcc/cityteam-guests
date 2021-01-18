@@ -14,6 +14,7 @@ import Form from "react-bootstrap/Form";
 // Internal Modules ----------------------------------------------------------
 
 import {HandleDate, /* OnBlur,*/ OnChangeInput, OnKeyDown} from "./types";
+import logger from "../util/client-logger";
 import { validateDate } from "../util/validators";
 
 // Incoming Properties -------------------------------------------------------
@@ -40,6 +41,10 @@ const DateSelector = (props: Props) => {
 
     useEffect(() => {
         const browser = detectBrowser();
+        logger.debug({
+            context: "DateSelector.detectBrowser",
+            browser: browser,
+        });
         let newType: string = "text";
         switch (browser && browser.name) {
             case "chrome":
@@ -54,11 +59,9 @@ const DateSelector = (props: Props) => {
     const onChange: OnChangeInput = (event): void => {
         const newValue: string = event.target.value;
         setValue(newValue);
-        console.info(`DateSelector.onChange(${newValue})`);
     }
 
     const onKeyDown: OnKeyDown = (event): void => {
-        console.info(`DateSelector.onKeyDown(${event.key}, ${value})`);
         if ((event.key === "Enter") || (event.key === "Tab")) {
             processValue(value);
         }

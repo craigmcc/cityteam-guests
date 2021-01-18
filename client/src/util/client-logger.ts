@@ -1,4 +1,4 @@
-// logger --------------------------------------------------------------------
+// client-logger -------------------------------------------------------------
 
 // Configure and return a Pino logger for this browser-based application.
 
@@ -12,6 +12,7 @@
 // Internal Modules ----------------------------------------------------------
 
 import LogClient from "../clients/LogClient";
+import { CURRENT_USERNAME } from "../contexts/LoginContext";
 
 // Private Objects -----------------------------------------------------------
 
@@ -27,27 +28,30 @@ LOG_LEVEL_MAP.set("warn", 40);
 // Transmit the specified object so that it can be logged (if level is loggable)
 const write = (object: any, level: number): void => {
     if (level >= LOG_LEVEL) {
-        console.info(`CLIENT LOG(${level}): `, JSON.stringify(object));
+        object.level = level;
+        object.username = CURRENT_USERNAME ? CURRENT_USERNAME : undefined;
         LogClient.log(object);
     }
 }
 
 // Public Objects ------------------------------------------------------------
 
-export let LOG_LEVEL: number;
+export let LOG_LEVEL: number = 30;  // Default to info level
 
 export const logger = require("pino")({
+    base: null, // Remove "name", "pid", and "hostname" since we do not need them
     browser: {
-        asObject: true
+        asObject: true,
+        write: {
+            debug:      (object: any) => { write(object, 20) },
+            error:      (object: any) => { write(object, 50) },
+            fatal:      (object: any) => { write(object, 60) },
+            info:       (object: any) => { write(object, 30) },
+            trace:      (object: any) => { write(object, 10) },
+            warn:       (object: any) => { write(object, 40) },
+        },
     },
-    write: {
-        debug:      (object: any) => { write(object, 20) },
-        error:      (object: any) => { write(object, 50) },
-        fatal:      (object: any) => { write(object, 60) },
-        info:       (object: any) => { write(object, 30) },
-        trace:      (object: any) => { write(object, 10) },
-        warn:       (object: any) => { write(object, 40) },
-    }
+    timestamp: false, // Server will timestamp for us
 });
 
 export const setLevel = (newName: string): void => {

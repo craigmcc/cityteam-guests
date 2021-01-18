@@ -22,7 +22,7 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
-import * as Replacers from "../util/replacers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
@@ -59,9 +59,13 @@ const GuestsSubview = (props: Props) => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("GuestsSubview.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
+            logger.info({
+                context: "GuestsSubview.fetchGuests",
+                facility: {
+                    id: currentFacility.id,
+                    name: currentFacility.name,
+                },
+            });
             setFacility(currentFacility);
 
             // Fetch Guests matching search text (if any) for this Facility (if any)
@@ -74,14 +78,18 @@ const GuestsSubview = (props: Props) => {
                                     limit: pageSize,
                                     offset: (pageSize * (currentPage - 1))
                                 });
-                        console.info("GuestsSubview.fetchGuests("
-                            + JSON.stringify(newGuests, Replacers.GUEST)
-                            + ")");
+                        logger.info({
+                            context: "GuestsSubview.fetchGuests",
+                            count: newGuests.length,
+                        });
                         setGuests(newGuests);
                         setIndex(-1);
                     } catch (error) {
                         if (error.response && (error.response.status === 403)) {
-                            console.info("GuestsSubview.fetchGuests(FORBIDDEN)");
+                            logger.debug({
+                                context: "GuestsSubview.fetchGuests",
+                                msg: "FORBIDDEN",
+                            });
                         } else {
                             setGuests([]);
                             setIndex(-1);
@@ -90,7 +98,10 @@ const GuestsSubview = (props: Props) => {
                     }
                 }
             } else {
-                console.info("GuestsSubview.fetchGuests(SKIPPED)");
+                logger.debug({
+                    context: "GuestsSubview.fetchGuests",
+                    msg: "SKIPPED",
+                });
                 setGuests([]);
                 setIndex(-1);
             }
@@ -111,17 +122,26 @@ const GuestsSubview = (props: Props) => {
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            console.info("GuestsSubview.handleIndex(UNSET)");
+            logger.debug({
+                context: "GuestsSubview.handleIndex",
+                msg: "UNSET",
+            });
             setIndex(-1);
             if (props.handleSelect) {
                 props.handleSelect(null);
             }
         } else {
             const newGuest = guests[newIndex];
-            console.info("GuestsSubview.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(newGuest, Replacers.GUEST)
-                + ")");
+            logger.info({
+                context: "GuestsSubview.handleIndex",
+                index: newIndex,
+                guest: {
+                    id: newGuest.id,
+                    facilityId: newGuest.facilityId,
+                    firstName: newGuest.firstName,
+                    lastName: newGuest.lastName,
+                },
+            });
             setIndex(newIndex);
             if (props.handleSelect) {
                 props.handleSelect(newGuest);

@@ -15,11 +15,10 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
+import { PaymentTypes } from "../components/types";
 import Assign from "../models/Assign";
-import * as Replacers from "../util/replacers";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
 import { validateTime } from "../util/validators";
-import {PaymentTypes} from "../components/types";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -39,9 +38,6 @@ const AssignForm = (props: Props) => {
 
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
         const assign: Assign = toAssign(values);
-        console.info("AssignForm.handleSubmit("
-            + JSON.stringify(assign, Replacers.ASSIGN)
-            + ")");
         props.handleAssign(assign);
     }
 
@@ -61,7 +57,6 @@ const AssignForm = (props: Props) => {
         })
         return results;
     }
-
 
     const toAssign = (values: FormikValues): Assign => {
         const results = toNullValues(values);
