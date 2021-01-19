@@ -5,6 +5,7 @@
 // External Modules ----------------------------------------------------------
 
 import {
+    BelongsTo,
     Column,
     DataType,
     ForeignKey,
@@ -64,6 +65,9 @@ export class RefreshToken extends AbstractModel<RefreshToken> {
         }
     })
     token!: string;
+
+    @BelongsTo(() => User)
+    user!: User;
 
     @ForeignKey(() => User)
     @Column({

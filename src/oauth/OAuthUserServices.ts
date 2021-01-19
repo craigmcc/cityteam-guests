@@ -15,6 +15,8 @@ import OAuthUser from "../models/User";
 import AbstractServices from "../services/AbstractServices";
 import { NotFound } from "../util/http-errors";
 import { appendPagination } from "../util/query-parameters";
+import User from "../models/User";
+import AccessToken from "../models/AccessToken";
 
 const OAuthAccessTokensOrder: Order = [
     [ "userId", "ASC" ],
@@ -171,6 +173,30 @@ export class OAuthUserServices extends AbstractServices<OAuthUser> {
             result.password = "";
         })
         return results;
+    }
+
+    // Return the User for the (validated) accessToken
+    public async me(token: string): Promise<OAuthUser> {
+        let options: FindOptions = appendQuery({
+            include: [
+                User
+            ],
+            where: {
+                token: token
+            }
+        });
+        const accessToken = await AccessToken.findOne(options);
+        if (accessToken) {
+            const user = await accessToken.$get("user");
+            if (user) {
+                user.password = "";
+                return user;
+            } else {
+                throw new NotFound(`userId: Missing user ${accessToken.userId}`);
+            }
+        } else {
+            throw new NotFound(`token: Missing access token`);
+        }
     }
 
     // ***** OAuthAccessToken Lookups *****

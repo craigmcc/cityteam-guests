@@ -21,6 +21,7 @@ import { requireAny } from "./OAuthMiddleware";
 import { OAuthOrchestrator } from "../server";
 import { BadRequest, ServerError } from "../util/http-errors";
 import logger from "../util/server-logger";
+import OAuthUserServices from "./OAuthUserServices";
 
 // Public Objects ------------------------------------------------------------
 
@@ -55,6 +56,18 @@ OAuthTokenRouter.delete("/",
                 "revokeToken()");
         }
     });
+
+// Return the user object for the (validated) access token
+// that was used to authorize this request.
+OAuthTokenRouter.get("/",
+    requireAny,
+    async (req: Request, res: Response) => {
+        logger.info({
+            context: "OAuthTokenRouter.me",
+            token: res.locals.token
+        });
+        res.send(await OAuthUserServices.me(res.locals.token));
+    })
 
 // Request access token and optional refresh token.
 OAuthTokenRouter.post("/",
