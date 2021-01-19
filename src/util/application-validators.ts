@@ -24,6 +24,14 @@ export const validateFeatures = (features: string): boolean => {
     }
 }
 
+export const validateLevel = (level: string): boolean => {
+    if (level) {
+        return validLevels.includes(level);
+    } else {
+        return true;
+    }
+}
+
 export const validateMatNumber = (matNumber: number): boolean => {
     if (matNumber) {
         return (matNumber > 0);
@@ -78,6 +86,9 @@ export const validatePaymentType = (paymentType: string): boolean => {
 // Private Objects -----------------------------------------------------------
 
 const validFeatures: string = "HSW";
+
+const validLevels: string[] =
+    [ "debug", "error", "fatal", "info", "trace", "warn" ];
 
 const validPaymentTypes: string[] =
     [ "$$", "AG", "CT", "FM", "MM", "SW", "UK", "WB" ];

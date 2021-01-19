@@ -7,7 +7,8 @@
 import {
     BelongsTo,
     Column,
-    DataType, ForeignKey,
+    DataType,
+    ForeignKey,
     HasMany,
     Table
 } from "sequelize-typescript";
@@ -22,7 +23,8 @@ import {
     validateFacilityId,
     validateUserUsernameUnique
 } from "../util/async-validators";
-import {BadRequest} from "../util/http-errors";
+import { validateLevel } from "../util/application-validators";
+import { BadRequest } from "../util/http-errors";
 
 // Public Modules ------------------------------------------------------------
 
@@ -81,6 +83,25 @@ export class User extends AbstractModel<User> {
         }
     })
     facilityId!: number;
+
+    @Column({
+        allowNull: false,
+        comment: "Client log level for this user.",
+        defaultValue: true,
+        field: "level",
+        type: DataType.STRING,
+        validate: {
+            isValidLevel: function(value: string): void {
+                if (value) {
+                    if (!validateLevel(value)) {
+                        throw new BadRequest
+                            (`level: Invalid level ${value}`);
+                    }
+                }
+            }
+        }
+    })
+    level!: string;
 
     @Column({
         allowNull: false,
