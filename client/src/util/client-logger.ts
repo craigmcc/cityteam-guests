@@ -56,11 +56,12 @@ export const logger = require("pino")({
 });
 
 export const setLevel = (newName: string): void => {
-    const newLevel: number | undefined = LOG_LEVEL_MAP.get(newName);
+    let newLevel: number | undefined = LOG_LEVEL_MAP.get(newName);
     if (newLevel) {
         LOG_LEVEL = newLevel;
     } else {
-        throw new Error(`name: Invalid log level '${newName}'`);
+        newLevel = LOG_LEVEL_MAP.get(Levels.INFO);
+        LOG_LEVEL = newLevel ? newLevel : 30;
     }
 }
 setLevel("info"); // Set the default log level

@@ -15,6 +15,7 @@ import React, { createContext, useState } from "react";
 import OAuthClient from "../clients/OAuthClient";
 import TokenResponse from "../models/TokenResponse";
 import User from "../models/User";
+import { setLevel } from "../util/client-logger";
 
 // Context Properties --------------------------------------------------------
 
@@ -85,6 +86,9 @@ export const LoginContextProvider = (props: any) => {
         CURRENT_USERNAME = newUsername;
 
         CURRENT_USER = await OAuthClient.me();
+        if (CURRENT_USER && CURRENT_USER.level) {
+            setLevel(CURRENT_USER.level);
+        }
 
     }
 
@@ -104,6 +108,7 @@ export const LoginContextProvider = (props: any) => {
         CURRENT_USERNAME = null;
 
         CURRENT_USER = null;
+        setLevel("info");
 
     }
 

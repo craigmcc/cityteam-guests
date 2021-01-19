@@ -10,6 +10,7 @@ class User {
         this.active = data.active || true;
         this.facilityId = data.facilityId || -1;
         this.id = data.id || -1;
+        this.level = data.level || "info";
         this.name = data.name;
         this.password = data.password || null;
         this.scope = data.scope;
@@ -19,6 +20,7 @@ class User {
     active!: boolean;
     facilityId!: number;
     id!: number;
+    level?: string;
     name!: string;
     password?: string;
     scope!: string;
