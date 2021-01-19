@@ -1,9 +1,7 @@
 // LogServices ---------------------------------------------------------------
 
-// Service methods to export requested access log and server log files as
-// "text/plain" or "application/json" content, respectively.  If server log(s)
-// are requested, they will be encapsulated in "[" and "]" to become a well
-// formed JSON array.
+// Service methods to export requested access, client, and server log files as
+// "text/plain" (access) or "application/json" (other) content, respectively.
 
 // External Modules ----------------------------------------------------------
 
@@ -56,7 +54,7 @@ export class LogServices {
 
     // Return today's client log file (only current through now).
     public async clientLog(): Promise<string> {
-        return "[" + (await this.upload("client.log")) + "]";
+        return await this.upload("client.log");
     }
 
     // Return the concatenated client log(s) for the specified date.
@@ -66,7 +64,7 @@ export class LogServices {
             context: "LogServices.clientLogs",
             matches: matches
         });
-        let results: string = "[";
+        let results: string = "";
         // TODO - need to resort to Promises.all() to gather all of them?
         if (matches.length > 0) {
             results += await this.upload(matches[0]);
@@ -80,7 +78,6 @@ export class LogServices {
         if (matches.length > 3) {
             results += await this.upload(matches[3]);
         }
-        results += "]";
         return results;
     }
 
@@ -92,7 +89,7 @@ export class LogServices {
 
     // Return today's server log file (only current through now).
     public async serverLog(): Promise<string> {
-        return "[" + (await this.upload("server.log")) + "]";
+        return await this.upload("server.log");
     }
 
     // Return the concatenated server log(s) for the specified date.
@@ -102,7 +99,7 @@ export class LogServices {
             context: "LogServices.serverLogs",
             matches: matches
         });
-        let results: string = "[";
+        let results: string = "";
         // TODO - need to resort to Promises.all() to gather all of them?
         if (matches.length > 0) {
             results += await this.upload(matches[0]);
@@ -116,7 +113,6 @@ export class LogServices {
         if (matches.length > 3) {
             results += await this.upload(matches[3]);
         }
-        results += "]";
         return results;
     }
 

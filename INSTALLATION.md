@@ -212,12 +212,14 @@ the cityteam-guests subdirectory, type each of the following commands
 (followed by pressing *Enter*).  The install and build steps will take a while.
 Ignore any minor warnings like "SKIPPING OPTIONAL DEPENDENCY".
 
-- *npm install*
-- *npm run server:build*
-- *cd client*
-- *npm install*
-- *npm run build*
-- *cd ..*
+```shell
+npm install
+npm run server:build
+cd client
+npm install
+npm run build
+cd ..
+```
 
 ### (3.3) CREATE GUESTS DATABASE
 
@@ -349,23 +351,111 @@ down as well!  To do so:
   *Enter*.
 - You should end up at the command line prompt.
 
-### (3.7) Install Application As A Windows Service
+## (4) SET UP APPLICATION AS A SERVICE
 
-Our final setup step is to tell Windows to run the CityTeam Guests Application as a
-Windows Service, so that it starts automatically whenever the computer is restarted.
+Applicability:  *Application Server*.
 
-- If needed, click *Windows+R* and type *cmd* to get back to a Command Prompt window.
-- Type the following command to install the application as a service:
-  > node commands\service-install.js
-  >
-- You will be asked to confirm that the app can make changes to your device.
-  (TODO - this step has problems but it did install the service).
-- To verify that this worked:
-  - Click *Windows+R* and type *services* to call up the Service list.
-  - Scroll down to *CityTeam-Guests* and observe that it is running.
-  
-As a finishing touch, open Google Chrome and set up a bookmark for the home page
-of this application.  It will either be **http://localhost:8080** if the user will
-be using the same computer as the *Application Server* -- otherwise, replace
-"localhost" with the network name of the *Application Server* computer.
+As a final installation step, we will set the application to run automatically
+as a Windows service, managed by a service manager called *PM2*.  Eventually,
+this will trigger starting the application again whenever you restart your
+computer.  For now, that will be necessary each time you restart.
 
+### (4.1) DOWNLOAD AND INSTALL
+
+Click *Windows+R* and type *cmd* to open a Command Prompt window.  For these
+steps, stay in the home directory of the account.  Then, type the following
+commands.
+
+```shell
+npm install pm2 -g
+pm2 --version
+```
+
+PM2 will echo a bunch of brief introductory information, as well as information
+that it has spawned the PM2 daemon with *pm2_home=C:\Users\cityteam\.pm2)*.  Even
+though this is exactly where I want it, I will follow the *Caveats* advice in
+the [PM2 Info on npmjs.com](https://npmjs.com/package/pm2-windows-service) and set
+up a PM2_HOME environment variable pointing at this value, in the *cityteam* account.
+* In the "Type here to search" window, type "env".  Then select the **Edit the
+  system environment variables" match.
+* At the bottom of the page, click **Environment Variables**.
+* In the "User variables for cityteam" section (or whatever the Windows username is),
+  click *New*.
+* For the variable name, enter **PM2_HOME**
+* For the variable value, enter **C:\Users\cityteam\\.pm2** (replace "cityteam"
+  with the Windows username of the account you are using).
+* Click *OK*.
+
+Close any open Command prompt windows, and reopen one.  Confirm that the variable
+setting worked:
+
+```shell
+echo %PM2_HOME%
+```
+
+### (4.2) CONFIGURE CITYTEAM GUESTS APP AS A SERVICE
+
+From a Command Prompt window (in the *cityteam* account home directory):
+
+```shell
+pm2 ecosystem
+```
+
+This will create a basic *ecosystem.config.js* file (configuration for all PM2 operations)
+in the account home directory.  We will edit this file to start the *Server Application*
+as needed.  Note that PM2 can manage multiple applications -- we will only be installing
+one for now, but additional apps can be supported later.
+
+Open the *ecosystem.config.js* file in your favorite text editor, and edit it to
+look like this:
+
+```javascript
+module.exports = {
+    apps: [{
+        cwd: "/Users/cityteam/cityteam-guests",
+        env: {
+            "NODE_ENV": "production",
+        },
+        env_development: {
+            "NODE_ENV": "development",
+        },
+        env_production: {
+            "NODE_ENV": "production",
+        },
+        ignore_watch: [ "backup", "log" ],
+        name: "guests",
+        script: "./dist/server.js",
+        // watch: ".",
+    }],
+};
+```
+
+Notes on the configuration file:
+* PM2 likes forward slashes in pathnames, even on Windows.
+* Set up "development" and "production" environments, with production being
+  the default behavior (by virtue of being in the *env* attribute).
+* The application will load additional environment variables from *.env.production*
+  or *.env.development* itself, so only NODE_ENV needs to be set here.
+* Commented out the *watch* feature, which tells PM2 to restart the service
+  if any file in the application changes - would rather manage updating the
+  software myself.
+* In case the *watch* feature  is turned back on, added an *ignore_watch*
+  configuration to ignore any changes in the *backup* or *log* subdirectories,
+  which will receive new data in normal operation of the system.
+
+### (4.3) START UP THE APPLICATION
+
+From a Command Prompt window (in the account home directory):
+
+```shell
+pm2 start
+```
+
+This will start up the CityTeam Guests application, and list confirmation information.
+
+This step will (currently at least) be necessary whenever you restart your computer.
+The most obvious evidence will be if you start Google Chrome and try to access the
+application - you'll see a **This site can't be reached** error message.
+
+To start the app again, simply repeat this step (open a Command Prompt window,
+type **pm2 start**, and press *Enter*).
