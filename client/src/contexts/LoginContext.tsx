@@ -12,7 +12,9 @@ import React, { createContext, useState } from "react";
 
 // Internal Modules ----------------------------------------------------------
 
+import OAuthClient from "../clients/OAuthClient";
 import TokenResponse from "../models/TokenResponse";
+import User from "../models/User";
 
 // Context Properties --------------------------------------------------------
 
@@ -48,6 +50,7 @@ export default LoginContext;
 export let CURRENT_ACCESS_TOKEN: string | null = null;
 export let CURRENT_REFRESH_TOKEN: string | null = null;
 export let CURRENT_SCOPE: string | null = null;
+export let CURRENT_USER: User | null = null;
 export let CURRENT_USERNAME: string | null = null;
 
 export const LoginContextProvider = (props: any) => {
@@ -59,7 +62,8 @@ export const LoginContextProvider = (props: any) => {
     const [scope, setScope] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
 
-    const handleLogin = (newUsername: string, tokenResponse: TokenResponse): void => {
+    const handleLogin = async (newUsername: string, tokenResponse: TokenResponse): Promise<void> => {
+
         console.info(`LoginContext.handleLogin(${newUsername})`);
         setAccessToken(tokenResponse.access_token);
         const newExpires: Date = new Date
@@ -73,14 +77,19 @@ export const LoginContextProvider = (props: any) => {
         }
         setScope(tokenResponse.scope);
         setUsername(newUsername);
+
         CURRENT_ACCESS_TOKEN = tokenResponse.access_token;
         CURRENT_REFRESH_TOKEN =
             tokenResponse.refresh_token ? tokenResponse.refresh_token : null;
         CURRENT_SCOPE = tokenResponse.scope;
         CURRENT_USERNAME = newUsername;
+
+        CURRENT_USER = await OAuthClient.me();
+
     }
 
     const handleLogout = (): void => {
+
         console.info(`LoginContext.handleLogout(${username})`);
         setAccessToken(null);
         setExpires(null);
@@ -88,10 +97,14 @@ export const LoginContextProvider = (props: any) => {
         setRefreshToken(null);
         setScope(null);
         setUsername(null);
+
         CURRENT_ACCESS_TOKEN = null;
         CURRENT_REFRESH_TOKEN = null;
         CURRENT_SCOPE = null;
         CURRENT_USERNAME = null;
+
+        CURRENT_USER = null;
+
     }
 
     // Return true if there is a logged in user that has the required

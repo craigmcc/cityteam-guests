@@ -12,11 +12,20 @@ import OAuthBase from "./OAuthBase";
 import PasswordTokenRequest from "../models/PasswordTokenRequest";
 import RefreshTokenRequest from "../models/RefreshTokenRequest";
 
-import { CURRENT_ACCESS_TOKEN } from "../contexts/LoginContext";
+import {CURRENT_ACCESS_TOKEN, CURRENT_USERNAME} from "../contexts/LoginContext";
 
 // Public Objects ------------------------------------------------------------
 
 class OAuthClient {
+
+    async me<User>(): Promise<User> {
+        return (await OAuthBase.get("/token", {
+            headers: {
+                "Authorization": `Bearer ${CURRENT_ACCESS_TOKEN}`,
+                "X-CTG-Username": CURRENT_USERNAME,
+            }
+        })).data;
+    }
 
     async password<TokenResponse>(passwordTokenRequest: PasswordTokenRequest)
             : Promise<TokenResponse> {
@@ -44,7 +53,8 @@ class OAuthClient {
     async revoke(): Promise<void> {
         await OAuthBase.delete(`/token`, {
             headers: {
-                "Authorization": `Bearer ${CURRENT_ACCESS_TOKEN}`
+                "Authorization": `Bearer ${CURRENT_ACCESS_TOKEN}`,
+                "X-CTG-Username": CURRENT_USERNAME,
             }
         });
     }

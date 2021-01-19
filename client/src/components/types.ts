@@ -1,6 +1,6 @@
 // types ---------------------------------------------------------------------
 
-// Typescript type definitions for application components.
+// Typescript type definitions for client application components.
 
 // External Modules ----------------------------------------------------------
 
@@ -45,6 +45,15 @@ export type OnFocus = (event: React.FocusEvent<HTMLElement>) => void;
 export type OnKeyDown = (event: React.KeyboardEvent<HTMLElement>) => void;
 
 // Enumerations --------------------------------------------------------------
+
+export enum Levels {
+    TRACE = "trace",
+    DEBUG = "debug",
+    INFO = "info",
+    WARN = "warn",
+    ERROR = "error",
+    FATAL = "fatal",
+}
 
 export enum PaymentTypes {
     $$ = "$$-Cash",
