@@ -22,6 +22,7 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
+import * as Abridgers from "../util/abridgers";
 import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
@@ -59,14 +60,11 @@ const GuestsSubview = (props: Props) => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            logger.info({
-                context: "GuestsSubview.fetchGuests",
-                facility: {
-                    id: currentFacility.id,
-                    name: currentFacility.name,
-                },
-            });
             setFacility(currentFacility);
+            logger.debug({
+                context: "GuestsSubview.fetchGuests",
+                facility: Abridgers.FACILITY(currentFacility),
+            });
 
             // Fetch Guests matching search text (if any) for this Facility (if any)
             if ((facility.id >= 0) && loginContext.loggedIn) {
@@ -78,7 +76,7 @@ const GuestsSubview = (props: Props) => {
                                     limit: pageSize,
                                     offset: (pageSize * (currentPage - 1))
                                 });
-                        logger.info({
+                        logger.debug({
                             context: "GuestsSubview.fetchGuests",
                             count: newGuests.length,
                         });
@@ -122,7 +120,7 @@ const GuestsSubview = (props: Props) => {
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            logger.debug({
+            logger.trace({
                 context: "GuestsSubview.handleIndex",
                 msg: "UNSET",
             });
@@ -132,7 +130,7 @@ const GuestsSubview = (props: Props) => {
             }
         } else {
             const newGuest = guests[newIndex];
-            logger.info({
+            logger.debug({
                 context: "GuestsSubview.handleIndex",
                 index: newIndex,
                 guest: {

@@ -20,6 +20,7 @@ import Facility from "../models/Facility";
 import CheckinsAssignedSubview from "../subviews/CheckinsAssignedSubview";
 import CheckinsListSubview from "../subviews/CheckinsListSubview";
 import CheckinsUnassignedSubview from "../subviews/CheckinsUnassignedSubview";
+import * as Abridgers from "../util/abridgers";
 import logger from "../util/client-logger";
 import { todayDate } from "../util/dates";
 
@@ -52,14 +53,11 @@ const CheckinView = () => {
         } else {
             currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
         }
+        setFacility(currentFacility);
         logger.debug({
             context: "CheckinsView.setFacility",
-            facility: {
-                id: currentFacility.id,
-                name: currentFacility.name,
-            },
+            facility: Abridgers.FACILITY(currentFacility),
         });
-        setFacility(currentFacility);
 
         // Record current permissions
         const isRegular = loginContext.validateScope(Scopes.REGULAR);
@@ -73,13 +71,7 @@ const CheckinView = () => {
         if (newAssigned) {
             logger.info({
                 context: "CheckinsView.handleAssigned",
-                assigned: {
-                    id: newAssigned.id,
-                    checkinDate: newAssigned.checkinDate,
-                    facilityId: newAssigned.facilityId,
-                    guestId: newAssigned.guestId,
-                    matNumber: newAssigned.matNumber,
-                },
+                assigned: Abridgers.CHECKIN(newAssigned),
             });
         } else {
             logger.debug({
@@ -91,7 +83,7 @@ const CheckinView = () => {
     }
 
     const handleCheckinDate: HandleDate = (newCheckinDate) => {
-        logger.debug({
+        logger.trace({
             context: "CheckinsView.handleCheckinDate",
             checkinDate: newCheckinDate,
         });
@@ -105,18 +97,13 @@ const CheckinView = () => {
         if (newSelected) {
             logger.info({
                 context: "CheckinsView.handleSelected",
-                selected: {
-                    id: newSelected.id,
-                    checkinDate: newSelected.checkinDate,
-                    facilityId: newSelected.facilityId,
-                    guestId: newSelected.guestId,
-                    matNumber: newSelected.matNumber,
-                },
+                selected: Abridgers.CHECKIN(newSelected),
             });
             if (canProcess) {
                 setSelected(newSelected);
-                handleStage
-                    (newSelected.guestId ? Stage.Assigned : Stage.Unassigned);
+                handleStage(newSelected.guestId
+                    ? Stage.Assigned
+                    : Stage.Unassigned);
             }
         } else {
             logger.debug({
@@ -127,17 +114,12 @@ const CheckinView = () => {
     }
 
     const handleStage = (newStage : Stage): void => {
-        logger.debug({
-            context: "CheckinsView.handleStage",
-            stage: newStage
-        });
+        logger.trace({ context: "CheckinsView.handleStage", stage: newStage });
         setStage(newStage);
     }
 
     const onBack = () => {
-        logger.debug({
-            context: "CheckinsView.onBack",
-        });
+        logger.trace({ context: "CheckinsView.onBack" });
         setStage(Stage.List);
     }
 

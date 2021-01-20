@@ -15,6 +15,7 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
+import * as Abridgers from "../util/abridgers";
 import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
@@ -47,12 +48,9 @@ const TemplateSelector = (props: Props) => {
             const newFacility = facilityContext.index >= 0
                 ? facilityContext.facilities[facilityContext.index]
                 : new Facility({ name: "(Select)" });
-            logger.info({
+            logger.debug({
                 context: "TemplateSelector.fetchTemplates",
-                facility: {
-                    id: newFacility.id,
-                    name: newFacility.name,
-                },
+                facility: Abridgers.FACILITY(newFacility),
             });
 
             try {
@@ -60,7 +58,7 @@ const TemplateSelector = (props: Props) => {
                     const newTemplates: Template[] = props.all
                         ? await FacilityClient.templatesAll(newFacility.id)
                         : await FacilityClient.templatesActive(newFacility.id);
-                    logger.info({
+                    logger.debug({
                         context: "TemplateSelector.fetchTemplates",
                         count: newTemplates.length,
                     });

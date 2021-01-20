@@ -18,6 +18,7 @@ import Row from "react-bootstrap/Row";
 // Import Modules ------------------------------------------------------------
 
 import FacilityClient from "../clients/FacilityClient";
+import CheckinSelector from "../components/CheckinSelector";
 import {
     HandleAssign, HandleCheckin, OnAction, OnClick
 } from "../components/types";
@@ -26,9 +27,9 @@ import AssignForm from "../forms/AssignForm";
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
+import * as Abridgers from "../util/abridgers";
 import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
-import CheckinSelector from "../components/CheckinSelector";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -58,21 +59,21 @@ const CheckinsAssignedSubview = (props: Props) => {
                     const newAvailables: Checkin[] =
                         await FacilityClient.checkinsAvailable
                         (props.facility.id, props.checkinDate);
-                    logger.info({
+                    setAvailables(newAvailables);
+                    logger.debug({
                         context: "CheckinsAssignedSubview.fetchAvailables",
                         count: newAvailables.length,
                     });
-                    setAvailables(newAvailables);
                 } catch (error) {
-                    ReportError("CheckinsAssignedSubview.fetchAvailables", error);
                     setAvailables([]);
+                    ReportError("CheckinsAssignedSubview.fetchAvailables", error);
                 }
             } else {
-                logger.debug({
+                setAvailables([]);
+                logger.trace({
                     context: "CheckinsAssignedSubview.fetchAvailables",
                     msg: "SKIPPED",
                 });
-                setAvailables([]);
             }
         }
 
@@ -97,7 +98,7 @@ const CheckinsAssignedSubview = (props: Props) => {
             showerTime: checkin.showerTime,
             wakeupTime: checkin.wakeupTime,
         });
-        logger.debug({
+        logger.trace({
             context: "CheckinsAssignedSubview.configureAssign",
             assign: assign,
         });
@@ -109,7 +110,7 @@ const CheckinsAssignedSubview = (props: Props) => {
             (assign.facilityId, assign.id, assign);
         logger.info({
             context: "CheckinsAssignedSubview.handleAssign",
-            assign: assigned
+            assign: Abridgers.CHECKIN(assigned),
         });
         props.onBack();
         try {
@@ -124,11 +125,11 @@ const CheckinsAssignedSubview = (props: Props) => {
         = useState<Checkin>(new Checkin({ id: -1 }));
 
     const handleDestination: HandleCheckin = (newDestination) => {
+        setDestination(newDestination);
         logger.info({
             context: "CheckinsAssignedSubview.handleDestination",
-            destination: newDestination,
+            destination: Abridgers.CHECKIN(newDestination),
         });
-        setDestination(newDestination);
     }
 
     const onMove: OnAction = async () => {
@@ -138,8 +139,8 @@ const CheckinsAssignedSubview = (props: Props) => {
                     (props.checkin.facilityId, props.checkin.id, destination.id);
                 logger.debug({
                     context: "CheckinsAssignedSubview.onMove",
-                    origin: props.checkin,
-                    destination: destination,
+                    origin: Abridgers.CHECKIN(props.checkin),
+                    destination: Abridgers.CHECKIN(destination),
                 });
                 props.onBack();
             } catch (error) {
@@ -162,13 +163,13 @@ const CheckinsAssignedSubview = (props: Props) => {
 
     const onDeassignConfirmPositive: OnClick = async () => {
         try {
+            setShowDeassignConfirm(false);
             await FacilityClient.assignsDeassign
                 (props.checkin.facilityId, props.checkin.id);
             logger.info({
                 context: "CheckinsAssignedSubview.onDeassignConfirmPositive",
-                checkin: props.checkin,
+                checkin: Abridgers.CHECKIN(props.checkin),
             });
-            setShowDeassignConfirm(false);
             props.onBack();
         } catch (error) {
             ReportError("CheckinsAssignedSubview.onDeassignConfirmPositive", error);

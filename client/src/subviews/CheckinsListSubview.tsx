@@ -24,6 +24,7 @@ import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Summary from "../models/Summary";
 import Template from "../models/Template";
+import * as Abridgers from "../util/abridgers";
 import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 import { withFlattenedObjects } from "../util/transformations";
@@ -63,7 +64,7 @@ const CheckinsListSubview = (props: Props) => {
                         (props.facility.id, props.checkinDate, {
                             withGuest: ""
                         });
-                    logger.info({
+                    logger.debug({
                         context: "CheckinsListSubview.fetchCheckins",
                         count: newCheckins.length
                     });
@@ -81,7 +82,7 @@ const CheckinsListSubview = (props: Props) => {
                     setSummary(new Summary());
                 }
             } else {
-                logger.info({
+                logger.trace({
                     context: "CheckinsListSubview.fetchCheckins",
                     msg: "SKIPPED",
                 });
@@ -109,12 +110,9 @@ const CheckinsListSubview = (props: Props) => {
     }
 
     const handleGenerate = (): void => {
-        logger.debug({
+        logger.info({
             context: "CheckinsListSubview.handleGenerate",
-            template: {
-                id: template.id,
-                name: template.name,
-            },
+            template: Abridgers.TEMPLATE(template),
         });
         FacilityClient.checkinsGenerate(
             props.facility.id,
@@ -135,7 +133,7 @@ const CheckinsListSubview = (props: Props) => {
 
     const handleIndex = (newIndex: number): void => {
         if (newIndex === index) {
-            logger.debug({
+            logger.trace({
                 context: "CheckinsListSubview.handleIndex",
                 msg: "UNSELECTED",
             });
@@ -145,16 +143,10 @@ const CheckinsListSubview = (props: Props) => {
             setIndex(-1);
         } else {
             const newCheckin: Checkin = checkins[newIndex];
-            logger.info({
+            logger.debug({
                 context: "CheckinsListSubview.handleIndex",
                 index: newIndex,
-                checkin: {
-                    id: newCheckin.id,
-                    checkinDate: newCheckin.checkinDate,
-                    facilityId: newCheckin.facilityId,
-                    guestId: newCheckin.guestId,
-                    matNumber: newCheckin.matNumber,
-                },
+                checkin: Abridgers.CHECKIN(newCheckin),
             });
             if (props.handleSelected) {
                 props.handleSelected(newCheckin);
@@ -166,10 +158,7 @@ const CheckinsListSubview = (props: Props) => {
     const handleTemplate: HandleTemplate = (newTemplate) => {
         logger.debug({
             context: "CheckinsListSubview.handleTemplate",
-            template: {
-                id: newTemplate.id,
-                name: newTemplate.name,
-            },
+            template: Abridgers.TEMPLATE(newTemplate),
         });
         setTemplate(newTemplate);
     }
