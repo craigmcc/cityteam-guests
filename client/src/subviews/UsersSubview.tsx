@@ -19,7 +19,8 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import User from "../models/User";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
@@ -53,24 +54,29 @@ const UsersSubview = (props: Props) => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("UsersSubview.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
             setFacility(currentFacility);
+            logger.debug({
+                context: "UsersSubview.setFacility",
+                facility: Abridgers.FACILITY(currentFacility),
+            });
 
             // Fetch Users for this Facility (if any)
             if ((currentFacility.id >= 0) && loginContext.loggedIn) {
                 try {
                     const newUsers: User[] =
                         await FacilityClient.usersAll(currentFacility.id);
-                    console.info("UsersSubview.fetchUsers("
-                        + JSON.stringify(newUsers, Replacers.USER)
-                        + ")");
                     setIndex(-1);
                     setUsers(newUsers);
+                    logger.debug({
+                        context: "UsersSubview.fetchUsers",
+                        count: newUsers.length,
+                    });
                 } catch (error) {
                     if (error.response && (error.response.status === 403)) {
-                        console.info("UsersSubview.fetchUsers(FORBIDDEN)");
+                        logger.debug({
+                            context: "UsersSubview.fetchUsers",
+                            msg: "FORBIDDEN",
+                        });
                     } else {
                         setIndex(-1);
                         setUsers([]);
@@ -78,9 +84,12 @@ const UsersSubview = (props: Props) => {
                     }
                 }
             } else {
-                console.info("UsersSubview.fetchUsers(SKIPPED)");
                 setIndex(-1);
                 setUsers([]);
+                logger.debug({
+                    context: "UsersSubview.fetchUsers",
+                    msg: "SKIPPED",
+                });
             }
 
         }
@@ -91,18 +100,19 @@ const UsersSubview = (props: Props) => {
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            console.info("UsersSubview.handleIndex(UNSET)");
             setIndex(-1);
+            logger.debug({ context: "UsersSubview.handleIndex", msg: "UNSET" });
             if (props.handleSelect) {
                 props.handleSelect(null);
             }
         } else {
             const newUser = users[newIndex];
-            console.info("UsersSubview.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(newUser, Replacers.TEMPLATE)
-                + ")");
             setIndex(newIndex);
+            logger.debug({
+                context: "UsersSubview.handleIndex",
+                index: newIndex,
+                user: Abridgers.USER(newUser),
+            });
             if (props.handleSelect) {
                 props.handleSelect(newUser);
             }

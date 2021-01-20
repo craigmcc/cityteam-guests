@@ -37,7 +37,6 @@ const CheckinView = () => {
     const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
-//    const [assigned, setAssigned] = useState<Checkin | null>(null);
     const [canProcess, setCanProcess] = useState<boolean>(false);
     const [checkinDate, setCheckinDate] = useState<string>(todayDate());
     const [facility, setFacility] = useState<Facility>(new Facility());
@@ -53,7 +52,7 @@ const CheckinView = () => {
         } else {
             currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
         }
-        logger.info({
+        logger.debug({
             context: "CheckinsView.setFacility",
             facility: {
                 id: currentFacility.id,

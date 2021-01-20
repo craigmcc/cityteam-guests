@@ -18,6 +18,7 @@ import Credentials from "../models/Credentials";
 import PasswordTokenRequest from "../models/PasswordTokenRequest";
 import TokenResponse from "../models/TokenResponse";
 import OAuthClient from "../clients/OAuthClient";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -34,7 +35,6 @@ export const LoggedInUser = () => {
     }, [loginContext.loggedIn])
 
     const handleLogin = async (credentials: Credentials) => {
-        console.info(`LoggedInUser.handleLogin: Logging in user '${credentials.username}'`);
         const tokenRequest: PasswordTokenRequest = {
             grant_type: "password",
             password: credentials.password,
@@ -44,17 +44,25 @@ export const LoggedInUser = () => {
             const tokenResponse: TokenResponse = await OAuthClient.password(tokenRequest);
             loginContext.handleLogin(credentials.username, tokenResponse);
             setShowCredentials(false);
+            logger.info({
+                context: "LoggedInUser.handleLogin",
+                username: credentials.username,
+            });
         } catch (error) {
             ReportError("LoggedInUser.handleLogin", error);
         }
     }
 
     const handleLogout = async () => {
-        console.info(`LoggedInUser.handleLogout: Logging out user '${loginContext.username}'`);
         try {
+            const loggedOutUsername = loginContext.username;
             await OAuthClient.revoke();
             loginContext.handleLogout();
             history.push("/home");
+            logger.info({
+                context: "LoggedInUser.handleLogout",
+                username: loggedOutUsername,
+            });
         } catch (error) {
             ReportError("LoggedInUser.handleLogout", error);
         }

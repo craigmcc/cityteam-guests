@@ -20,7 +20,8 @@ import UserForm from "../forms/UserForm";
 import Facility from "../models/Facility";
 import User from "../models/User";
 import UsersSubview from "../subviews/UsersSubview";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -48,10 +49,11 @@ const UsersView = () => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("UsersView.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
             setFacility(currentFacility);
+            logger.debug({
+                context: "UsersView.setFacility",
+                facility: Abridgers.FACILITY(currentFacility),
+            });
 
             // Record current permissions
             const isAdmin = loginContext.validateScope(Scopes.ADMIN);
@@ -74,11 +76,12 @@ const UsersView = () => {
         try {
             const inserted: User
                 = await FacilityClient.usersInsert(facility.id, newUser);
-            console.info("UsersView.handleInsert("
-                + JSON.stringify(inserted, Replacers.USER)
-                + ")");
             setRefresh(true);
             setUser(null);
+            logger.info({
+                context: "UsersView.handleInsert",
+                user: Abridgers.USER(inserted),
+            });
         } catch (error) {
             ReportError("UsersView.handleInsert", error);
         }
@@ -88,11 +91,12 @@ const UsersView = () => {
         try {
             const removed: User
                 = await FacilityClient.usersRemove(facility.id, newUser.id);
-            console.info("UsersView.handleRemove("
-                + JSON.stringify(removed, Replacers.USER)
-                + ")");
             setRefresh(true);
             setUser(null);
+            logger.info({
+                context: "UsersView.handleRemove",
+                user: Abridgers.USER(removed),
+            });
         } catch (error) {
             ReportError("UsersView.handleRemove", error);
         }
@@ -100,19 +104,16 @@ const UsersView = () => {
 
     const handleSelect: HandleUserOptional = (newUser) => {
         if (newUser) {
-            if (canEdit) {
-                console.info("UsersView.handleSelect(CAN EDIT, "
-                    + JSON.stringify(newUser, Replacers.USER)
-                    + ")");
-                setUser(newUser);
-            } else {
-                console.info("UsersView.handleSelect(CANNOT EDIT, "
-                    + JSON.stringify(newUser, Replacers.USER)
-                    + ")");
-            }
+            setUser(newUser);
+            logger.debug({
+                context: "UsersView.handleSelect",
+                canEdit: canEdit,
+                canRemove: canRemove,
+                user: Abridgers.USER(newUser),
+            });
         } else {
-            console.info("UsersView.handleSelect(UNSET)");
             setUser(null);
+            logger.debug({ context: "UsersView.handleSelect", msg: "UNSET" });
         }
     }
 
@@ -120,29 +121,30 @@ const UsersView = () => {
         try {
             const updated: User = await FacilityClient.usersUpdate
                 (facility.id, newUser.id, newUser);
-            console.info("UsersView.handleUpdate("
-                + JSON.stringify(updated, Replacers.USER)
-                + ")");
             setRefresh(true);
             setUser(null);
+            logger.info({
+                context: "UsersView.handleUpdate",
+                user: Abridgers.USER(updated),
+            });
         } catch (error) {
             ReportError("UsersView.handleUpdate", error);
         }
     }
 
     const onAdd = () => {
-        console.info("UsersView.onAdd()");
         const newUser: User = new User({
             facilityId: facility.id,
             id: -1,
             level: "info",
         });
         setUser(newUser);
+        logger.trace({ context: "UsersView.onAdd", user: newUser });
     }
 
     const onBack = () => {
-        console.info("UsersView.onBack()");
         setUser(null);
+        logger.trace({ context: "UsersView.onBack" });
     }
 
     return (
