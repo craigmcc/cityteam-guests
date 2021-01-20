@@ -18,7 +18,7 @@ import Credentials from "../models/Credentials";
 import PasswordTokenRequest from "../models/PasswordTokenRequest";
 import TokenResponse from "../models/TokenResponse";
 import OAuthClient from "../clients/OAuthClient";
-import logger from "../util/client-logger";
+//import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -42,12 +42,14 @@ export const LoggedInUser = () => {
         }
         try {
             const tokenResponse: TokenResponse = await OAuthClient.password(tokenRequest);
-            loginContext.handleLogin(credentials.username, tokenResponse);
             setShowCredentials(false);
+            loginContext.handleLogin(credentials.username, tokenResponse);
+/*
             logger.info({
-                context: "LoggedInUser.handleLogin",
-                username: credentials.username,
+                 context: "LoggedInUser.handleLogin",
+                 username: credentials.username,
             });
+*/
         } catch (error) {
             ReportError("LoggedInUser.handleLogin", error);
         }
@@ -55,14 +57,16 @@ export const LoggedInUser = () => {
 
     const handleLogout = async () => {
         try {
-            const loggedOutUsername = loginContext.username;
+//            const loggedOutUsername = loginContext.username;
             await OAuthClient.revoke();
             loginContext.handleLogout();
             history.push("/home");
+/*
             logger.info({
                 context: "LoggedInUser.handleLogout",
                 username: loggedOutUsername,
             });
+*/
         } catch (error) {
             ReportError("LoggedInUser.handleLogout", error);
         }

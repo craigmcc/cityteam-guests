@@ -11,10 +11,11 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 
 import LoginContext from "./LoginContext";
 import FacilityClient from "../clients/FacilityClient";
+import { HandleIndex } from "../components/types";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
-import {HandleIndex} from "../components/types";
 
 // Context Properties ---------------------------------------------------------
 
@@ -64,11 +65,16 @@ export const FacilityContextProvider = (props: any) => {
                             newFacilities.push(activeFacility);
                         }
                     });
-                    console.info("FacilityContext.fetchFacilities("
-                        + JSON.stringify(newFacilities, Replacers.FACILITY)
-                        + ")");
+                    logger.debug({
+                        context: "FacilityContext.fetchFacilities",
+                        countAvailable: newFacilities.length,
+                        countActive: activeFacilities.length,
+                    });
                 } else {
-                    console.info("FacilityContext.fetchFacilities(SKIPPED)");
+                    logger.debug({
+                        context: "FacilityContext.fetchFacilities",
+                        msg: "SKIPPED",
+                    });
                 }
                 setFacilities(newFacilities);
                 if (newFacilities.length > 0) {
@@ -85,7 +91,7 @@ export const FacilityContextProvider = (props: any) => {
                 }
 
             } catch (error) {
-                ReportError("FacilityContext.fetchData", error);
+                ReportError("FacilityContext.fetchFacilities", error);
                 setFacilities([]);
                 setFacility(null);
                 setIndex(-1);
@@ -98,23 +104,28 @@ export const FacilityContextProvider = (props: any) => {
 
     const updateIndex: HandleIndex = (newIndex) => {
         if (newIndex < 0) {
-            console.info("FacilityContext.updateIndex(UNSET)");
+            logger.trace({
+                context: "FacilityContext.updateIndex",
+                msg: "UNSET",
+            });
             setFacility(null);
             setIndex(-1);
         } else if (newIndex >= facilities.length) {
-            console.info("FacilityContext.updateIndex("
-                + newIndex + ", "
-                + "RESET TO -1"
-                + ")");
+            logger.trace({
+                context: "FacilityContext.updateIndex",
+                msg: "RESET",
+            });
             setFacility(null);
             setIndex(-1);
         } else {
-            console.info("FacilityContext.updateIndex("
-                + newIndex + ", "
-                + JSON.stringify(facilities[newIndex], Replacers.FACILITY)
-                + ")");
-            setFacility(facilities[newIndex]);
+            const newFacility = facilities[newIndex];
+            setFacility(newFacility);
             setIndex(newIndex);
+            logger.debug({
+                context: "FacilityContext.handleIndex",
+                index: newIndex,
+                facility: Abridgers.FACILITY(newFacility),
+            });
         }
     }
 

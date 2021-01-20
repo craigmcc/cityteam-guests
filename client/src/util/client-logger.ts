@@ -30,7 +30,7 @@ LOG_LEVEL_MAP.set(Levels.WARN, 40);
 const write = (object: any, level: number): void => {
     if (level >= LOG_LEVEL) {
         object.level = level;
-        object.username = CURRENT_USERNAME ? CURRENT_USERNAME : undefined;
+        object.login = CURRENT_USERNAME ? CURRENT_USERNAME : undefined;
         LogClient.log(object);
     }
 }

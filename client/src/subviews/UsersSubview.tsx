@@ -101,7 +101,7 @@ const UsersSubview = (props: Props) => {
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
             setIndex(-1);
-            logger.debug({ context: "UsersSubview.handleIndex", msg: "UNSET" });
+            logger.trace({ context: "UsersSubview.handleIndex", msg: "UNSET" });
             if (props.handleSelect) {
                 props.handleSelect(null);
             }

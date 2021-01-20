@@ -30,7 +30,7 @@ import {
 } from "../util/middleware";
 import { toLocalISO } from "../util/timestamps";
 
-const MORGAN_FORMAT_PROD = ":remote-addr"
+const MORGAN_FORMAT_PROD = ":remote-addr -"
     + " :req[X-CTG-Username]"
     + " [:timestamp]"
     + " \":method :url\""

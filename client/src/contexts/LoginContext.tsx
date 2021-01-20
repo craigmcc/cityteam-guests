@@ -4,7 +4,8 @@
 // (if there is one).  If there is no logged in user, the loggedIn flag
 // will be false.
 
-// TODO - propagate to something outside the component tree for HTTP clients?
+// Separately, key context state values are copied to exported
+// static variables that are accessible outside the component hierarchy.
 
 // External Modules ----------------------------------------------------------
 
@@ -15,7 +16,7 @@ import React, { createContext, useState } from "react";
 import OAuthClient from "../clients/OAuthClient";
 import TokenResponse from "../models/TokenResponse";
 import User from "../models/User";
-import { setLevel } from "../util/client-logger";
+import logger, { setLevel } from "../util/client-logger";
 
 // Context Properties --------------------------------------------------------
 
@@ -65,7 +66,6 @@ export const LoginContextProvider = (props: any) => {
 
     const handleLogin = async (newUsername: string, tokenResponse: TokenResponse): Promise<void> => {
 
-        console.info(`LoginContext.handleLogin(${newUsername})`);
         setAccessToken(tokenResponse.access_token);
         const newExpires: Date = new Date
             ((new Date()).getTime() + (tokenResponse.expires_in * 1000));
@@ -78,6 +78,11 @@ export const LoginContextProvider = (props: any) => {
         }
         setScope(tokenResponse.scope);
         setUsername(newUsername);
+
+        logger.info({
+            context: "LoginContext.handleLogin",
+            username: newUsername,
+        });
 
         CURRENT_ACCESS_TOKEN = tokenResponse.access_token;
         CURRENT_REFRESH_TOKEN =
@@ -94,7 +99,11 @@ export const LoginContextProvider = (props: any) => {
 
     const handleLogout = (): void => {
 
-        console.info(`LoginContext.handleLogout(${username})`);
+        logger.info({
+            context: "LoginContext.handleLogout",
+            username: username,
+        });
+
         setAccessToken(null);
         setExpires(null);
         setLoggedIn(false);
