@@ -114,6 +114,7 @@ const UsersSubview = (props: Props) => {
         "active",
         "username",
         "scope",
+        "level",
     ]
 
     const listHeaders = [
@@ -121,6 +122,7 @@ const UsersSubview = (props: Props) => {
         "Active",
         "Username",
         "Scope",
+        "Level",
     ]
 
     return (

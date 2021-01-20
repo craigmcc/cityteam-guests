@@ -87,10 +87,13 @@ export class User extends AbstractModel<User> {
     @Column({
         allowNull: false,
         comment: "Client log level for this user.",
-        defaultValue: true,
+        defaultValue: "info",
         field: "level",
         type: DataType.STRING,
         validate: {
+            notNull: {
+                msg: "name: Is required"
+            },
             isValidLevel: function(value: string): void {
                 if (value) {
                     if (!validateLevel(value)) {

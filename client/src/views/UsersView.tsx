@@ -134,7 +134,8 @@ const UsersView = () => {
         console.info("UsersView.onAdd()");
         const newUser: User = new User({
             facilityId: facility.id,
-            id: -1
+            id: -1,
+            level: "info",
         });
         setUser(newUser);
     }

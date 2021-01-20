@@ -97,6 +97,7 @@ export default new UserServices();
 export const fields: string[] = [
     "active",
     "facilityId",
+    "level",
     "name",
     "password",
     "scope",

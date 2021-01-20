@@ -16,7 +16,7 @@ import * as Yup from "yup";
 
 // Internal Modules ----------------------------------------------------------
 
-import { HandleUser } from "../components/types";
+import { HandleUser, Levels } from "../components/types";
 import User from "../models/User";
 import { validateUserUsernameUnique } from "../util/async-validators";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
@@ -50,6 +50,14 @@ const UserForm = (props: Props) => {
         }
     }
 
+    const levels = (): string[] => {
+        const results: string[] = [];
+        for (let level in Levels) {
+            results.push(level.toLowerCase());
+        }
+        return results;
+    }
+
     const onConfirm = (): void => {
         setShowConfirm(true);
     }
@@ -69,6 +77,7 @@ const UserForm = (props: Props) => {
             active: results.active,
             facilityId: props.user.facilityId,
             id: props.user.id,
+            level: results.level,
             name: results.name,
             password: results.password,
             scope: results.scope,
@@ -79,6 +88,7 @@ const UserForm = (props: Props) => {
     const validationSchema = () => {
         return Yup.object().shape({
             active: Yup.boolean(),
+            level: Yup.string(), // Implicitly required via select options
             name: Yup.string()
                 .required("Name is required"),
             password: Yup.string(),
@@ -164,12 +174,12 @@ const UserForm = (props: Props) => {
                                 </Form.Group>
                             </Form.Row>
 
-                            <Form.Row id="usernameRow">
+                            <Form.Row id="usernamePasswordRow">
                                 <Form.Group as={Row} className="mr-4"
                                             controlId="name" id="usernameGroup">
                                     <Form.Label>Username:</Form.Label>
                                     <Form.Control
-                                        htmlSize={50}
+                                        htmlSize={25}
                                         isInvalid={touched.username && !!errors.username}
                                         isValid={!errors.username}
                                         name="username"
@@ -186,14 +196,11 @@ const UserForm = (props: Props) => {
                                         {errors.username}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                            </Form.Row>
-
-                            <Form.Row id="passwordRow">
                                 <Form.Group as={Row} className="mr-4"
                                             controlId="name" id="passwordGroup">
                                     <Form.Label>Password:</Form.Label>
                                     <Form.Control
-                                        htmlSize={50}
+                                        htmlSize={25}
                                         isInvalid={touched.password && !!errors.password}
                                         isValid={!errors.password}
                                         name="password"
@@ -205,7 +212,7 @@ const UserForm = (props: Props) => {
                                     />
                                     <Form.Control.Feedback type="valid">
                                         Enter ONLY for a new User or if you want to
-                                        change the password for an existing User.
+                                        change the password for an old User.
                                     </Form.Control.Feedback>
                                     <Form.Control.Feedback type="invalid">
                                         {errors.password}
@@ -218,7 +225,7 @@ const UserForm = (props: Props) => {
                                             controlId="name" id="scopeGroup">
                                     <Form.Label>Scope:</Form.Label>
                                     <Form.Control
-                                        htmlSize={50}
+                                        htmlSize={25}
                                         isInvalid={touched.scope && !!errors.scope}
                                         isValid={!errors.scope}
                                         name="scope"
@@ -229,10 +236,37 @@ const UserForm = (props: Props) => {
                                         value={values.scope}
                                     />
                                     <Form.Control.Feedback type="valid">
-                                        Scope is required and determines access privileges.
+                                        Scope is required and sets access privileges.
                                     </Form.Control.Feedback>
                                     <Form.Control.Feedback type="invalid">
                                         {errors.scope}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
+
+                            <Form.Row id="levelRow" className="mb-4">
+                                <Form.Group as={Row} className="mr-4"
+                                            controlId="level" id="levelGroup">
+                                    <Form.Label>Log Detail Level:</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="level"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        value={values.level}
+                                    >
+                                        {levels().map((level, index) => (
+                                            <option key={index} value={level}>
+                                                {level}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                    <Form.Control.Feedback type="valid">
+                                        Level determines quantity of client logging (normally leave as 'info').
+                                    </Form.Control.Feedback>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.level}
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Form.Row>
