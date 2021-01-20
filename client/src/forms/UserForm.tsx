@@ -4,7 +4,7 @@
 
 // External Modules ----------------------------------------------------------
 
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
 import { Formik, FormikHelpers, FormikValues } from "formik";
 import Button from "react-bootstrap/button";
 import Col from "react-bootstrap/Col";
@@ -17,6 +17,7 @@ import * as Yup from "yup";
 // Internal Modules ----------------------------------------------------------
 
 import { HandleUser, Levels } from "../components/types";
+import LoginContext from "../contexts/LoginContext";
 import User from "../models/User";
 import { validateUserUsernameUnique } from "../util/async-validators";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
@@ -35,6 +36,8 @@ export interface Props {
 // Component Details ---------------------------------------------------------
 
 const UserForm = (props: Props) => {
+
+    const loginContext = useContext(LoginContext);
 
     const [adding] = useState<boolean>(props.user.id < 0);
     const [canRemove] = useState<boolean>
@@ -85,6 +88,16 @@ const UserForm = (props: Props) => {
         });
     }
 
+    // NOTE - there is no server-side equivalent for this because there is
+    // not an individual logged-in user performing the request
+    const validateRequestedScope = (requested: string | undefined): boolean => {
+        if (!requested || ("" === requested)) {
+            return true;  // Not asking for scope but should be required
+        } else {
+            return loginContext.validateScope(requested);
+        }
+    }
+
     const validationSchema = () => {
         return Yup.object().shape({
             active: Yup.boolean(),
@@ -93,7 +106,12 @@ const UserForm = (props: Props) => {
                 .required("Name is required"),
             password: Yup.string(),
             scope: Yup.string()
-                .required("Scope is required"),
+                .required("Scope is required")
+                .test("allowed-scope",
+                    "You are not allowed to assign a scope you do not possess",
+                    function (value) {
+                        return validateRequestedScope(value);
+                    }),
             username: Yup.string()
                 .required("Username is required")
                 .test("unique-username",
