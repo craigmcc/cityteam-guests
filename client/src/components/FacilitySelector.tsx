@@ -15,7 +15,8 @@ import { HandleFacility, OnChangeSelect } from "./types";
 import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -42,11 +43,12 @@ export const FacilitySelector = (props: Props) => {
         const newFacility: Facility = (newIndex > 0)
             ? facilityContext.facilities[newIndex]
             : { active: false, id: -1, name: "Unselected", scope: "unselected" };
-        console.info("FacilitySelector.onChange("
-            + newIndex + ", "
-            + JSON.stringify(newFacility, Replacers.FACILITY)
-            + ")");
         facilityContext.setIndex(newIndex);
+        logger.trace({
+            context: "FacilitySelector.onChange",
+            index: newIndex,
+            facility: Abridgers.FACILITY(newFacility),
+        });
         if ((newIndex >= 0) && props.handleFacility) {
             props.handleFacility(newFacility);
         }

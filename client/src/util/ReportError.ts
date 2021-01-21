@@ -1,6 +1,6 @@
 // ReportError ---------------------------------------------------------------
 
-// Log the specified error to the console.error log, and pop up an alert with
+// Log the specified error to the client logger, and pop up an alert with
 // the appropriate message string.  In the error log, prepend the specified prefix
 // to describe context where the error came from.
 

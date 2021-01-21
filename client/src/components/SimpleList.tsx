@@ -12,6 +12,7 @@ import Table from "react-bootstrap/Table";
 // Internal Modules ----------------------------------------------------------
 
 import { HandleIndex } from "./types";
+import logger from "../util/client-logger";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -35,8 +36,11 @@ const SimpleList = (props: Props) => {
     const [index, setIndex] = useState<number>(-1);
 
     const handleIndex: HandleIndex = (newIndex) => {
-//        console.info(`SimpleList.handleIndex(${newIndex})`);
         setIndex(newIndex);
+        logger.trace({
+            context: "SimpleList.handleIndex",
+            index: newIndex,
+        });
         if (props.handleIndex) {
             props.handleIndex(newIndex);
         }

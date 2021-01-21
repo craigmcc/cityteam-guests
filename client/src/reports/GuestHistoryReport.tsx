@@ -21,7 +21,8 @@ import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import GuestsSubview from "../subviews/GuestsSubview";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -46,31 +47,39 @@ const GuestHistoryReport = () => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("GuestHistoryReport.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
             setFacility(currentFacility);
+            logger.debug({
+                context: "GuestHistoryReport.setFacility",
+                facility: Abridgers.FACILITY(currentFacility),
+            });
 
             // Select Checkins for the specified Guest (if any)
             if (guest && loginContext.loggedIn) {
                 try {
                     const newCheckins: Checkin[] =
                         await FacilityClient.checkinsGuest(facility.id, guest.id);
-                    console.info("GuestHistoryReport.fetchCheckins("
-                        + JSON.stringify(newCheckins, Replacers.CHECKIN)
-                        + ")");
                     setCheckins(newCheckins);
+                    logger.debug({
+                        context: "GuestHistoryReport.fetchCheckins",
+                        count: newCheckins.length,
+                    });
                 } catch (error) {
+                    setCheckins([]);
                     if (error.response && (error.response.status === 403)) {
-                        console.info("GuestHistoryReport.fetchCheckins(FORBIDDEN)");
+                        logger.trace({
+                            context: "GuestHistoryReport.fetchCheckins",
+                            msg: "FORBIDDEN",
+                        });
                     } else {
-                        setCheckins([]);
                         ReportError("GuestHistoryReport.fetchCheckins", error);
                     }
                 }
             } else {
-                console.info("GuestHistoryReport.fetchCheckins(SKIPPED)");
                 setCheckins([]);
+                logger.trace({
+                    context: "GuestHistoryReport.fetchCheckins",
+                    msg: "SKIPPED",
+                });
             }
 
         }
@@ -81,18 +90,23 @@ const GuestHistoryReport = () => {
 
     const handleSelect: HandleGuestOptional = (newGuest) => {
         if (newGuest) {
-            console.info("GuestHistoryReport.handleSelect("
-                + JSON.stringify(newGuest, Replacers.GUEST)
-                + ")");
+            setGuest(newGuest);
+            logger.debug({
+                context: "GuestHistoryReport.handleSelect",
+                guest: Abridgers.GUEST(newGuest),
+            });
         } else {
-            console.info("GuestHistoryReport.handleSelect(UNSET)");
+            setGuest(null);
+            logger.trace({
+                context: "GuestHistoryReport.handleSelect",
+                msg: "UNSET",
+            });
         }
-        setGuest(newGuest);
     }
 
     const onBack: OnClick = () => {
-        console.info("GuestHistoryReport.onBack()");
         setGuest(null);
+        logger.trace({ context: "GuestHistoryReport.onBack" });
     }
 
     const listFields = [

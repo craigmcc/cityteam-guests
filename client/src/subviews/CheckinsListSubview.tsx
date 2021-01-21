@@ -64,10 +64,6 @@ const CheckinsListSubview = (props: Props) => {
                         (props.facility.id, props.checkinDate, {
                             withGuest: ""
                         });
-                    logger.debug({
-                        context: "CheckinsListSubview.fetchCheckins",
-                        count: newCheckins.length
-                    });
                     setCheckins(flattenedCheckins(newCheckins));
                     setRefresh(false);
                     const newSummary = new Summary(props.facility.id, props.checkinDate);
@@ -75,6 +71,10 @@ const CheckinsListSubview = (props: Props) => {
                         newSummary.includeCheckin(newCheckin);
                     });
                     setSummary(newSummary);
+                    logger.debug({
+                        context: "CheckinsListSubview.fetchCheckins",
+                        count: newCheckins.length
+                    });
                 } catch (error) {
                     ReportError("CheckinsListSubview.fetchCheckins", error);
                     setCheckins([]);

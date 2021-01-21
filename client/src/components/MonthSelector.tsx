@@ -14,6 +14,7 @@ import Form from "react-bootstrap/Form";
 // Internal Modules ----------------------------------------------------------
 
 import {HandleMonth, /* OnBlur,*/ OnChangeInput, OnKeyDown} from "./types";
+import logger from "../util/client-logger";
 import { validateMonth } from "../util/validators";
 
 // Incoming Properties -------------------------------------------------------
@@ -54,11 +55,13 @@ const MonthSelector = (props: Props) => {
     const onChange: OnChangeInput = (event): void => {
         const newValue: string = event.target.value;
         setValue(newValue);
-        console.info(`MonthSelector.onChange(${newValue})`);
+        logger.trace({
+            context: "MonthSelector.onChange",
+            value: newValue,
+        });
     }
 
     const onKeyDown: OnKeyDown = (event): void => {
-        console.info(`MonthSelector.onKeyDown(${event.key}, ${value})`);
         if ((event.key === "Enter") || (event.key === "Tab")) {
             processValue(value);
         }

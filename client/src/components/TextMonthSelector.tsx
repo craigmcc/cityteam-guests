@@ -10,6 +10,7 @@ import Form from "react-bootstrap/Form";
 // Internal Modules ----------------------------------------------------------
 
 import { HandleMonth, OnChangeInput, OnKeyDown } from "./types";
+import logger from "../util/client-logger";
 import { validateMonth } from "../util/validators";
 
 // Incoming Properties -------------------------------------------------------
@@ -36,19 +37,19 @@ const TextMonthSelector = (props: Props) => {
     const onChange: OnChangeInput = (event) => {
         const newValue: string = event.target.value;
         setValue(newValue);
-        console.info(`MonthSelector.onChange(${newValue})`);
+        logger.trace({
+            context: "TextMonthSelector.onChange",
+            value: newValue,
+        });
     }
 
     const onKeyDown: OnKeyDown = (event) => {
-        console.info(`TextMonthSelector.onKeyDown(${event.key}, ${value})`);
         if ((event.key === "Enter") || (event.key === "Tab")) {
             processValue(value);
         }
     }
 
     const processValue = (newValue: string): void => {
-
-        console.info(`TextMonthSelector(${newValue})`);
 
         // Validate the response
         let newValid = validateMonth(newValue);

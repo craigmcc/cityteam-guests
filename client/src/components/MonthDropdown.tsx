@@ -10,6 +10,7 @@ import Form from "react-bootstrap/Form";
 // Internal Modules ----------------------------------------------------------
 
 import { HandleMonth, OnChangeSelect } from "./types";
+import logger from "../util/client-logger";
 import {incrementDate} from "../util/dates";
 import {endDate, todayMonth} from "../util/months";
 
@@ -53,12 +54,14 @@ const MonthDropdown = (props: Props) => {
 
     const onChange: OnChangeSelect = (event) => {
         const newIndex = parseInt(event.target.value);
-        console.info("MonthDropdown.onChange("
-            + newIndex + ", "
-            + options[newIndex]
-            + ")");
+        const newValue = options[newIndex];
+        logger.trace({
+            context: "MonthDropdown.onChange",
+            index: newIndex,
+            value: newValue,
+        });
         if (props.handleMonth) {
-            props.handleMonth(options[newIndex]);
+            props.handleMonth(newValue);
         }
     }
 
