@@ -11,6 +11,7 @@ import { Request, Response, Router } from "express";
 import {
 //    dumpRequestDetails,
     requireAdmin,
+    requireAny,
     requireNone,
     requireRegular,
     requireSuperuser
@@ -33,14 +34,14 @@ export const FacilityRouter = Router({
 // Find active Facilities
 FacilityRouter.get("/active",
     requireNone,
-//    requireSuperuser, // Avoid catch-22 on initial population of FacilityContext
+//    requireRegular, // Avoid catch-22 on initial population of FacilityContext
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.active(req.query));
     });
 
 // Find Facility by exact name
 FacilityRouter.get("/exact/:name",
-    requireSuperuser,
+    requireAny, // Cannot use requireAdmin, no facilityId parameter present
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.exact(req.params.name, req.query));
     });
@@ -54,7 +55,7 @@ FacilityRouter.get("/name/:name",
 
 // Find Facility by exact scope
 FacilityRouter.get("/scope/:scope",
-    requireSuperuser,
+    requireAny, // Cannot use requireAdmin, no facilityId parameter present
     async (req: Request, res: Response) => {
         res.send(await FacilityServices.scope(req.params.scope, req.query));
     });
