@@ -20,7 +20,8 @@ import GuestForm from "../forms/GuestForm";
 import Facility from "../models/Facility";
 import Guest from "../models/Guest";
 import GuestsSubview from "../subviews/GuestsSubview";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -48,10 +49,11 @@ const GuestsView = () => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("GuestsView.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
             setFacility(currentFacility);
+            logger.debug({
+                context: "GuestsView.setFacility",
+                facility: Abridgers.FACILITY(currentFacility),
+            })
 
             // Record current permissions
             const isRegular = loginContext.validateScope(Scopes.REGULAR);
@@ -74,11 +76,12 @@ const GuestsView = () => {
         try {
             const inserted: Guest
                 = await FacilityClient.guestsInsert(facility.id, newGuest);
-            console.info("GuestsView.handleInsert("
-                + JSON.stringify(inserted, Replacers.GUEST)
-                + ")");
             setGuest(null);
             setRefresh(true);
+            logger.info({
+                context: "GuestsView.handleInsert",
+                guest: Abridgers.GUEST(inserted),
+            });
         } catch (error) {
             ReportError("GuestsView.handleInsert", error);
         }
@@ -88,11 +91,12 @@ const GuestsView = () => {
         try {
             const removed: Guest
                 = await FacilityClient.guestsRemove(facility.id, newGuest.id);
-            console.info("GuestsView.handleRemove("
-                + JSON.stringify(removed, Replacers.GUEST)
-                + ")");
             setGuest(null);
             setRefresh(true);
+            logger.info({
+                context: "GuestsView.handleRemove",
+                guest: Abridgers.GUEST(removed),
+            });
         } catch (error) {
             ReportError("GuestsView.handleRemove", error);
         }
@@ -101,18 +105,16 @@ const GuestsView = () => {
     const handleSelect: HandleGuestOptional = (newGuest) => {
         if (newGuest) {
             if (canEdit) {
-                console.info("GuestsView.handleSelect(CAN EDIT, "
-                    + JSON.stringify(newGuest, Replacers.GUEST)
-                    + ")");
                 setGuest(newGuest);
-            } else {
-                console.info("GuestsView.handleSelect(CANNOT EDIT, "
-                    + JSON.stringify(newGuest, Replacers.GUEST)
-                    + ")");
             }
+            logger.debug({
+                context: "GuestsView.handleSelect",
+                canEdit: canEdit,
+                canRemove: canRemove,
+            });
         } else {
-            console.info("GuestsView.handleSelect(UNSET)");
             setGuest(null);
+            logger.trace({ context: "GuestsView.handleSelect", msg: "UNSET" });
         }
     }
 
@@ -120,28 +122,29 @@ const GuestsView = () => {
         try {
             const updated: Guest = await FacilityClient.guestsUpdate
                 (facility.id, newGuest.id, newGuest);
-            console.info("GuestsView.handleUpdate("
-                + JSON.stringify(updated, Replacers.GUEST)
-                + ")");
             setGuest(null);
             setRefresh(true);
+            logger.info({
+                context: "GuestsView.handleUpdate",
+                guest: Abridgers.GUEST(updated),
+            })
         } catch (error) {
             ReportError("GuestsView.handleUpdate", error);
         }
     }
 
     const onAdd = () => {
-        console.info("GuestsView.onAdd()");
         const newGuest: Guest = new Guest({
             facilityId: facility.id,
             id: -1
         });
         setGuest(newGuest);
+        logger.trace({ context: "GuestsView.onAdd", guest: newGuest });
     }
 
     const onBack = () => {
-        console.info("GuestsView.onBack()");
         setGuest(null);
+        logger.trace({ context: "GuestsView.onBack" });
     }
 
     return (

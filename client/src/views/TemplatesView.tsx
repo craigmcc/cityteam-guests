@@ -20,7 +20,8 @@ import TemplateForm from "../forms/TemplateForm";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
 import TemplatesSubview from "../subviews/TemplatesSubview";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -48,10 +49,11 @@ const TemplatesView = () => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("TemplatesView.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
             setFacility(currentFacility);
+            logger.debug({
+                context: "TemplatesView.setFacility",
+                facility: Abridgers.FACILITY(currentFacility),
+            });
 
             // Record current permissions
             const isAdmin = loginContext.validateScope(Scopes.ADMIN);
@@ -74,11 +76,12 @@ const TemplatesView = () => {
         try {
             const inserted: Template
                 = await FacilityClient.templatesInsert(facility.id, newTemplate);
-            console.info("TemplatesView.handleInsert("
-                + JSON.stringify(inserted, Replacers.TEMPLATE)
-                + ")");
             setRefresh(true);
             setTemplate(null);
+            logger.info({
+                context: "TemplatesView.handleInsert",
+                template: Abridgers.TEMPLATE(inserted),
+            });
         } catch (error) {
             ReportError("TemplatesView.handleInsert", error);
         }
@@ -88,11 +91,12 @@ const TemplatesView = () => {
         try {
             const removed: Template
                 = await FacilityClient.templatesRemove(facility.id, newTemplate.id);
-            console.info("TemplatesView.handleRemove("
-                + JSON.stringify(removed, Replacers.TEMPLATE)
-                + ")");
             setRefresh(true);
             setTemplate(null);
+            logger.info({
+                context: "TemplatesView.handleRemove",
+                template: Abridgers.TEMPLATE(removed),
+            });
         } catch (error) {
             ReportError("TemplatesView.handleRemove", error);
         }
@@ -101,18 +105,17 @@ const TemplatesView = () => {
     const handleSelect: HandleTemplateOptional = (newTemplate) => {
         if (newTemplate) {
             if (canEdit) {
-                console.info("TemplatesView.handleSelect(CAN EDIT, "
-                    + JSON.stringify(newTemplate, Replacers.TEMPLATE)
-                    + ")");
                 setTemplate(newTemplate);
-            } else {
-                console.info("TemplatesView.handleSelect(CANNOT EDIT, "
-                    + JSON.stringify(newTemplate, Replacers.TEMPLATE)
-                    + ")");
             }
+            logger.debug({
+                context: "TemplatesView.handleSelect",
+                canEdit: canEdit,
+                canRemove: canRemove,
+                template: Abridgers.TEMPLATE(newTemplate),
+            });
         } else {
-            console.info("TemplatesView.handleSelect(UNSET)");
             setTemplate(null);
+            logger.trace({ context: "TemplatesView.handleSelect", msg: "UNSET" });
         }
     }
 
@@ -120,28 +123,29 @@ const TemplatesView = () => {
         try {
             const updated: Template = await FacilityClient.templatesUpdate
                 (facility.id, newTemplate.id, newTemplate);
-            console.info("TemplatesView.handleUpdate("
-                + JSON.stringify(updated, Replacers.TEMPLATE)
-                + ")");
             setRefresh(true);
             setTemplate(null);
+            logger.info({
+                context: "TemplatesView.handleUpdate",
+                template: Abridgers.TEMPLATE(updated),
+            });
         } catch (error) {
             ReportError("TemplatesView.handleUpdate", error);
         }
     }
 
     const onAdd = () => {
-        console.info("TemplatesView.onAdd()");
         const newTemplate: Template = new Template({
             facilityId: facility.id,
             id: -1
         });
         setTemplate(newTemplate);
+        logger.trace({ context: "TemplatesView.onAdd", template: newTemplate });
     }
 
     const onBack = () => {
-        console.info("TemplatesView.onBack()");
         setTemplate(null);
+        logger.trace({ context: "TemplatesView.onBack" });
     }
 
     return (

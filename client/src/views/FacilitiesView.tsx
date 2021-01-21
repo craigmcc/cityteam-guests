@@ -21,7 +21,8 @@ import LoginContext from "../contexts/LoginContext";
 import FacilityForm from "../forms/FacilityForm";
 import Facility from "../models/Facility";
 import FacilitiesSubview from "../subviews/FacilitiesSubview";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Component Details ---------------------------------------------------------
@@ -59,11 +60,12 @@ const FacilitiesView = () => {
         try {
             const inserted: Facility
                 = await FacilityClient.insert(newFacility);
-            console.info("FacilitiesView.handleInsert("
-                + JSON.stringify(inserted, Replacers.FACILITY)
-                + ")");
             setFacility(null);
             facilityContext.setRefresh(true);
+            logger.info({
+                context: "FacilitiesView.handleInsert",
+                facility: Abridgers.FACILITY(inserted),
+            });
         } catch (error) {
             ReportError("FacilitiesView.handleInsert", error);
         }
@@ -73,11 +75,12 @@ const FacilitiesView = () => {
         try {
             const removed: Facility
                 = await FacilityClient.remove(newFacility.id);
-            console.info("FacilitiesView.handleRemove("
-                + JSON.stringify(removed, Replacers.FACILITY)
-                + ")");
             setFacility(null);
             facilityContext.setRefresh(true);
+            logger.info({
+                context: "FacilitiesView.handleRemove",
+                facility: Abridgers.FACILITY(removed),
+            });
         } catch (error) {
             ReportError("FacilitiesView.handleRemove", error);
         }
@@ -86,18 +89,17 @@ const FacilitiesView = () => {
     const handleSelect: HandleFacilityOptional = (newFacility) => {
         if (newFacility) {
             if (canEdit) {
-                console.info("FacilitiesView.handleSelect(CAN EDIT, "
-                    + JSON.stringify(newFacility, Replacers.FACILITY)
-                    + ")");
                 setFacility(newFacility);
-            } else {
-                console.info("FacilitiesView.handleSelect(CANNOT EDIT, "
-                    + JSON.stringify(newFacility, Replacers.FACILITY)
-                    + ")");
             }
+            logger.debug({
+                context: "FacilitiesView.handleSelect",
+                canEdit: canEdit,
+                canRemove: canRemove,
+                facility: Abridgers.FACILITY(newFacility),
+            });
         } else {
-            console.info("FacilitiesView.handleSelect(UNSET)");
             setFacility(null);
+            logger.trace({ context: "FacilitiesView.handleSelect", msg: "UNSET" });
         }
     }
 
@@ -105,27 +107,28 @@ const FacilitiesView = () => {
         try {
             const updated: Facility
                 = await FacilityClient.update(newFacility.id, newFacility);
-            console.info("FacilitiesView.handleUpdate("
-                + JSON.stringify(updated, Replacers.FACILITY)
-                + ")");
             setFacility(null);
             facilityContext.setRefresh(true);
+            logger.info({
+                context: "FacilitiesView.handleUpdate",
+                facility: Abridgers.FACILITY(updated),
+            });
         } catch (error) {
             ReportError("FacilitiesView.handleUpdate", error);
         }
     }
 
     const onAdd = () => {
-        console.info("FacilitiesView.onAdd()");
         const newFacility: Facility = new Facility({
             id: -1
         });
         setFacility(newFacility);
+        logger.trace({ context: "FacilitiesView.onAdd", facility: newFacility });
     }
 
     const onBack = () => {
-        console.info("FacilitiesView.onBack()");
         setFacility(null);
+        logger.trace({ context: "FacilitiesView.onBack" });
     }
 
     return (

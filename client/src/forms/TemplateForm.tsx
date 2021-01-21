@@ -18,9 +18,9 @@ import * as Yup from "yup";
 
 import { HandleTemplate } from "../components/types";
 import Template from "../models/Template";
+import { validateMatsList, validateMatsSubset } from "../util/application-validators";
 import { validateTemplateNameUnique } from "../util/async-validators";
 import { toEmptyStrings, toNullValues } from "../util/transformations";
-import { validateMatsList, validateMatsSubset } from "../util/application-validators";
 
 // Property Details ----------------------------------------------------------
 

@@ -72,14 +72,14 @@ const UsersSubview = (props: Props) => {
                         count: newUsers.length,
                     });
                 } catch (error) {
+                    setIndex(-1);
+                    setUsers([]);
                     if (error.response && (error.response.status === 403)) {
                         logger.debug({
                             context: "UsersSubview.fetchUsers",
                             msg: "FORBIDDEN",
                         });
                     } else {
-                        setIndex(-1);
-                        setUsers([]);
                         ReportError("UsersSubview.fetchUsers", error);
                     }
                 }

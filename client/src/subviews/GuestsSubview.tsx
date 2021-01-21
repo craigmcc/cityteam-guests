@@ -83,25 +83,25 @@ const GuestsSubview = (props: Props) => {
                         setGuests(newGuests);
                         setIndex(-1);
                     } catch (error) {
+                        setGuests([]);
+                        setIndex(-1);
                         if (error.response && (error.response.status === 403)) {
                             logger.debug({
                                 context: "GuestsSubview.fetchGuests",
                                 msg: "FORBIDDEN",
                             });
                         } else {
-                            setGuests([]);
-                            setIndex(-1);
                             ReportError("GuestsSubview.fetchGuests", error);
                         }
                     }
                 }
             } else {
+                setGuests([]);
+                setIndex(-1);
                 logger.debug({
                     context: "GuestsSubview.fetchGuests",
                     msg: "SKIPPED",
                 });
-                setGuests([]);
-                setIndex(-1);
             }
 
         }
@@ -120,27 +120,22 @@ const GuestsSubview = (props: Props) => {
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
+            setIndex(-1);
             logger.trace({
                 context: "GuestsSubview.handleIndex",
                 msg: "UNSET",
             });
-            setIndex(-1);
             if (props.handleSelect) {
                 props.handleSelect(null);
             }
         } else {
             const newGuest = guests[newIndex];
+            setIndex(newIndex);
             logger.debug({
                 context: "GuestsSubview.handleIndex",
                 index: newIndex,
-                guest: {
-                    id: newGuest.id,
-                    facilityId: newGuest.facilityId,
-                    firstName: newGuest.firstName,
-                    lastName: newGuest.lastName,
-                },
+                guest: Abridgers.GUEST(newGuest),
             });
-            setIndex(newIndex);
             if (props.handleSelect) {
                 props.handleSelect(newGuest);
             }

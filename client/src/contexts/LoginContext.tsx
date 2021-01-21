@@ -93,6 +93,11 @@ export const LoginContextProvider = (props: any) => {
         CURRENT_USER = await OAuthClient.me();
         if (CURRENT_USER && CURRENT_USER.level) {
             setLevel(CURRENT_USER.level);
+            logger.debug({
+                context: "LoginContext.setLevel",
+                username: CURRENT_USER.username,
+                level: CURRENT_USER.level,
+            });
         }
 
     }

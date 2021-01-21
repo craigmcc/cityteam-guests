@@ -14,10 +14,12 @@ import Row from "react-bootstrap/Row";
 
 import FacilityClient from "../clients/FacilityClient";
 import SimpleList from "../components/SimpleList";
-import { HandleIndex, HandleFacilityOptional } from "../components/types";
+import {HandleIndex, HandleFacilityOptional, Scopes} from "../components/types";
+import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 
 // Incoming Properties -------------------------------------------------------
 
@@ -32,6 +34,7 @@ export interface Props {
 
 const FacilitiesSubview = (props : Props) => {
 
+    const facilityContext = useContext(FacilityContext);
     const loginContext = useContext(LoginContext);
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -41,45 +44,48 @@ const FacilitiesSubview = (props : Props) => {
 
         const fetchFacilities = async () => {
 
-            // Fetch the Facilities visible to this user (if any)
-            const newFacilities: Facility[] = [];
+            // For a superuser, select all Facilities (including inactive)
+            // Otherwise, just copy the active ones that are visible to the
+            // current user.
+            const isSuperuser = loginContext.validateScope(Scopes.SUPERUSER);
+            let newFacilities: Facility[] = [];
             if (loginContext.loggedIn) {
-                const allFacilities: Facility[]
-                    = await FacilityClient.all();
-                allFacilities.forEach(allFacility => {
-                    if (loginContext.validateScope(allFacility.scope)) {
-                        newFacilities.push(allFacility);
-                    }
-                });
-                console.info("FacilitiesSubview.fetchFacilities("
-                    + JSON.stringify(newFacilities, Replacers.FACILITY)
-                    + ")");
-                setFacilities(newFacilities);
-            } else {
-                console.info("FacilitiesSubview.fetchFacilities(SKIPPED)");
-                setFacilities([]);
+                if (isSuperuser) {
+                    newFacilities = await FacilityClient.all();
+                } else {
+                    facilityContext.facilities.forEach(contextFacility => {
+                        newFacilities.push(contextFacility);
+                    });
+                }
             }
+            setFacilities(newFacilities);
+            logger.info({
+                context: "FacilitiesSubview.fetchFacilities",
+                isSuperuser: isSuperuser,
+                count: newFacilities.length,
+            });
 
         }
 
         fetchFacilities();
 
-    }, [loginContext]);
+    }, [facilityContext.facilities, loginContext]);
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            console.info("FacilitiesSubview.handleIndex(UNSET)");
             setIndex(-1);
+            logger.trace({ context: "FacilitiesSubview.handleIndex", msg: "UNSET" });
             if (props.handleSelect) {
                 props.handleSelect(null);
             }
         } else {
             const newFacility = facilities[newIndex];
-            console.info("TemplatesSubview.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(newFacility, Replacers.FACILITY)
-                + ")");
             setIndex(newIndex);
+            logger.debug({
+                context: "FacilitiesSubview.handleIndex",
+                index: newIndex,
+                facility: Abridgers.FACILITY(newFacility),
+            });
             if (props.handleSelect) {
                 props.handleSelect(newFacility);
             }

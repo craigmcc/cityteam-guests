@@ -104,7 +104,9 @@ const UsersView = () => {
 
     const handleSelect: HandleUserOptional = (newUser) => {
         if (newUser) {
-            setUser(newUser);
+            if (canEdit) {
+                setUser(newUser);
+            }
             logger.debug({
                 context: "UsersView.handleSelect",
                 canEdit: canEdit,
@@ -113,7 +115,7 @@ const UsersView = () => {
             });
         } else {
             setUser(null);
-            logger.debug({ context: "UsersView.handleSelect", msg: "UNSET" });
+            logger.trace({ context: "UsersView.handleSelect", msg: "UNSET" });
         }
     }
 

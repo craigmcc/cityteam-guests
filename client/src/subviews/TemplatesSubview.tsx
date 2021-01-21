@@ -19,7 +19,8 @@ import FacilityContext from "../contexts/FacilityContext";
 import LoginContext from "../contexts/LoginContext";
 import Facility from "../models/Facility";
 import Template from "../models/Template";
-import * as Replacers from "../util/replacers";
+import * as Abridgers from "../util/abridgers";
+import logger from "../util/client-logger";
 import ReportError from "../util/ReportError";
 
 // Incoming Properties -------------------------------------------------------
@@ -53,34 +54,42 @@ const TemplatesSubview = (props: Props) => {
             } else {
                 currentFacility = new Facility({ id: -1, name: "(Select Facility)"});
             }
-            console.info("TemplatesSubview.setFacility("
-                + JSON.stringify(currentFacility, Replacers.FACILITY)
-                + ")");
             setFacility(currentFacility);
+            logger.debug({
+                context: "TemplatesSubview.setFacility",
+                facility: Abridgers.FACILITY(currentFacility),
+            });
 
             // Fetch Templates for this Facility (if any)
             if ((currentFacility.id >= 0) && loginContext.loggedIn) {
                 try {
                     const newTemplates: Template[] =
                         await FacilityClient.templatesAll(currentFacility.id);
-                    console.info("TemplatesSubview.fetchTemplates("
-                        + JSON.stringify(newTemplates, Replacers.TEMPLATE)
-                        + ")");
                     setIndex(-1);
                     setTemplates(newTemplates);
+                    logger.debug({
+                        context: "TemplatesSubview.fetchTemplates",
+                        count: newTemplates.length,
+                    });
                 } catch (error) {
+                    setIndex(-1);
+                    setTemplates([]);
                     if (error.response && (error.response.status === 403)) {
-                        console.info("TemplatesSubview.fetchUsers(FORBIDDEN)");
+                        logger.debug({
+                            context: "TemplatesSubview.fetchTemplates",
+                            msg: "FORBIDDEN",
+                        });
                     } else {
-                        setIndex(-1);
-                        setTemplates([]);
                         ReportError("TemplatesSubview.fetchTemplates", error);
                     }
                 }
             } else {
-                console.info("TemplatesSubview.fetchTemplates(SKIPPED)");
                 setIndex(-1);
                 setTemplates([]);
+                logger.debug({
+                    context: "TemplatesSubview.fetchTemplates",
+                    msg: "SKIPPED",
+                });
             }
 
         }
@@ -91,18 +100,19 @@ const TemplatesSubview = (props: Props) => {
 
     const handleIndex: HandleIndex = (newIndex) => {
         if (newIndex === index) {
-            console.info("TemplatesSubview.handleIndex(UNSET)");
             setIndex(-1);
+            logger.trace({ context: "TemplatesSubview.handleIndex", msg: "UNSET" });
             if (props.handleSelect) {
                 props.handleSelect(null);
             }
         } else {
             const newTemplate = templates[newIndex];
-            console.info("TemplatesSubview.handleIndex("
-                + newIndex + ", "
-                + JSON.stringify(newTemplate, Replacers.TEMPLATE)
-                + ")");
             setIndex(newIndex);
+            logger.debug({
+                context: "TemplatesSubview.handleIndex",
+                index: newIndex,
+                template: Abridgers.TEMPLATE(newTemplate),
+            });
             if (props.handleSelect) {
                 props.handleSelect(newTemplate);
             }

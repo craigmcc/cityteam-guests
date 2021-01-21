@@ -7,6 +7,7 @@
 import Assign from "../models/Assign";
 import Checkin from "../models/Checkin";
 import Facility from "../models/Facility";
+import Guest from "../models/Guest";
 import Template from "../models/Template";
 import User from "../models/User";
 
@@ -34,6 +35,15 @@ export const FACILITY = (facility: Facility): any => {
     return {
         id: facility.id,
         name: facility.name,
+    };
+}
+
+export const GUEST = (guest: Guest): any => {
+    return {
+        id: guest.id,
+        facilityId: guest.facilityId,
+        firstName: guest.firstName,
+        lastName: guest.lastName,
     };
 }
 
