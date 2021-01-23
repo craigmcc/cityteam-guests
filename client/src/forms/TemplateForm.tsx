@@ -44,10 +44,11 @@ const TemplateForm = (props: Props) => {
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
     const handleSubmit = (values: FormikValues, actions: FormikHelpers<FormikValues>): void => {
+        const forwarded = toTemplate(values);
         if (adding) {
-            props.handleInsert(toTemplate(values));
+            props.handleInsert(forwarded);
         } else {
-            props.handleUpdate(toTemplate(values));
+            props.handleUpdate(forwarded);
         }
     }
 
@@ -65,18 +66,22 @@ const TemplateForm = (props: Props) => {
     }
 
     const toTemplate = (values: FormikValues): Template => {
-        const results = toNullValues(values);
-        return new Template({
-            active: results.active,
-            allMats: results.allMats,
-            comments: results.comments,
+        const nulled = toNullValues(values);
+        const result = new Template({
+            active: nulled.active,
+            allMats: nulled.allMats,
+            comments: nulled.comments,
             facilityId: props.template.facilityId,
-            handicapMats: results.handicapMats,
+            handicapMats: nulled.handicapMats,
             id: props.template.id,
-            name: results.name,
-            socketMats: results.socketMats,
-            workMats: results.workMats
+            name: nulled.name,
+            socketMats: nulled.socketMats,
+            workMats: nulled.workMats
         });
+        if (nulled.active !== undefined) {
+            result.active = nulled.active;
+        }
+        return result;
     }
 
     const validationSchema = () => {

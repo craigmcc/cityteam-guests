@@ -70,20 +70,24 @@ const FacilityForm = (props: Props) => {
     }
 
     const toFacility = (values: FormikValues): Facility => {
-        const results = toNullValues(values);
-        return new Facility({
-            active: results.active,
-            address1: results.address1,
-            address2: results.address2,
-            city: results.city,
-            email: results.email,
+        const nulled = toNullValues(values);
+        const result = new Facility({
+            active: nulled.active,
+            address1: nulled.address1,
+            address2: nulled.address2,
+            city: nulled.city,
+            email: nulled.email,
             id: props.facility.id,
-            name: results.name,
-            phone: results.phone,
-            scope: results.scope,
-            state: results.state,
-            zipCode: results.zipCode,
+            name: nulled.name,
+            phone: nulled.phone,
+            scope: nulled.scope,
+            state: nulled.state,
+            zipCode: nulled.zipCode,
         });
+        if (nulled.active !== undefined) {
+            result.active = nulled.active;
+        }
+        return result;
     }
 
     const validationSchema = () => {

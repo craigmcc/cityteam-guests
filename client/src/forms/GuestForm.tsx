@@ -70,16 +70,20 @@ const GuestForm = (props: Props) => {
     }
 
     const toGuest = (values: FormikValues): Guest => {
-        const results = toNullValues(values);
-        return new Guest({
-            active: results.active,
-            comments: results.comments,
+        const nulled = toNullValues(values);
+        const result = new Guest({
+            active: nulled.active,
+            comments: nulled.comments,
             facilityId: props.guest.facilityId,
-            favorite: results.favorite,
-            firstName: results.firstName,
+            favorite: nulled.favorite,
+            firstName: nulled.firstName,
             id: props.guest.id,
-            lastName: results.lastName,
+            lastName: nulled.lastName,
         });
+        if (nulled.active !== undefined) {
+            result.active = nulled.active;
+        }
+        return result;
     }
 
     const validationSchema = () => {

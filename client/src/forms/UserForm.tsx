@@ -75,17 +75,21 @@ const UserForm = (props: Props) => {
     }
 
     const toUser = (values: FormikValues): User => {
-        const results = toNullValues(values);
-        return new User({
-            active: results.active,
+        const nulled = toNullValues(values);
+        const result = new User({
+            active: nulled.active,
             facilityId: props.user.facilityId,
             id: props.user.id,
-            level: results.level,
-            name: results.name,
-            password: results.password,
-            scope: results.scope,
-            username: results.username,
+            level: nulled.level,
+            name: nulled.name,
+            password: nulled.password,
+            scope: nulled.scope,
+            username: nulled.username,
         });
+        if (nulled.active !== undefined) {
+            result.active = nulled.active;
+        }
+        return result;
     }
 
     // NOTE - there is no server-side equivalent for this because there is
