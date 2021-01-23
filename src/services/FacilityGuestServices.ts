@@ -103,15 +103,29 @@ class FacilityGuestServices {
                 `facilityId: Missing Facility ${facilityId}`,
                 "FacilityServices.guestsName()");
         }
-        const options: FindOptions = appendQuery({
-            order: GUEST_ORDER,
-            where: {
-                [Op.or]: {
-                    firstName: {[Op.iLike]: `%${name}%`},
-                    lastName: {[Op.iLike]: `%${name}%`},
-                }
-            },
-        }, query);
+        const names = name.trim().split(" ");
+        let options: FindOptions = {};
+        if (names.length < 2) {
+            options = appendQuery({
+                order: GUEST_ORDER,
+                where: {
+                    [Op.or]: {
+                        firstName: {[Op.iLike]: `%${names[0]}%`},
+                        lastName: {[Op.iLike]: `%${names[0]}%`},
+                    }
+                },
+            }, query);
+        } else {
+            options = appendQuery({
+                order: GUEST_ORDER,
+                where: {
+                    [Op.and]: {
+                        firstName: {[Op.iLike]: `%${names[0]}%`},
+                        lastName: {[Op.iLike]: `%${names[1]}%`},
+                    }
+                },
+            }, query);
+        }
         return await facility.$get("guests", options);
     }
 
