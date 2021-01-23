@@ -133,6 +133,11 @@ DevModeRouter.post("/import",
                         }
                     }
 
+                    // Remember the last valid checkin date
+                    if (!ignoring) {
+                        previousCheckinDate = row.checkinDate;
+                    }
+
                 },
 
                 // Handle a CSV parsing error
