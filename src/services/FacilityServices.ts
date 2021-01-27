@@ -30,7 +30,7 @@ export class FacilityServices extends AbstractServices<Facility> {
         const options: FindOptions = appendQuery({
             order: FACILITY_ORDER
         }, query);
-        return Facility.findAll(options);
+        return await Facility.findAll(options);
     }
 
     public async find(facilityId: number, query?: any): Promise<Facility> {
