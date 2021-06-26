@@ -97,7 +97,7 @@ const AssignForm = (props: Props) => {
         <>
 
             {/* Assign Form */}
-            <Container id="assignForm">
+            <Container id="AssignForm">
 
                 <Formik
                     initialValues={initialValues}
@@ -127,8 +127,7 @@ const AssignForm = (props: Props) => {
                            >
 
                                <Form.Row id="paymentTypeAmountRow">
-                                   <Form.Group as={Row} className="mr-4"
-                                               controlId="paymentType" id="paymentTypeGroup">
+                                   <Form.Group as={Col} controlId="paymentType" id="paymentTypeGroup">
                                        <Form.Label>Payment Type:</Form.Label>
                                        <Form.Control
                                            as="select"
@@ -145,11 +144,9 @@ const AssignForm = (props: Props) => {
                                            ))}
                                        </Form.Control>
                                    </Form.Group>
-                                   <Form.Group as={Row} className="mr-4"
-                                               controlId="paymentAmount" id="paymentAmountGroup">
+                                   <Form.Group as={Col} controlId="paymentAmount" id="paymentAmountGroup">
                                        <Form.Label>Payment Amount:</Form.Label>
                                        <Form.Control
-                                           htmlSize={10}
                                            isInvalid={touched.paymentAmount && !!errors.paymentAmount}
                                            isValid={!errors.paymentAmount}
                                            name="paymentAmount"
@@ -166,11 +163,9 @@ const AssignForm = (props: Props) => {
                                </Form.Row>
 
                                 <Form.Row id="showerWakeupRow">
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="showerTime" id="showerTimeGroup">
+                                    <Form.Group as={Col} controlId="showerTime" id="showerTimeGroup">
                                         <Form.Label>Shower Time:</Form.Label>
                                         <Form.Control
-                                            htmlSize={15}
                                             isInvalid={touched.showerTime && !!errors.showerTime}
                                             isValid={!errors.showerTime}
                                             name="showerTime"
@@ -184,11 +179,9 @@ const AssignForm = (props: Props) => {
                                             ${errors.showerTime}
                                         </Form.Control.Feedback>
                                     </Form.Group>
-                                    <Form.Group as={Row} className="mr-4"
-                                                controlId="wakeupTime" id="wakeupTimeGroup">
+                                    <Form.Group as={Col} controlId="wakeupTime" id="wakeupTimeGroup">
                                         <Form.Label>Wakeup Time:</Form.Label>
                                         <Form.Control
-                                            htmlSize={15}
                                             isInvalid={touched.wakeupTime && !!errors.wakeupTime}
                                             isValid={!errors.wakeupTime}
                                             name="wakeupTime"
@@ -199,17 +192,15 @@ const AssignForm = (props: Props) => {
                                             value={values.wakeupTime}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            ${errors.showerTime}
+                                            ${errors.wakeupTime}
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Form.Row>
 
                                <Form.Row id="commentsRow">
-                                   <Form.Group as={Row} className="mr-4"
-                                               controlId="comments" id="commentsGroup">
+                                   <Form.Group as={Col} controlId="comments" id="commentsGroup">
                                        <Form.Label>Comments:</Form.Label>
                                        <Form.Control
-                                           htmlSize={50}
                                            isInvalid={touched.comments && !!errors.comments}
                                            isValid={!errors.comments}
                                            name="comments"

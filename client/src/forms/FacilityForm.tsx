@@ -173,13 +173,11 @@ const FacilityForm = (props: Props) => {
                             onSubmit={handleSubmit}
                         >
 
-                            <Form.Row id="nameActiveScopeRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="name" id="nameGroup">
+                            <Form.Row id="nameScopeRow">
+                                <Form.Group as={Col} controlId="name" id="nameGroup">
                                     <Form.Label>Name:</Form.Label>
                                     <Form.Control
                                         autoFocus={props.autoFocus}
-                                        htmlSize={25}
                                         isInvalid={touched.name && !!errors.name}
                                         isValid={!errors.name}
                                         name="name"
@@ -196,11 +194,9 @@ const FacilityForm = (props: Props) => {
                                         {errors.name}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row}
-                                            controlId="scope" id="scopeGroup">
+                                <Form.Group as={Col} controlId="scope" id="scopeGroup">
                                     <Form.Label>Scope:</Form.Label>
                                     <Form.Control
-                                        htmlSize={10}
                                         isInvalid={touched.scope && !!errors.scope}
                                         isValid={!errors.scope}
                                         name="scope"
@@ -217,25 +213,12 @@ const FacilityForm = (props: Props) => {
                                         {errors.scope}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} controlId="active" id="activeGroup">
-                                    <Form.Check
-                                        feedback={errors.active}
-                                        defaultChecked={values.active}
-                                        id="active"
-                                        label="Active?"
-                                        name="active"
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
                             </Form.Row>
 
                             <Form.Row id="addressRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="address1" id="address1Group">
+                                <Form.Group as={Col} controlId="address1" id="address1Group">
                                     <Form.Label>Address 1:</Form.Label>
                                     <Form.Control
-                                        htmlSize={25}
                                         isInvalid={touched.address1 && !!errors.address1}
                                         isValid={!errors.address1}
                                         name="address1"
@@ -249,10 +232,9 @@ const FacilityForm = (props: Props) => {
                                         {errors.address1}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} controlId="address2" id="address2Group">
+                                <Form.Group as={Col} controlId="address2" id="address2Group">
                                     <Form.Label>Address 2:</Form.Label>
                                     <Form.Control
-                                        htmlSize={25}
                                         isInvalid={touched.address2 && !!errors.address2}
                                         isValid={!errors.address2}
                                         name="address2"
@@ -269,11 +251,9 @@ const FacilityForm = (props: Props) => {
                             </Form.Row>
 
                             <Form.Row id="cityStateZipRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="city" id="cityGroup">
+                                <Form.Group as={Col} className="col-6" controlId="city" id="cityGroup">
                                     <Form.Label>City:</Form.Label>
                                     <Form.Control
-                                        htmlSize={25}
                                         isInvalid={touched.city && !!errors.city}
                                         isValid={!errors.city}
                                         name="city"
@@ -287,11 +267,9 @@ const FacilityForm = (props: Props) => {
                                         {errors.city}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="state" id="stateGroup">
+                                <Form.Group as={Col} controlId="state" id="stateGroup">
                                     <Form.Label>State:</Form.Label>
                                     <Form.Control
-                                        htmlSize={2}
                                         isInvalid={touched.state && !!errors.state}
                                         isValid={!errors.state}
                                         name="state"
@@ -305,10 +283,9 @@ const FacilityForm = (props: Props) => {
                                         {errors.state}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} controlId="zipCode" id="zipCodeGroup">
+                                <Form.Group as={Col} controlId="zipCode" id="zipCodeGroup">
                                     <Form.Label>Zip Code:</Form.Label>
                                     <Form.Control
-                                        htmlSize={10}
                                         isInvalid={touched.zipCode && !!errors.zipCode}
                                         isValid={!errors.zipCode}
                                         name="zipCode"
@@ -325,11 +302,9 @@ const FacilityForm = (props: Props) => {
                             </Form.Row>
 
                             <Form.Row id="emailPhoneRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="email" id="emailGroup">
+                                <Form.Group as={Col} controlId="email" id="emailGroup">
                                     <Form.Label>Email:</Form.Label>
                                     <Form.Control
-                                        htmlSize={30}
                                         isInvalid={touched.email && !!errors.email}
                                         isValid={!errors.email}
                                         name="email"
@@ -343,10 +318,9 @@ const FacilityForm = (props: Props) => {
                                         {errors.email}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} controlId="phone" id="phoneGroup">
+                                <Form.Group as={Col} controlId="phone" id="phoneGroup">
                                     <Form.Label>Phone:</Form.Label>
                                     <Form.Control
-                                        htmlSize={30}
                                         isInvalid={touched.phone && !!errors.phone}
                                         isValid={!errors.phone}
                                         name="phone"
@@ -359,6 +333,20 @@ const FacilityForm = (props: Props) => {
                                     <Form.Control.Feedback type="invalid">
                                         {errors.phone}
                                     </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
+
+                            <Form.Row id="activeRow">
+                                <Form.Group as={Col} controlId="active" id="activeGroup">
+                                    <Form.Check
+                                        feedback={errors.active}
+                                        defaultChecked={values.active}
+                                        id="active"
+                                        label="Active?"
+                                        name="active"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                    />
                                 </Form.Group>
                             </Form.Row>
 

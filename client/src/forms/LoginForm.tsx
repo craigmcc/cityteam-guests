@@ -83,11 +83,10 @@ export const LoginForm = (props: Props) => {
                         >
 
                             <Form.Row id="usernameRow">
-                                <Form.Group controlId="username">
+                                <Form.Group as={Col} controlId="username" id="usernameGroup">
                                     <Form.Label>Username:</Form.Label>
                                     <Form.Control
                                         autoFocus={props.autoFocus}
-                                        htmlSize={16}
                                         isInvalid={touched.username && !!errors.username}
                                         isValid={!errors.username}
                                         name="username"
@@ -103,10 +102,9 @@ export const LoginForm = (props: Props) => {
                             </Form.Row>
 
                             <Form.Row id="passwordRow">
-                                <Form.Group controlId="password">
+                                <Form.Group as={Col} controlId="password" id="passwordGroup">
                                     <Form.Label>Password:</Form.Label>
                                     <Form.Control
-                                        htmlSize={16}
                                         isInvalid={touched.password && !!errors.password}
                                         isValid={!errors.password}
                                         name="password"

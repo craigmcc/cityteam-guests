@@ -131,7 +131,7 @@ const UserForm = (props: Props) => {
         <>
 
             {/* Details Form */}
-            <Container id="userForm">
+            <Container id="UserForm">
 
                 <Formik
                     initialValues={initialValues}
@@ -155,18 +155,16 @@ const UserForm = (props: Props) => {
                        }) => (
 
                         <Form
-                            className={"mx-auto"}
+                            className="mx-auto"
                             noValidate
                             onSubmit={handleSubmit}
                         >
 
-                            <Form.Row id="nameActiveRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="name" id="nameGroup">
+                            <Form.Row id="nameRow">
+                                <Form.Group as={Col} controlId="name" id="nameGroup">
                                     <Form.Label>Name:</Form.Label>
                                     <Form.Control
                                         autoFocus={props.autoFocus}
-                                        htmlSize={50}
                                         isInvalid={touched.name && !!errors.name}
                                         isValid={!errors.name}
                                         name="name"
@@ -183,25 +181,12 @@ const UserForm = (props: Props) => {
                                         {errors.name}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} controlId="active" id="activeGroup">
-                                    <Form.Check
-                                        feedback={errors.active}
-                                        defaultChecked={values.active}
-                                        id="active"
-                                        label="Active?"
-                                        name="active"
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
                             </Form.Row>
 
                             <Form.Row id="usernamePasswordRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="name" id="usernameGroup">
+                                <Form.Group as={Col} controlId="name" id="usernameGroup">
                                     <Form.Label>Username:</Form.Label>
                                     <Form.Control
-                                        htmlSize={25}
                                         isInvalid={touched.username && !!errors.username}
                                         isValid={!errors.username}
                                         name="username"
@@ -218,11 +203,9 @@ const UserForm = (props: Props) => {
                                         {errors.username}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="name" id="passwordGroup">
+                                <Form.Group as={Col} controlId="name" id="passwordGroup">
                                     <Form.Label>Password:</Form.Label>
                                     <Form.Control
-                                        htmlSize={25}
                                         isInvalid={touched.password && !!errors.password}
                                         isValid={!errors.password}
                                         name="password"
@@ -234,7 +217,7 @@ const UserForm = (props: Props) => {
                                     />
                                     <Form.Control.Feedback type="valid">
                                         Enter ONLY for a new User or if you want to
-                                        change the password for an old User.
+                                        change the password for an existing User.
                                     </Form.Control.Feedback>
                                     <Form.Control.Feedback type="invalid">
                                         {errors.password}
@@ -242,12 +225,10 @@ const UserForm = (props: Props) => {
                                 </Form.Group>
                             </Form.Row>
 
-                            <Form.Row id="scopeRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="name" id="scopeGroup">
+                            <Form.Row id="scopeLogDetailRow">
+                                <Form.Group as={Col} controlId="name" id="scopeGroup">
                                     <Form.Label>Scope:</Form.Label>
                                     <Form.Control
-                                        htmlSize={25}
                                         isInvalid={touched.scope && !!errors.scope}
                                         isValid={!errors.scope}
                                         name="scope"
@@ -264,11 +245,7 @@ const UserForm = (props: Props) => {
                                         {errors.scope}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                            </Form.Row>
-
-                            <Form.Row id="levelRow" className="mb-4">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="level" id="levelGroup">
+                                <Form.Group as={Col} controlId="level" id="levelGroup">
                                     <Form.Label>Log Detail Level:</Form.Label>
                                     <Form.Control
                                         as="select"
@@ -290,6 +267,20 @@ const UserForm = (props: Props) => {
                                     <Form.Control.Feedback type="invalid">
                                         {errors.level}
                                     </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
+
+                            <Form.Row id="activeRow">
+                                <Form.Group as={Col} controlId="active" id="activeGroup">
+                                    <Form.Check
+                                        feedback={errors.active}
+                                        defaultChecked={values.active}
+                                        id="active"
+                                        label="Active?"
+                                        name="active"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                    />
                                 </Form.Group>
                             </Form.Row>
 

@@ -138,13 +138,11 @@ const GuestForm = (props: Props) => {
                             onSubmit={handleSubmit}
                         >
 
-                            <Form.Row id="nameActiveRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="firstName" id="firstNameGroup">
+                            <Form.Row id="nameRow">
+                                <Form.Group as={Col} controlId="firstName" id="firstNameGroup">
                                     <Form.Label>First Name:</Form.Label>
                                     <Form.Control
                                         autoFocus={props.autoFocus}
-                                        htmlSize={30}
                                         isInvalid={touched.firstName && !!errors.firstName}
                                         isValid={!errors.firstName}
                                         name="firstName"
@@ -161,11 +159,9 @@ const GuestForm = (props: Props) => {
                                         {errors.firstName}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="lastName" id="lastNameGroup">
+                                <Form.Group as={Col} controlId="lastName" id="lastNameGroup">
                                     <Form.Label>Last Name:</Form.Label>
                                     <Form.Control
-                                        htmlSize={30}
                                         isInvalid={touched.lastName && !!errors.lastName}
                                         isValid={!errors.lastName}
                                         name="lastName"
@@ -179,25 +175,12 @@ const GuestForm = (props: Props) => {
                                         {errors.lastName}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} controlId="active" id="activeGroup">
-                                    <Form.Check
-                                        feedback={errors.active}
-                                        defaultChecked={values.active}
-                                        id="active"
-                                        label="Active?"
-                                        name="active"
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
                             </Form.Row>
 
                             <Form.Row id="commentsFavoriteRow">
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="comments" id="commentsGroup">
+                                <Form.Group as={Col} controlId="comments" id="commentsGroup">
                                     <Form.Label>Comments:</Form.Label>
                                     <Form.Control
-                                        htmlSize={30}
                                         isInvalid={touched.comments && !!errors.comments}
                                         isValid={!errors.comments}
                                         name="comments"
@@ -211,8 +194,7 @@ const GuestForm = (props: Props) => {
                                         {errors.comments}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Row} className="mr-4"
-                                            controlId="favorite" id="favoriteGroup">
+                                <Form.Group as={Col} controlId="favorite" id="favoriteGroup">
                                     <Form.Label>Favorite Mat:</Form.Label>
                                     <Form.Control
                                         htmlSize={3}
@@ -228,6 +210,20 @@ const GuestForm = (props: Props) => {
                                     <Form.Control.Feedback type="invalid">
                                         {errors.favorite}
                                     </Form.Control.Feedback>
+                                </Form.Group>
+                            </Form.Row>
+
+                            <Form.Row id="activeRow">
+                                <Form.Group as={Col} controlId="active" id="activeGroup">
+                                    <Form.Check
+                                        feedback={errors.active}
+                                        defaultChecked={values.active}
+                                        id="active"
+                                        label="Active?"
+                                        name="active"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                    />
                                 </Form.Group>
                             </Form.Row>
 
