@@ -30,13 +30,6 @@ import {
 } from "../util/middleware";
 import { toLocalISO } from "../util/timestamps";
 
-const MORGAN_FORMAT_PROD = ":remote-addr -"
-    + " :req[X-CTG-Username]"
-    + " [:timestamp]"
-    + " \":method :url\""
-    + " :status :res[content-length]";
-const MORGAN_FORMAT_DEV = MORGAN_FORMAT_PROD + " \":req[Authorization]\"";
-
 // Public Objects ------------------------------------------------------------
 
 const app = express();
@@ -53,7 +46,11 @@ morgan.token("timestamp",
     return toLocalISO(new Date());
 });
 if (process.env.NODE_ENV === "development") {
-    app.use(morgan(MORGAN_FORMAT_DEV));
+    app.use(morgan("combined", {
+        skip: function (req, res) {
+            return req.path === "/clientLog";
+        }
+    }));
 } else {
     const LOG_DIRECTORY =
         process.env.LOG_DIRECTORY ? process.env.LOG_DIRECTORY : "./log";
@@ -61,7 +58,10 @@ if (process.env.NODE_ENV === "development") {
         interval: "1d",
         path: path.resolve(LOG_DIRECTORY),
     });
-    app.use(morgan(MORGAN_FORMAT_PROD, {
+    app.use(morgan("combined", {
+        skip: function (req, res) {
+            return req.path === "/clientLog";
+        },
         stream: accessLogStream
     }));
 }
