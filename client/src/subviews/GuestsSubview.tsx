@@ -188,6 +188,7 @@ const GuestsSubview = (props: Props) => {
                             (guests.length < pageSize)}
                         onNext={onNext}
                         onPrevious={onPrevious}
+                        variant="secondary"
                     />
                 </Col>
             </Row>
