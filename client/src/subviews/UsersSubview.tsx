@@ -74,6 +74,7 @@ const UsersSubview = (props: Props) => {
                 } catch (error) {
                     setIndex(-1);
                     setUsers([]);
+                    // @ts-ignore
                     if (error.response && (error.response.status === 403)) {
                         logger.debug({
                             context: "UsersSubview.fetchUsers",

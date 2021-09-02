@@ -74,6 +74,7 @@ const TemplatesSubview = (props: Props) => {
                 } catch (error) {
                     setIndex(-1);
                     setTemplates([]);
+                    // @ts-ignore
                     if (error.response && (error.response.status === 403)) {
                         logger.debug({
                             context: "TemplatesSubview.fetchTemplates",

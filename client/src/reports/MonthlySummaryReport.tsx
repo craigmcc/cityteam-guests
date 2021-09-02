@@ -74,6 +74,7 @@ const MonthlySummaryReport = () => {
                 } catch (error) {
                     setSummaries([]);
                     setTotals(new Summary());
+                    // @ts-ignore
                     if (error.response && (error.response.status === 403)) {
                         logger.trace({
                             context: "MonthlySummaryReport.fetchSumamries",

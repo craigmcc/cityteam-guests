@@ -65,6 +65,7 @@ const GuestHistoryReport = () => {
                     });
                 } catch (error) {
                     setCheckins([]);
+                    // @ts-ignore
                     if (error.response && (error.response.status === 403)) {
                         logger.trace({
                             context: "GuestHistoryReport.fetchCheckins",

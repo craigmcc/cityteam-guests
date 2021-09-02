@@ -85,6 +85,7 @@ const GuestsSubview = (props: Props) => {
                     } catch (error) {
                         setGuests([]);
                         setIndex(-1);
+                        // @ts-ignore
                         if (error.response && (error.response.status === 403)) {
                             logger.debug({
                                 context: "GuestsSubview.fetchGuests",

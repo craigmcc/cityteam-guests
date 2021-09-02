@@ -71,6 +71,7 @@ const TemplateSelector = (props: Props) => {
                     setTemplates([]);
                 }
             } catch (error) {
+                // @ts-ignore
                 if (error.response && (error.response.status === 403)) {
                     logger.debug({
                         context: "TemplateSelector.fetchTemplates",
