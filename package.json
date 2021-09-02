@@ -1,6 +1,6 @@
 {
   "name": "@craigmcc/cityteam-guests",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "author": "Craig McClanahan <craigmcc@gmail.com>",
   "description": "CityTeam Guests Checkin Application (server and client)",
